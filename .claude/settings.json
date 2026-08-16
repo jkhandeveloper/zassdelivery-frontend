@@ -25,7 +25,8 @@
       "Bash(disown)",
       "Bash(gh repo *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'feat: scaffold all portals with auth, customer, vendor, rider, admin route groups *)"
+      "Bash(git commit -m 'feat: scaffold all portals with auth, customer, vendor, rider, admin route groups *)",
+      "Bash(git remote *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend"
