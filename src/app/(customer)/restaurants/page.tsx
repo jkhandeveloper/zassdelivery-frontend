@@ -10,7 +10,9 @@ export const metadata = {
 
 export default function RestaurantsPage() {
   return (
-    <main id="main" className="container-zass py-10">
+    // The customer layout already provides <main id="main">; a second one here
+    // would duplicate the landmark the skip link targets.
+    <div className="container-zass py-10">
       <header className="mb-8 flex flex-col gap-2">
         <h1 className="text-3xl sm:text-4xl">Restaurants</h1>
         <p className="text-secondary">Find your next meal from the kitchens delivering near you.</p>
@@ -20,6 +22,6 @@ export default function RestaurantsPage() {
       <Suspense fallback={<RestaurantGridSkeleton />}>
         <RestaurantBrowser />
       </Suspense>
-    </main>
+    </div>
   );
 }

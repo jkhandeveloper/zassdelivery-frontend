@@ -4,10 +4,12 @@ export const metadata = { title: "Terms of service" };
 
 export default function Page() {
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
-      title="Terms of service"
-      description="The terms that govern using ZassDelivery."
-    />
+    <div className="container-zass py-10">
+      <PhasePlaceholder
+        phase="Coming soon"
+        title="Terms of service"
+        description="The terms that govern using ZassDelivery."
+      />
+    </div>
   );
 }

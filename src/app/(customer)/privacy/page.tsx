@@ -4,10 +4,12 @@ export const metadata = { title: "Privacy policy" };
 
 export default function Page() {
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
-      title="Privacy policy"
-      description="What we collect, why, and what we do with it."
-    />
+    <div className="container-zass py-10">
+      <PhasePlaceholder
+        phase="Coming soon"
+        title="Privacy policy"
+        description="What we collect, why, and what we do with it."
+      />
+    </div>
   );
 }

@@ -4,16 +4,18 @@ export const metadata = { title: "Your cart" };
 
 export default function Page() {
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
-      title="Your cart"
-      description="Review items, apply a coupon, pick a delivery address and add a tip before checkout."
-      endpoints={[
-        "GET /cart",
-        "PATCH /cart/items/:id",
-        "POST /cart/coupon",
-        "PATCH /cart/address",
-      ]}
-    />
+    <div className="container-zass py-10">
+      <PhasePlaceholder
+        phase="Coming soon"
+        title="Your cart"
+        description="Review items, apply a coupon, pick a delivery address and add a tip before checkout."
+        endpoints={[
+          "GET /cart",
+          "PATCH /cart/items/:id",
+          "POST /cart/coupon",
+          "PATCH /cart/address",
+        ]}
+      />
+    </div>
   );
 }

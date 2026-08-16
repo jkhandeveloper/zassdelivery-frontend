@@ -86,7 +86,12 @@
       "Bash(node cdp.js \"http://localhost:8000/rider\" --storage '{\"unexpected\":true}' --wait 11000)",
       "Bash(git commit -q -m 'fix: corrupt stored session no longer bricks every guarded route *)",
       "Bash(node /tmp/claude-1000/-var-www-zassdeliver-frontend/485da0cf-92ba-42aa-84ef-62dbbf483668/scratchpad/gen-placeholders.js)",
-      "Bash(git commit -q -m 'feat: every planned route now resolves instead of 404ing *)"
+      "Bash(git commit -q -m 'feat: every planned route now resolves instead of 404ing *)",
+      "Bash(curl -s -m 20 http://localhost:3000/api/v1/coupons/available?limit=20 -H 'Authorization: Bearer __CMDSUB_OUTPUT__')",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);console.log\\('meta:',JSON.stringify\\(j.meta\\)\\);for\\(const c of j.data||[]\\)console.log\\(JSON.stringify\\(c,null,1\\)\\)}\\)\")",
+      "Bash(node cdp.js \"http://localhost:8000/offers\" --wait 10000)",
+      "Bash(curl -s -m 30 http://localhost:8000/cart)",
+      "Bash(git commit -q -m 'fix: contain customer pages; build the real Offers page on live data *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",

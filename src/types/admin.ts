@@ -109,20 +109,24 @@ export interface CouponDto {
   code: string
   type: CouponType
   value: number
-  maxDiscountAmount?: number
-  minOrderAmount?: number
-  description?: string
+  /** Caps a percentage discount. Null when the type does not cap. */
+  maxDiscountAmount: number | null
+  minOrderAmount: number
+  description: string | null
   startsAt: string
   expiresAt: string
-  usageLimit?: number
-  perUserLimit?: number
+  usageLimit: number | null
   usageCount: number
-  restaurantId?: string
-  zoneId?: string
+  perUserLimit: number | null
+  restaurantId: string | null
+  zoneId: string | null
   firstOrderOnly: boolean
   isActive: boolean
+  /** Active *and* inside its date window — what decides if it is usable now. */
+  isLive: boolean
+  /** Null when usageLimit is null, i.e. unlimited. */
+  remainingUses: number | null
   createdAt: string
-  createdById: string
 }
 
 export interface CreateCouponDto {
