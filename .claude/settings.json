@@ -26,10 +26,19 @@
       "Bash(gh repo *)",
       "Bash(git add *)",
       "Bash(git commit -m 'feat: scaffold all portals with auth, customer, vendor, rider, admin route groups *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(sed -i 's/, query\\)/, { params: query }\\)/g' src/lib/api/*.ts && grep -c \"params: query\" src/lib/api/*.ts)",
+      "Bash(sed -i \"/^import type { Paginated } from '@\\\\/types\\\\/api'$/d\" src/lib/api/*.ts && echo \"removed\"; grep -c \"Paginated\" src/lib/api/*.ts | grep -v \":0\" || echo \"none left\")",
+      "Bash(sed -i \"s/^import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost } from '..\\\\/api-client'$/import { apiGet, apiGetPaginated, apiPatch, apiPost } from '..\\\\/api-client'/\" src/lib/api/orders.ts src/lib/api/support.ts)",
+      "Bash(sed -i \"s/^import { apiDelete, apiGet, apiGetPaginated, apiPost } from '..\\\\/api-client'$/import { apiGet, apiGetPaginated, apiPost } from '..\\\\/api-client'/\" src/lib/api/payments.ts)",
+      "Bash(sed -i \"s/^import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '..\\\\/api-client'$/import { apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '..\\\\/api-client'/\" src/lib/api/riders.ts)",
+      "Bash(sed -i \"s/^import { CouponType, TicketStatus, TicketPriority, TicketCategory, AuditAction, BannerPlacement } from '.\\\\/enums'$/import type { CouponType, BannerPlacement } from '.\\\\/enums'/\" src/types/admin.ts)",
+      "Bash(sed -i \"/^  SupportTicketMessageDto,$/d\" src/lib/api/support.ts)",
+      "Bash(git commit -q -m 'fix\\(phase-1\\): correct query params, HTTP methods, and broken imports *)"
     ],
     "additionalDirectories": [
-      "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend"
+      "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",
+      "/var/www/zassdeliver-frontend/src/lib/api"
     ]
   }
 }

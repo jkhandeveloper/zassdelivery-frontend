@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost } from '../api-client'
+import { apiGet, apiGetPaginated, apiPatch, apiPost } from '../api-client'
 import type {
   OrderDto,
   PlaceOrderDto,
@@ -11,16 +11,15 @@ import type {
   RefundOutcome,
   OrderTimelineEntryDto,
   OrderTransactionDto,
-  InvoiceDto,
 } from '@/types/order'
-import type { Paginated } from '@/types/api'
+import type { InvoiceDto } from '@/types/payment'
 
 export const orderApi = {
   // Customer
   placeOrder: (data: PlaceOrderDto) => apiPost<OrderDto>('/orders', data),
 
   getOrders: (query?: ListOrdersQueryDto) =>
-    apiGetPaginated<OrderDto>('/orders', query),
+    apiGetPaginated<OrderDto>('/orders', { params: query }),
 
   getOrder: (id: string) => apiGet<OrderDto>(`/orders/${id}`),
 
@@ -38,13 +37,13 @@ export const orderApi = {
 
   // Admin/Restaurant/Rider management
   listOrdersForRestaurant: (restaurantId: string, query?: ListOrdersAdminQueryDto) =>
-    apiGetPaginated<OrderDto>(`/order-management/restaurants/${restaurantId}`, query),
+    apiGetPaginated<OrderDto>(`/order-management/restaurants/${restaurantId}`, { params: query }),
 
   listOrdersForDriver: (driverId: string, query?: ListOrdersAdminQueryDto) =>
-    apiGetPaginated<OrderDto>(`/order-management/drivers/${driverId}`, query),
+    apiGetPaginated<OrderDto>(`/order-management/drivers/${driverId}`, { params: query }),
 
   listOrdersAdmin: (query?: ListOrdersAdminQueryDto) =>
-    apiGetPaginated<OrderDto>('/order-management', query),
+    apiGetPaginated<OrderDto>('/order-management', { params: query }),
 
   acceptOrder: (id: string) =>
     apiPost<OrderDto>(`/order-management/${id}/accept`, {}),

@@ -1,7 +1,6 @@
-import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost } from '../api-client'
+import { apiGet, apiGetPaginated, apiPatch, apiPost } from '../api-client'
 import type {
   TicketDto,
-  SupportTicketMessageDto,
   CreateTicketDto,
   ListTicketsQueryDto,
   AddTicketMessageDto,
@@ -13,7 +12,6 @@ import type {
   ListAuditLogsQueryDto,
   EntityTypesDto,
 } from '@/types/support'
-import type { Paginated } from '@/types/api'
 
 export const supportApi = {
   // Support tickets
@@ -21,7 +19,7 @@ export const supportApi = {
     apiPost<TicketDto>('/support-tickets', data),
 
   listTickets: (query?: ListTicketsQueryDto) =>
-    apiGetPaginated<TicketDto>('/support-tickets', query),
+    apiGetPaginated<TicketDto>('/support-tickets', { params: query }),
 
   getQueueSummary: () =>
     apiGet<QueueSummaryDto>('/support-tickets/queue-summary'),
@@ -43,7 +41,7 @@ export const supportApi = {
 
   // Audit logs
   listAuditLogs: (query?: ListAuditLogsQueryDto) =>
-    apiGetPaginated<AuditLogDto>('/audit-logs', query),
+    apiGetPaginated<AuditLogDto>('/audit-logs', { params: query }),
 
   getEntityTypes: () =>
     apiGet<EntityTypesDto>('/audit-logs/entity-types'),

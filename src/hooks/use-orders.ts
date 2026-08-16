@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { orderApi } from '@/lib/api/orders'
-import type { PlaceOrderDto, ListOrdersQueryDto, CancelOrderDto } from '@/types/order'
+import type { ListOrdersQueryDto, CancelOrderDto } from '@/types/order'
 
 export const orderKeys = {
   all: ['orders'] as const,
-  list: (filters: Record<string, unknown>) => [...orderKeys.all, 'list', filters] as const,
+  list: (filters: ListOrdersQueryDto) => [...orderKeys.all, 'list', filters] as const,
   detail: (id: string) => [...orderKeys.all, 'detail', id] as const,
   timeline: (id: string) => [...orderKeys.all, 'timeline', id] as const,
   transactions: (id: string) => [...orderKeys.all, 'transactions', id] as const,

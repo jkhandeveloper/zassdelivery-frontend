@@ -1,4 +1,4 @@
-import { CouponType, TicketStatus, TicketPriority, TicketCategory, AuditAction, BannerPlacement } from './enums'
+import type { CouponType, BannerPlacement } from './enums'
 
 export interface DashboardDto {
   totals: DashboardTotalsDto

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { restaurantApi } from '@/lib/api/restaurants'
-import type { RestaurantDto, RestaurantAdminDto, RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, ReorderImagesDto, RegisterRestaurantStaffDto } from '@/types/restaurant'
+import type { RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, RegisterRestaurantStaffDto } from '@/types/restaurant'
 
 export const restaurantKeys = {
   all: ['restaurants'] as const,

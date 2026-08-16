@@ -1,6 +1,5 @@
-import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost } from '../api-client'
+import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '../api-client'
 import type { RestaurantDto, RestaurantAdminDto, CategoryDto, RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, ReorderImagesDto, RegisterRestaurantStaffDto, RestaurantStaffDto, SetAcceptingOrdersDto, RejectRestaurantDto, ChangeRestaurantStatusDto, BusinessHourResponseDto, RestaurantImageDto } from '@/types/restaurant'
-import type { Paginated } from '@/types/api'
 import type { OpenState } from '@/types/restaurant'
 
 export const restaurantApi = {
@@ -19,10 +18,10 @@ export const restaurantApi = {
     acceptingOnly?: boolean
     latitude?: number
     longitude?: number
-  }) => apiGetPaginated<RestaurantDto>('/restaurants', query),
+  }) => apiGetPaginated<RestaurantDto>('/restaurants', { params: query }),
 
   getRestaurantCategories: (query?: { sortBy?: string; sortOrder?: 'asc' | 'desc'; activeOnly?: boolean }) =>
-    apiGetPaginated<CategoryDto>('/restaurants/categories', query),
+    apiGetPaginated<CategoryDto>('/restaurants/categories', { params: query }),
 
   getRestaurantBySlug: (slug: string) => apiGet<RestaurantDto>(`/restaurants/${slug}`),
 
@@ -36,7 +35,7 @@ export const restaurantApi = {
     apiPost<RestaurantAdminDto>('/restaurant-management', data),
 
   getOwnRestaurants: (query?: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }) =>
-    apiGetPaginated<RestaurantAdminDto>('/restaurant-management/mine', query),
+    apiGetPaginated<RestaurantAdminDto>('/restaurant-management/mine', { params: query }),
 
   listRestaurantsAdmin: (query?: {
     page?: number
@@ -47,7 +46,7 @@ export const restaurantApi = {
     status?: string
     ownerId?: string
     includeDeleted?: boolean
-  }) => apiGetPaginated<RestaurantAdminDto>('/restaurant-management', query),
+  }) => apiGetPaginated<RestaurantAdminDto>('/restaurant-management', { params: query }),
 
   getRestaurantAdmin: (id: string) => apiGet<RestaurantAdminDto>(`/restaurant-management/${id}`),
 
@@ -71,13 +70,13 @@ export const restaurantApi = {
     apiPatch<RestaurantAdminDto>(`/restaurant-management/${id}/accepting-orders`, data),
 
   setBusinessHours: (id: string, data: SetBusinessHoursDto) =>
-    apiPatch<BusinessHourResponseDto[]>(`/restaurant-management/${id}/hours`, data),
+    apiPut<BusinessHourResponseDto[]>(`/restaurant-management/${id}/hours`, data),
 
   addRestaurantImage: (id: string, data: AddRestaurantImageDto) =>
     apiPost<RestaurantImageDto>(`/restaurant-management/${id}/images`, data),
 
   reorderRestaurantImages: (id: string, data: ReorderImagesDto) =>
-    apiPatch<RestaurantImageDto[]>(`/restaurant-management/${id}/images/order`, data),
+    apiPut<RestaurantImageDto[]>(`/restaurant-management/${id}/images/order`, data),
 
   deleteRestaurantImage: (id: string, imageId: string) =>
     apiDelete(`/restaurant-management/${id}/images/${imageId}`),

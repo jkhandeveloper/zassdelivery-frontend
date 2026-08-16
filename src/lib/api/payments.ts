@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiGetPaginated, apiPost } from '../api-client'
+import { apiGet, apiGetPaginated, apiPost } from '../api-client'
 import type {
   PaymentDto,
   TransactionDto,
@@ -18,7 +18,6 @@ import type {
   WebhookEventDto,
   ListWebhookEventsQueryDto,
 } from '@/types/payment'
-import type { Paginated } from '@/types/api'
 
 export const paymentApi = {
   // Customer checkout
@@ -34,13 +33,13 @@ export const paymentApi = {
     apiPost<PaymentDto>(`/payments/${paymentId}/cancel`, {}),
 
   getPayments: (query?: ListPaymentsQueryDto) =>
-    apiGetPaginated<PaymentDto>('/payments', query),
+    apiGetPaginated<PaymentDto>('/payments', { params: query }),
 
   getTransactions: (query?: ListTransactionsQueryDto) =>
-    apiGetPaginated<TransactionDto>('/payments/transactions', query),
+    apiGetPaginated<TransactionDto>('/payments/transactions', { params: query }),
 
   getInvoices: (query?: ListInvoicesQueryDto) =>
-    apiGetPaginated<InvoiceSummaryDto>('/payments/invoices', query),
+    apiGetPaginated<InvoiceSummaryDto>('/payments/invoices', { params: query }),
 
   getInvoice: (orderId: string) =>
     apiGet<InvoiceDto>(`/payments/invoices/${orderId}`),
@@ -52,13 +51,13 @@ export const paymentApi = {
 
   // Admin management
   listPaymentsAdmin: (query?: ListPaymentsQueryDto) =>
-    apiGetPaginated<PaymentDto>('/payment-management/payments', query),
+    apiGetPaginated<PaymentDto>('/payment-management/payments', { params: query }),
 
   getOutstandingCash: () =>
     apiGetPaginated<PaymentDto>('/payment-management/payments/outstanding-cash'),
 
   refundPayment: (id: string, data: RefundPaymentDto) =>
-    apiPost('/payment-management/payments/{id}/refund', data),
+    apiPost(`/payment-management/payments/${id}/refund`, data),
 
   markCollected: (id: string) =>
     apiPost<PaymentDto>(`/payment-management/payments/${id}/mark-collected`, {}),
@@ -70,19 +69,19 @@ export const paymentApi = {
     apiPost<{ expired: number; settled: number }>('/payment-management/payments/expire', {}),
 
   listTransactionsAdmin: (query?: ListTransactionsQueryDto) =>
-    apiGetPaginated<TransactionDto>('/payment-management/transactions', query),
+    apiGetPaginated<TransactionDto>('/payment-management/transactions', { params: query }),
 
   getLedgerSummary: (query?: LedgerSummaryQueryDto) =>
-    apiGet<LedgerSummaryDto>('/payment-management/transactions/summary', query),
+    apiGet<LedgerSummaryDto>('/payment-management/transactions/summary', { params: query }),
 
   listInvoicesAdmin: (query?: ListInvoicesQueryDto) =>
-    apiGetPaginated<InvoiceSummaryDto>('/payment-management/invoices', query),
+    apiGetPaginated<InvoiceSummaryDto>('/payment-management/invoices', { params: query }),
 
   getInvoiceAdmin: (orderId: string) =>
     apiGet<InvoiceDto>(`/payment-management/invoices/${orderId}`),
 
   listWebhookEvents: (query?: ListWebhookEventsQueryDto) =>
-    apiGetPaginated<WebhookEventDto>('/payment-management/webhooks', query),
+    apiGetPaginated<WebhookEventDto>('/payment-management/webhooks', { params: query }),
 
   replayWebhook: (id: string) =>
     apiPost<WebhookEventDto>(`/payment-management/webhooks/${id}/replay`, {}),

@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiGetPaginated, apiPost } from '../api-client'
+import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost } from '../api-client'
 import type {
   NotificationDto,
   UnreadCountDto,
@@ -15,12 +15,11 @@ import type {
   SendNotificationDto,
   ListBroadcastsQueryDto,
 } from '@/types/notification'
-import type { Paginated } from '@/types/api'
 
 export const notificationApi = {
   // Customer notifications
   getNotifications: (query?: ListNotificationsQueryDto) =>
-    apiGetPaginated<NotificationDto>('/notifications', query),
+    apiGetPaginated<NotificationDto>('/notifications', { params: query }),
 
   getUnreadCount: () =>
     apiGet<UnreadCountDto>('/notifications/unread-count'),
@@ -60,13 +59,13 @@ export const notificationApi = {
     apiPost<BroadcastDto>('/notification-management/broadcasts', data),
 
   listBroadcasts: (query?: ListBroadcastsQueryDto) =>
-    apiGetPaginated<BroadcastDto>('/notification-management/broadcasts', query),
+    apiGetPaginated<BroadcastDto>('/notification-management/broadcasts', { params: query }),
 
   getBroadcast: (id: string) =>
     apiGet<BroadcastDto>(`/notification-management/broadcasts/${id}`),
 
   updateBroadcast: (id: string, data: UpdateBroadcastDto) =>
-    apiPost<BroadcastDto>(`/notification-management/broadcasts/${id}`, data),
+    apiPatch<BroadcastDto>(`/notification-management/broadcasts/${id}`, data),
 
   previewBroadcast: (id: string) =>
     apiGet<BroadcastPreviewDto>(`/notification-management/broadcasts/${id}/preview`),

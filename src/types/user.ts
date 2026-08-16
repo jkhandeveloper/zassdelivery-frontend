@@ -1,4 +1,5 @@
-import { AddressLabel, UserStatus } from './enums'
+import type { AddressLabel } from './enums'
+import type { UserStatus } from './auth'
 
 export interface UserDto {
   id: string

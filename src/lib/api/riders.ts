@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '../api-client'
+import { apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '../api-client'
 import type {
   RiderDto,
   RegisterRiderDto,
@@ -27,7 +27,6 @@ import type {
   CancelAssignmentDto,
   RejectDocumentDto,
 } from '@/types/rider'
-import type { Paginated } from '@/types/api'
 
 export const riderApi = {
   // Rider self-service
@@ -55,7 +54,7 @@ export const riderApi = {
     apiPut<void>('/riders/me/location', data),
 
   getOffers: (query?: ListAssignmentsQueryDto) =>
-    apiGetPaginated<AssignmentDto>('/riders/me/offers', query),
+    apiGetPaginated<AssignmentDto>('/riders/me/offers', { params: query }),
 
   acceptOffer: (id: string) =>
     apiPost<AssignmentDto>(`/riders/me/offers/${id}/accept`, {}),
@@ -76,10 +75,10 @@ export const riderApi = {
     apiPost<DeliveryCompletedDto>(`/riders/me/deliveries/${orderId}/confirm`, data),
 
   getDeliveries: (query?: ListAssignmentsQueryDto) =>
-    apiGetPaginated<AssignmentDto>('/riders/me/deliveries', query),
+    apiGetPaginated<AssignmentDto>('/riders/me/deliveries', { params: query }),
 
   getEarnings: (query?: ListEarningsQueryDto) =>
-    apiGetPaginated<EarningDto>('/riders/me/earnings', query),
+    apiGetPaginated<EarningDto>('/riders/me/earnings', { params: query }),
 
   getEarningsSummary: () =>
     apiGet<EarningsSummaryDto>('/riders/me/earnings/summary'),
@@ -87,20 +86,20 @@ export const riderApi = {
   getWallet: () => apiGet('/riders/me/wallet'),
 
   getWalletTransactions: (query?: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }) =>
-    apiGetPaginated<WalletTransactionDto>('/riders/me/wallet/transactions', query),
+    apiGetPaginated<WalletTransactionDto>('/riders/me/wallet/transactions', { params: query }),
 
   requestWithdrawal: (data: RequestPayoutDto) =>
     apiPost<PayoutRequestDto>('/riders/me/withdrawals', data),
 
   getWithdrawals: (query?: ListPayoutsQueryDto) =>
-    apiGetPaginated<PayoutRequestDto>('/riders/me/withdrawals', query),
+    apiGetPaginated<PayoutRequestDto>('/riders/me/withdrawals', { params: query }),
 
   cancelWithdrawal: (id: string) =>
     apiPost<PayoutRequestDto>(`/riders/me/withdrawals/${id}/cancel`, {}),
 
   // Rider management
   listRiders: (query?: ListRidersQueryDto) =>
-    apiGetPaginated<RiderDto>('/rider-management/riders', query),
+    apiGetPaginated<RiderDto>('/rider-management/riders', { params: query }),
 
   getRider: (id: string) => apiGet<RiderDto>(`/rider-management/riders/${id}`),
 
@@ -129,7 +128,7 @@ export const riderApi = {
     apiPost<AssignmentDto>(`/rider-management/orders/${orderId}/assign`, data),
 
   listAssignments: (query?: ListAssignmentsQueryDto) =>
-    apiGetPaginated<AssignmentDto>('/rider-management/assignments', query),
+    apiGetPaginated<AssignmentDto>('/rider-management/assignments', { params: query }),
 
   getRiderAssignments: (id: string) =>
     apiGet<AssignmentDto[]>(`/rider-management/riders/${id}/assignments`),
@@ -141,7 +140,7 @@ export const riderApi = {
     apiPost<{ expired: number }>('/rider-management/assignments/expire', {}),
 
   listWithdrawals: (query?: ListPayoutsQueryDto) =>
-    apiGetPaginated<PayoutRequestDto>('/rider-management/withdrawals', query),
+    apiGetPaginated<PayoutRequestDto>('/rider-management/withdrawals', { params: query }),
 
   approveWithdrawal: (id: string) =>
     apiPost<PayoutRequestDto>(`/rider-management/withdrawals/${id}/approve`, {}),

@@ -15,9 +15,7 @@ import type {
   ChangeUserStatusDto,
   NotificationPreferenceDto,
   UpdateNotificationPreferencesDto,
-  EffectivePreferencesDto,
 } from '@/types/user'
-import type { Paginated } from '@/types/api'
 
 export const userApi = {
   // Me endpoints
@@ -33,10 +31,10 @@ export const userApi = {
     apiPatch<NotificationPreferenceDto[]>('/me/notification-preferences', data),
 
   resetNotificationPreferences: () =>
-    apiPost<NotificationPreferenceDto[]>('/me/notification-preferences/reset', {}),
+    apiDelete<NotificationPreferenceDto[]>('/me/notification-preferences'),
 
   getAddresses: (query?: ListAddressesQueryDto) =>
-    apiGetPaginated<AddressDto>('/me/addresses', query),
+    apiGetPaginated<AddressDto>('/me/addresses', { params: query }),
 
   getAddress: (id: string) =>
     apiGet<AddressDto>(`/me/addresses/${id}`),
@@ -54,7 +52,7 @@ export const userApi = {
     apiDelete(`/me/addresses/${id}`),
 
   getFavorites: (query?: ListFavoritesQueryDto) =>
-    apiGetPaginated<FavoriteDto>('/me/favorites', query),
+    apiGetPaginated<FavoriteDto>('/me/favorites', { params: query }),
 
   addFavorite: (data: CreateFavoriteDto) =>
     apiPost<FavoriteDto>('/me/favorites', data),
@@ -67,7 +65,7 @@ export const userApi = {
 
   // Admin user management
   listUsers: (query?: ListUsersQueryDto) =>
-    apiGetPaginated<UserDto>('/users', query),
+    apiGetPaginated<UserDto>('/users', { params: query }),
 
   getUser: (id: string) =>
     apiGet<UserDto>(`/users/${id}`),

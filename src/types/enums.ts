@@ -236,6 +236,13 @@ export const PayoutMethod = {
 } as const;
 export type PayoutMethod = (typeof PayoutMethod)[keyof typeof PayoutMethod];
 
+export const DevicePlatform = {
+  ANDROID: "ANDROID",
+  IOS: "IOS",
+  WEB: "WEB",
+} as const;
+export type DevicePlatform = (typeof DevicePlatform)[keyof typeof DevicePlatform];
+
 export const NotificationType = {
   ORDER_UPDATE: "ORDER_UPDATE",
   PROMOTION: "PROMOTION",

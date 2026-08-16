@@ -29,15 +29,14 @@ import type {
   ListMenuItemsAdminQueryDto,
   ListMenusQueryDto,
 } from '@/types/menu'
-import type { Paginated } from '@/types/api'
 
 export const menuApi = {
   // Public
   getRestaurantMenus: (restaurantId: string, query?: ListMenusQueryDto) =>
-    apiGetPaginated<MenuDto>(`/restaurants/${restaurantId}/menu`, query),
+    apiGetPaginated<MenuDto>(`/restaurants/${restaurantId}/menu`, { params: query }),
 
   getMenuItems: (restaurantId: string, query?: ListMenuItemsQueryDto) =>
-    apiGetPaginated<MenuItemDto>(`/restaurants/${restaurantId}/menu-items`, query),
+    apiGetPaginated<MenuItemDto>(`/restaurants/${restaurantId}/menu-items`, { params: query }),
 
   getMenuItem: (id: string) => apiGet<MenuItemDto>(`/menu-items/${id}`),
 
@@ -46,7 +45,7 @@ export const menuApi = {
 
   // Management
   getRestaurantMenusAdmin: (restaurantId: string, query?: ListMenusQueryDto) =>
-    apiGetPaginated<MenuDto>(`/menu-management/restaurants/${restaurantId}/menus`, query),
+    apiGetPaginated<MenuDto>(`/menu-management/restaurants/${restaurantId}/menus`, { params: query }),
 
   createMenu: (restaurantId: string, data: CreateMenuDto) =>
     apiPost<MenuDto>(`/menu-management/restaurants/${restaurantId}/menus`, data),
@@ -70,7 +69,7 @@ export const menuApi = {
     apiDelete(`/menu-management/categories/${categoryId}`),
 
   getRestaurantItemsAdmin: (restaurantId: string, query?: ListMenuItemsAdminQueryDto) =>
-    apiGetPaginated<MenuItemAdminDto>(`/menu-management/restaurants/${restaurantId}/items`, query),
+    apiGetPaginated<MenuItemAdminDto>(`/menu-management/restaurants/${restaurantId}/items`, { params: query }),
 
   createMenuItem: (data: CreateMenuItemDto) =>
     apiPost<MenuItemAdminDto>('/menu-management/items', data),
