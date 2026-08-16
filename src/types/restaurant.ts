@@ -54,6 +54,17 @@ export interface CategoryDto {
   isActive: boolean
 }
 
+export interface CreateRestaurantCategoryDto {
+  name: string
+  nameUr?: string
+  slug?: string
+  iconUrl?: string
+  sortOrder?: number
+  isActive?: boolean
+}
+
+export type UpdateRestaurantCategoryDto = Partial<CreateRestaurantCategoryDto>
+
 export interface RestaurantImageDto {
   id: string
   restaurantId: string

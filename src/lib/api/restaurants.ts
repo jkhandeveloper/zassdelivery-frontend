@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '../api-client'
-import type { RestaurantDto, RestaurantAdminDto, CategoryDto, RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, ReorderImagesDto, RegisterRestaurantStaffDto, RestaurantStaffDto, SetAcceptingOrdersDto, RejectRestaurantDto, ChangeRestaurantStatusDto, BusinessHourResponseDto, RestaurantImageDto } from '@/types/restaurant'
+import type { RestaurantDto, RestaurantAdminDto, CategoryDto, RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, ReorderImagesDto, RegisterRestaurantStaffDto, RestaurantStaffDto, SetAcceptingOrdersDto, RejectRestaurantDto, ChangeRestaurantStatusDto, BusinessHourResponseDto, RestaurantImageDto, CreateRestaurantCategoryDto, UpdateRestaurantCategoryDto } from '@/types/restaurant'
 import type { OpenState } from '@/types/restaurant'
 
 export const restaurantApi = {
@@ -86,4 +86,14 @@ export const restaurantApi = {
 
   getRestaurantStaff: (id: string) =>
     apiGet<RestaurantStaffDto[]>(`/restaurant-management/${id}/staff`),
+
+  // Cuisine categories — the admin side of the public /restaurants/categories
+  // list. Deleting one is refused while restaurants still reference it.
+  createCategory: (data: CreateRestaurantCategoryDto) =>
+    apiPost<CategoryDto>('/restaurant-categories', data),
+
+  updateCategory: (id: string, data: UpdateRestaurantCategoryDto) =>
+    apiPatch<CategoryDto>(`/restaurant-categories/${id}`, data),
+
+  deleteCategory: (id: string) => apiDelete(`/restaurant-categories/${id}`),
 }
