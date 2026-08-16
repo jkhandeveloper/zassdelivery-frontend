@@ -78,7 +78,13 @@
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\).data[0];for\\(const k of ['rating','ratingCount','minOrderAmount','avgPreparationMinutes','deliveryRadiusMeters','opensInMinutes','priceRange','isOpenNow','canOrderNow']\\)console.log\\(' ',k,'=',JSON.stringify\\(r[k]\\),'\\('+typeof r[k]+'\\)'\\)}\\)\")",
       "Bash(curl -s -m 40 \"http://localhost:8000/restaurants\")",
       "Bash(timeout 90 /home/jkhan/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome --headless --disable-gpu --no-sandbox --virtual-time-budget=12000 --dump-dom http://localhost:8000/restaurants)",
-      "Bash(git commit -q -m 'feat\\(customer\\): restaurant browsing at /restaurants *)"
+      "Bash(git commit -q -m 'feat\\(customer\\): restaurant browsing at /restaurants *)",
+      "Bash(node -e \"console.log\\('global WebSocket:', typeof WebSocket\\)\")",
+      "Bash(node cdp.js \"http://localhost:8000/admin\" --wait 9000)",
+      "Bash(node cdp.js \"http://localhost:8000/admin\" --storage '{\"state\":{\"user\":' --wait 12000)",
+      "Bash(node cdp.js \"http://localhost:8000/vendor\" --storage 'totally-not-json' --wait 11000)",
+      "Bash(node cdp.js \"http://localhost:8000/rider\" --storage '{\"unexpected\":true}' --wait 11000)",
+      "Bash(git commit -q -m 'fix: corrupt stored session no longer bricks every guarded route *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",
