@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(curl -s -m 5 http://localhost:3000/api/v1/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -m 5 http://localhost:3000/api/docs)",
+      "Read(//var/www/zassdelivery/src/common/interfaces/**)",
+      "Read(//var/www/zassdelivery/src/common/dto/**)"
+    ]
+  }
+}
