@@ -84,7 +84,9 @@
       "Bash(node cdp.js \"http://localhost:8000/admin\" --storage '{\"state\":{\"user\":' --wait 12000)",
       "Bash(node cdp.js \"http://localhost:8000/vendor\" --storage 'totally-not-json' --wait 11000)",
       "Bash(node cdp.js \"http://localhost:8000/rider\" --storage '{\"unexpected\":true}' --wait 11000)",
-      "Bash(git commit -q -m 'fix: corrupt stored session no longer bricks every guarded route *)"
+      "Bash(git commit -q -m 'fix: corrupt stored session no longer bricks every guarded route *)",
+      "Bash(node /tmp/claude-1000/-var-www-zassdeliver-frontend/485da0cf-92ba-42aa-84ef-62dbbf483668/scratchpad/gen-placeholders.js)",
+      "Bash(git commit -q -m 'feat: every planned route now resolves instead of 404ing *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",

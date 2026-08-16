@@ -1,0 +1,13 @@
+import { PhasePlaceholder } from "@/components/layout/phase-placeholder";
+
+export const metadata = { title: "Refund policy" };
+
+export default function Page() {
+  return (
+    <PhasePlaceholder
+      phase="Coming soon"
+      title="Refund policy"
+      description="When refunds apply and how long they take."
+    />
+  );
+}
