@@ -1,28 +1,40 @@
+/**
+ * The cart, mirroring the backend DTOs exactly.
+ *
+ * Totals are recomputed server-side on every read, so nothing here is derived
+ * on the client — a cart that disagrees with the order it becomes is worse
+ * than one that costs a round trip.
+ */
+
 export interface CartDto {
   id: string
-  restaurantId: string
   restaurant: CartRestaurantDto
   items: CartLineDto[]
   totals: CartTotalsDto
   delivery: CartDeliveryDto
-  couponCode?: string
-  notes?: string
+  couponCode: string | null
+  notes: string | null
   issues: CartIssueDto[]
   canCheckout: boolean
   expiresAt: string
 }
 
+/**
+ * An empty cart has no restaurant to report, so the API returns this shape
+ * instead. Narrow on `items.length` or the absence of `restaurant`.
+ */
 export interface EmptyCartDto {
-  id: string
-  restaurantId?: string
+  id?: string
   items: []
-  totals: { subtotal: number; discount: number; delivery: number; service: number; tax: number; tip: number; total: number }
+  totals?: Partial<CartTotalsDto>
+  restaurant?: undefined
 }
 
 export interface CartRestaurantDto {
   id: string
   name: string
-  logoUrl?: string
+  slug: string
+  logoUrl: string | null
   minOrderAmount: number
   avgPreparationMinutes: number
   isAcceptingOrders: boolean
@@ -30,50 +42,62 @@ export interface CartRestaurantDto {
 
 export interface CartLineDto {
   id: string
-  itemId: string
-  itemName: string
+  menuItemId: string
+  name: string
+  imageUrl: string | null
+  variantId: string | null
+  variantName: string | null
+  /** Per-unit price of the item or its chosen variant, before add-ons. */
+  unitPrice: number
+  /** Per-unit total of the selected add-ons. */
+  addOnsTotal: number
   quantity: number
-  variantId?: string
-  variantName?: string
-  basePrice: number
-  discountedPrice?: number
-  itemPrice: number
-  addOns: CartAddOnDto[]
-  notes?: string
+  /** (unitPrice + addOnsTotal) × quantity, as computed by the server. */
   lineTotal: number
+  notes: string | null
+  addOns: CartAddOnDto[]
+  isAvailable: boolean
 }
 
 export interface CartAddOnDto {
   id: string
-  groupId: string
-  groupName: string
+  addOnId: string
   name: string
-  price?: number
+  price: number
   quantity: number
+  isAvailable: boolean
 }
 
 export interface CartTotalsDto {
   subtotal: number
-  discount: number
-  delivery: number
-  service: number
-  tax: number
-  tip: number
-  total: number
+  discountAmount: number
+  deliveryFee: number
+  serviceFee: number
+  taxAmount: number
+  tipAmount: number
+  totalAmount: number
+  /** Why delivery is free, when it is — e.g. a coupon or a spend threshold. */
+  freeDeliveryReason: string | null
+  /** Distinct lines. */
+  itemCount: number
+  /** Units across all lines. */
+  totalQuantity: number
 }
 
 export interface CartDeliveryDto {
-  addressId: string
-  zoneId: string
-  eta: number
-  fee: number
+  addressId: string | null
+  addressLine: string | null
+  distanceKm: number | null
+  etaMinutes: number | null
+  isDeliverable: boolean
 }
 
 export interface CartIssueDto {
-  severity: 'info' | 'warning' | 'error'
   code: string
   message: string
-  affectedItemIds?: string[]
+  cartItemId: string | null
+  /** Blocking issues are why `canCheckout` is false. */
+  blocking: boolean
 }
 
 export interface AddCartItemDto {
@@ -90,6 +114,7 @@ export interface CartAddOnSelectionDto {
 }
 
 export interface UpdateCartItemDto {
+  /** Zero removes the line. */
   quantity: number
 }
 

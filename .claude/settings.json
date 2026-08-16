@@ -91,7 +91,8 @@
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);console.log\\('meta:',JSON.stringify\\(j.meta\\)\\);for\\(const c of j.data||[]\\)console.log\\(JSON.stringify\\(c,null,1\\)\\)}\\)\")",
       "Bash(node cdp.js \"http://localhost:8000/offers\" --wait 10000)",
       "Bash(curl -s -m 30 http://localhost:8000/cart)",
-      "Bash(git commit -q -m 'fix: contain customer pages; build the real Offers page on live data *)"
+      "Bash(git commit -q -m 'fix: contain customer pages; build the real Offers page on live data *)",
+      "Bash(git commit -q -m 'feat\\(customer\\): restaurant detail and menu, with add to cart *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",

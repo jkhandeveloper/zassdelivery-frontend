@@ -2,104 +2,98 @@ import { MenuItemStatus, SpiceLevel } from './enums'
 
 export interface MenuDto {
   id: string
-  restaurantId: string
   name: string
-  description?: string
-  sortOrder?: number
+  description: string | null
+  sortOrder: number
   isActive: boolean
-  createdAt: string
+  /** Menus arrive with their categories nested, so one call renders the menu. */
+  categories: MenuCategoryDto[]
 }
 
 export interface MenuCategoryDto {
   id: string
-  menuId: string
   name: string
-  nameUr?: string
-  description?: string
-  imageUrl?: string
-  sortOrder?: number
+  nameUr: string | null
+  description: string | null
+  imageUrl: string | null
+  sortOrder: number
   isActive: boolean
-  createdAt: string
+  itemCount?: number
+  /** Only populated on the management endpoints; the public menu omits it. */
+  items?: MenuItemDto[]
 }
 
 export interface MenuItemDto {
   id: string
   name: string
-  nameUr?: string
-  description?: string
-  imageUrl?: string
+  nameUr: string | null
+  description: string | null
+  imageUrl: string | null
   basePrice: number
-  discountedPrice?: number
+  discountedPrice: number | null
+  /** discountedPrice when set, otherwise basePrice — what the customer pays. */
   effectivePrice: number
   status: MenuItemStatus
   isVegetarian: boolean
-  spiceLevel?: SpiceLevel
-  calories?: number
-  preparationMinutes?: number
+  spiceLevel: SpiceLevel
+  calories: number | null
+  preparationMinutes: number
   isFeatured: boolean
-  sortOrder?: number
+  sortOrder: number
   rating: number
   ratingCount: number
   isAvailable: boolean
-  availabilityReason?:
+  availabilityReason:
     | 'available'
     | 'hidden'
     | 'out_of_stock'
     | 'outside_window'
     | 'sold_out'
-  stockRemaining?: number
-  availableDays?: string[]
-  availableFrom?: string
-  availableTo?: string
+  stockRemaining: number | null
+  availableDays: string[]
+  availableFrom: string | null
+  availableTo: string | null
   variants: MenuVariantDto[]
   addOnGroups: AddOnGroupDto[]
   images: MenuItemImageDto[]
   menuCategoryId: string
-  createdAt: string
 }
 
+/** The management view: same item, plus the inventory fields customers never see. */
 export interface MenuItemAdminDto extends MenuItemDto {
-  basePrice: number
-  discountedPrice?: number
   trackInventory?: boolean
-  stockQuantity?: number
-  lowStockThreshold?: number
-  deletedAt?: string
+  stockQuantity?: number | null
+  lowStockThreshold?: number | null
+  deletedAt?: string | null
 }
 
 export interface MenuVariantDto {
   id: string
-  itemId: string
   name: string
+  /** Absolute price for this size, not a delta on basePrice. */
   price: number
   isDefault: boolean
   isAvailable: boolean
-  sortOrder?: number
-  trackInventory?: boolean
-  stockQuantity?: number
-  createdAt: string
+  stockRemaining: number | null
+  sortOrder: number
 }
 
 export interface AddOnGroupDto {
   id: string
-  itemId: string
   name: string
-  minSelect?: number
-  maxSelect?: number
+  minSelect: number
+  maxSelect: number
   isRequired: boolean
-  sortOrder?: number
+  sortOrder: number
   addOns: AddOnDto[]
-  createdAt: string
 }
 
 export interface AddOnDto {
   id: string
-  groupId: string
   name: string
-  price?: number
+  price: number
   isAvailable: boolean
-  sortOrder?: number
-  createdAt: string
+  sortOrder: number
 }
 
 export interface MenuItemImageDto {
