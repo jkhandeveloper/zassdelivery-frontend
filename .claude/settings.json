@@ -34,7 +34,10 @@
       "Bash(sed -i \"s/^import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '..\\\\/api-client'$/import { apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '..\\\\/api-client'/\" src/lib/api/riders.ts)",
       "Bash(sed -i \"s/^import { CouponType, TicketStatus, TicketPriority, TicketCategory, AuditAction, BannerPlacement } from '.\\\\/enums'$/import type { CouponType, BannerPlacement } from '.\\\\/enums'/\" src/types/admin.ts)",
       "Bash(sed -i \"/^  SupportTicketMessageDto,$/d\" src/lib/api/support.ts)",
-      "Bash(git commit -q -m 'fix\\(phase-1\\): correct query params, HTTP methods, and broken imports *)"
+      "Bash(git commit -q -m 'fix\\(phase-1\\): correct query params, HTTP methods, and broken imports *)",
+      "Bash(node -e \"const {z}=require\\('zod'\\); console.log\\('zod', require\\('zod/package.json'\\).version\\); console.log\\('z.email:', typeof z.email\\); console.log\\('string\\(\\).email:', typeof z.string\\(\\).email\\);\")",
+      "Bash(curl -s -m 5 -o /dev/null -w \"health: %{http_code}\\\\n\" http://localhost:3000/api/v1/health)",
+      "Bash(git commit -q -m 'feat\\(phase-2\\): real sign-in and registration forms *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",

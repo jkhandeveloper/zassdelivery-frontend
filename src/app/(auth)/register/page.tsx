@@ -1,30 +1,27 @@
 import { Suspense } from "react";
 
-import { LoginForm } from "@/components/auth/login-form";
+import { RegisterForm } from "@/components/auth/register-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const metadata = { title: "Sign in" };
+export const metadata = { title: "Create an account" };
 
-/**
- * The form reads `?next=` and `?reason=`, so it must sit behind a Suspense
- * boundary — without one a production build of this static route fails.
- */
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
-    <Suspense fallback={<LoginFormFallback />}>
-      <LoginForm />
+    <Suspense fallback={<RegisterFormFallback />}>
+      <RegisterForm />
     </Suspense>
   );
 }
 
-function LoginFormFallback() {
+function RegisterFormFallback() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-9 w-64" />
         <Skeleton className="h-5 w-full max-w-sm" />
       </div>
       <div className="flex flex-col gap-4">
+        <Skeleton className="h-20 w-full" />
         <Skeleton className="h-[4.5rem] w-full" />
         <Skeleton className="h-[4.5rem] w-full" />
         <Skeleton className="h-13 w-full" />
