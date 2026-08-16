@@ -52,7 +52,6 @@ export interface CategoryDto {
   iconUrl?: string
   sortOrder?: number
   isActive: boolean
-  createdAt: string
 }
 
 export interface RestaurantImageDto {
