@@ -92,7 +92,8 @@
       "Bash(node cdp.js \"http://localhost:8000/offers\" --wait 10000)",
       "Bash(curl -s -m 30 http://localhost:8000/cart)",
       "Bash(git commit -q -m 'fix: contain customer pages; build the real Offers page on live data *)",
-      "Bash(git commit -q -m 'feat\\(customer\\): restaurant detail and menu, with add to cart *)"
+      "Bash(git commit -q -m 'feat\\(customer\\): restaurant detail and menu, with add to cart *)",
+      "Bash(git commit -q -m 'docs: add QA and reference documentation *)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",
