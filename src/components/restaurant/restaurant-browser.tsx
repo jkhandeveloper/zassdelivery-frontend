@@ -1,25 +1,30 @@
 "use client";
 
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { RestaurantCard } from "@/components/restaurant/restaurant-card";
+import {
+  RestaurantFilters,
+  type RestaurantFilterState,
+} from "@/components/restaurant/restaurant-filters";
 import { Button } from "@/components/ui/button";
-import { Input, NativeSelect } from "@/components/ui/input";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { RestaurantGridSkeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
-import { useRestaurantCategories, useRestaurants } from "@/hooks/use-restaurants";
+import { useRestaurants } from "@/hooks/use-restaurants";
 import { cn } from "@/lib/utils";
-import { PriceRange } from "@/types/enums";
 
 const PAGE_SIZE = 12;
 
-const PRICE_LABELS: Record<string, string> = {
-  [PriceRange.BUDGET]: "Budget",
-  [PriceRange.MODERATE]: "Moderate",
-  [PriceRange.PREMIUM]: "Premium",
-};
+/** The chips above the grid — the filters people reach for without opening the rail. */
+const QUICK_FILTERS = [
+  { key: "all", label: "All" },
+  { key: "open", label: "Open now" },
+  { key: "top", label: "Top rated" },
+  { key: "fast", label: "Fastest prep" },
+] as const;
 
 export function RestaurantBrowser() {
   const router = useRouter();
@@ -27,10 +32,14 @@ export function RestaurantBrowser() {
 
   // The URL is the source of truth for filters, so a filtered view can be
   // shared, bookmarked and survives a back/forward.
-  const search = searchParams.get("q") ?? "";
-  const category = searchParams.get("category") ?? "";
-  const priceRange = searchParams.get("price") ?? "";
-  const openOnly = searchParams.get("open") === "1";
+  const state: RestaurantFilterState = {
+    search: searchParams.get("q") ?? "",
+    category: searchParams.get("category") ?? "",
+    price: searchParams.get("price") ?? "",
+    minRating: searchParams.get("rating") ?? "",
+    openOnly: searchParams.get("open") === "1",
+    sort: searchParams.get("sort") ?? "",
+  };
   const page = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
 
   const setParams = React.useCallback(
@@ -51,190 +60,167 @@ export function RestaurantBrowser() {
     [router, searchParams],
   );
 
-  const categoriesQuery = useRestaurantCategories();
+  const clearAll = React.useCallback(
+    () => router.replace("/restaurants", { scroll: false }),
+    [router],
+  );
+
+  const activeQuick =
+    state.openOnly && state.sort === ""
+      ? "open"
+      : state.sort === "rating"
+        ? "top"
+        : state.sort === "avgPreparationMinutes"
+          ? "fast"
+          : state.openOnly
+            ? "open"
+            : "all";
+
+  const applyQuick = (key: (typeof QUICK_FILTERS)[number]["key"]) => {
+    switch (key) {
+      case "open":
+        return setParams({ open: "1", sort: null });
+      case "top":
+        return setParams({ sort: "rating", open: null });
+      case "fast":
+        return setParams({ sort: "avgPreparationMinutes", open: null });
+      default:
+        return setParams({ open: null, sort: null });
+    }
+  };
 
   const { data, isPending, isError, error, refetch, isFetching } = useRestaurants({
     page,
     limit: PAGE_SIZE,
-    ...(search !== "" && { search }),
-    ...(category !== "" && { category }),
-    ...(priceRange !== "" && { priceRange }),
-    ...(openOnly && { acceptingOnly: true }),
+    ...(state.search !== "" && { search: state.search }),
+    ...(state.category !== "" && { category: state.category }),
+    ...(state.price !== "" && { priceRange: state.price }),
+    ...(state.minRating !== "" && { minRating: Number(state.minRating) }),
+    ...(state.openOnly && { acceptingOnly: true }),
+    ...(state.sort !== "" && {
+      sortBy: state.sort,
+      sortOrder: state.sort === "rating" ? ("desc" as const) : ("asc" as const),
+    }),
   });
 
-  const hasFilters = search !== "" || category !== "" || priceRange !== "" || openOnly;
+  const hasFilters =
+    state.search !== "" ||
+    state.category !== "" ||
+    state.price !== "" ||
+    state.minRating !== "" ||
+    state.openOnly;
 
   return (
-    <div className="flex flex-col gap-6">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const entered = new FormData(event.currentTarget).get("q");
-          setParams({ q: typeof entered === "string" ? entered.trim() : "" });
-        }}
-        className="flex flex-col gap-3 sm:flex-row"
-        role="search"
-      >
-        <div className="flex-1">
-          <label htmlFor="restaurant-search" className="sr-only">
-            Search restaurants
-          </label>
-          {/*
-            Uncontrolled, keyed on the committed query: typing stays local to
-            the DOM, and the box still resets when the URL changes from
-            elsewhere (back button, "clear filters") without an effect syncing
-            state behind the user's cursor.
-          */}
-          <Input
-            key={search}
-            id="restaurant-search"
-            name="q"
-            type="search"
-            defaultValue={search}
-            placeholder="Search restaurants or a dish…"
-            leadingIcon={<Search className="size-4" />}
-          />
-        </div>
-        <Button type="submit" size="lg" className="sm:w-auto">
-          Search
-        </Button>
-      </form>
+    <div className="grid items-start gap-8 lg:grid-cols-[17rem_1fr]">
+      {/* Desktop rail. Sticky, because the grid beside it is long. */}
+      <aside className="sticky top-24 hidden rounded-[var(--radius-panel)] border border-border-subtle bg-surface p-5 shadow-card lg:block">
+        <RestaurantFilters state={state} onChange={setParams} onClear={clearAll} />
+      </aside>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary">
-          <SlidersHorizontal aria-hidden className="size-4" />
-          Filters
-        </span>
+      <div className="flex min-w-0 flex-col gap-5">
+        <div className="flex flex-wrap items-center gap-2">
+          {QUICK_FILTERS.map((filter) => (
+            <button
+              key={filter.key}
+              type="button"
+              onClick={() => applyQuick(filter.key)}
+              aria-pressed={activeQuick === filter.key}
+              className={cn(
+                "h-9 rounded-full border px-4 text-sm font-bold transition-all",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+                activeQuick === filter.key
+                  ? "border-transparent bg-brand text-brand-contrast shadow-card"
+                  : "border-border-default bg-surface text-secondary hover:border-brand hover:text-brand",
+              )}
+            >
+              {filter.label}
+            </button>
+          ))}
 
-        <div className="min-w-[10rem]">
-          <label htmlFor="filter-category" className="sr-only">
-            Cuisine
-          </label>
-          <NativeSelect
-            id="filter-category"
-            className="h-10"
-            value={category}
-            onChange={(event) => setParams({ category: event.target.value })}
-          >
-            <option value="">All cuisines</option>
-            {(categoriesQuery.data?.items ?? []).map((item) => (
-              <option key={item.id} value={item.slug}>
-                {item.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
+          {/* Below lg the rail is a drawer — the same component, not a second one. */}
+          <Drawer>
+            <DrawerTrigger
+              className={cn(
+                "inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface px-4",
+                "text-sm font-bold text-secondary transition-colors hover:border-brand hover:text-brand lg:hidden",
+              )}
+            >
+              <SlidersHorizontal aria-hidden className="size-4" />
+              Filters
+            </DrawerTrigger>
+            <DrawerContent title="Filters" side="left" width="sm">
+              <div className="p-5">
+                <RestaurantFilters state={state} onChange={setParams} onClear={clearAll} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-        <div className="min-w-[9rem]">
-          <label htmlFor="filter-price" className="sr-only">
-            Price range
-          </label>
-          <NativeSelect
-            id="filter-price"
-            className="h-10"
-            value={priceRange}
-            onChange={(event) => setParams({ price: event.target.value })}
-          >
-            <option value="">Any price</option>
-            {Object.entries(PRICE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setParams({ open: openOnly ? null : "1" })}
-          aria-pressed={openOnly}
-          className={cn(
-            "h-10 rounded-[var(--radius-input)] border px-4 text-sm font-semibold transition-colors",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-            openOnly
-              ? "border-brand bg-brand-soft text-brand"
-              : "border-border-default bg-surface-muted text-secondary hover:border-brand",
+          {data !== undefined && (
+            <span className="numeric ml-auto text-sm text-muted" aria-live="polite">
+              {data.meta.total} {data.meta.total === 1 ? "restaurant" : "restaurants"} found
+            </span>
           )}
-        >
-          Open now
-        </button>
+        </div>
 
-        {hasFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.replace("/restaurants", { scroll: false })}
-          >
-            <X className="size-4" />
-            Clear
-          </Button>
-        )}
+        {isPending ? (
+          <RestaurantGridSkeleton count={6} />
+        ) : isError ? (
+          <ErrorState error={error} onRetry={() => void refetch()} />
+        ) : data.items.length === 0 ? (
+          <EmptyState
+            title={hasFilters ? "No restaurants match those filters" : "No restaurants here yet"}
+            description={
+              hasFilters
+                ? "Try widening your search — fewer filters, or a different cuisine."
+                : "We're still signing up kitchens in your area. Check back soon."
+            }
+            action={
+              hasFilters ? (
+                <Button variant="outline" onClick={clearAll}>
+                  Clear filters
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <>
+            <div
+              className={cn(
+                "grid gap-5 sm:grid-cols-2 xl:grid-cols-3",
+                // Dim while refetching so it is obvious the list is going stale,
+                // without tearing it down and losing scroll position.
+                isFetching && "opacity-60 transition-opacity",
+              )}
+            >
+              {data.items.map((restaurant) => (
+                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              ))}
+            </div>
 
-        {data !== undefined && (
-          <span className="ml-auto numeric text-sm text-muted" aria-live="polite">
-            {data.meta.total} {data.meta.total === 1 ? "restaurant" : "restaurants"}
-          </span>
+            {data.meta.totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-4 pt-2" aria-label="Pagination">
+                <Button
+                  variant="outline"
+                  disabled={!data.meta.hasPreviousPage}
+                  onClick={() => setParams({ page: String(page - 1) })}
+                >
+                  Previous
+                </Button>
+                <span className="numeric text-sm text-secondary">
+                  Page {data.meta.page} of {data.meta.totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  disabled={!data.meta.hasNextPage}
+                  onClick={() => setParams({ page: String(page + 1) })}
+                >
+                  Next
+                </Button>
+              </nav>
+            )}
+          </>
         )}
       </div>
-
-      {isPending ? (
-        <RestaurantGridSkeleton />
-      ) : isError ? (
-        <ErrorState error={error} onRetry={() => void refetch()} />
-      ) : data.items.length === 0 ? (
-        <EmptyState
-          title={hasFilters ? "No restaurants match those filters" : "No restaurants here yet"}
-          description={
-            hasFilters
-              ? "Try widening your search — fewer filters, or a different cuisine."
-              : "We're still signing up kitchens in your area. Check back soon."
-          }
-          action={
-            hasFilters ? (
-              <Button variant="outline" onClick={() => router.replace("/restaurants", { scroll: false })}>
-                Clear filters
-              </Button>
-            ) : undefined
-          }
-        />
-      ) : (
-        <>
-          <div
-            className={cn(
-              "grid gap-5 sm:grid-cols-2 lg:grid-cols-3",
-              // Dim while refetching so it is obvious the list is going stale,
-              // without tearing it down and losing scroll position.
-              isFetching && "opacity-60 transition-opacity",
-            )}
-          >
-            {data.items.map((restaurant) => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-            ))}
-          </div>
-
-          {data.meta.totalPages > 1 && (
-            <nav className="flex items-center justify-center gap-4 pt-2" aria-label="Pagination">
-              <Button
-                variant="outline"
-                disabled={!data.meta.hasPreviousPage}
-                onClick={() => setParams({ page: String(page - 1) })}
-              >
-                Previous
-              </Button>
-              <span className="numeric text-sm text-secondary">
-                Page {data.meta.page} of {data.meta.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                disabled={!data.meta.hasNextPage}
-                onClick={() => setParams({ page: String(page + 1) })}
-              >
-                Next
-              </Button>
-            </nav>
-          )}
-        </>
-      )}
     </div>
   );
 }

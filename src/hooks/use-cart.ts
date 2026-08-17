@@ -8,10 +8,15 @@ export const cartKeys = {
   current: () => [...cartKeys.all, 'current'] as const,
 }
 
-export function useCart() {
+/**
+ * The cart belongs to a session — asking for it while signed out is a
+ * guaranteed 401, so callers that render for visitors pass `enabled`.
+ */
+export function useCart(enabled = true) {
   return useQuery({
     queryKey: cartKeys.current(),
     queryFn: () => cartApi.getCart(),
+    enabled,
     staleTime: 0,
   })
 }
@@ -60,6 +65,16 @@ export function useApplyCoupon() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: ApplyCouponDto) => cartApi.applyCoupon(data),
+    onSuccess: (data) => {
+      queryClient.setQueryData(cartKeys.current(), data)
+    },
+  })
+}
+
+export function useRemoveCoupon() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => cartApi.removeCoupon(),
     onSuccess: (data) => {
       queryClient.setQueryData(cartKeys.current(), data)
     },

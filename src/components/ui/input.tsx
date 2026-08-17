@@ -144,7 +144,7 @@ export function NativeSelect({ className, invalid, children, ...props }: NativeS
       style={{
         // Inlined so the caret picks up the current text colour in both themes.
         ["--select-caret" as string]:
-          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239a9089' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2375909f' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
       }}
       aria-invalid={invalid === true || undefined}
       {...props}

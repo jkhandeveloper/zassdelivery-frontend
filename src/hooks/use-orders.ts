@@ -11,10 +11,15 @@ export const orderKeys = {
   invoice: (id: string) => [...orderKeys.all, 'invoice', id] as const,
 }
 
-export function useOrders(query?: ListOrdersQueryDto) {
+/**
+ * Orders are scoped to the session, so a signed-out caller would only ever get
+ * a 401 — screens that render for visitors pass `enabled`.
+ */
+export function useOrders(query?: ListOrdersQueryDto, enabled = true) {
   return useQuery({
     queryKey: orderKeys.list(query || {}),
     queryFn: () => orderApi.getOrders(query),
+    enabled,
     staleTime: 30 * 1000,
   })
 }

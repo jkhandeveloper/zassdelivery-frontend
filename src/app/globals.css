@@ -7,29 +7,33 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ─────────────────────────────────────────────────────────────
- * Brand palette (§2). These are fixed hues; they do not change
- * between themes. What changes is which of them a surface uses,
- * and the tuned-for-contrast variants further down.
+ * Brand palette (§2). Electric cyan against deep navy, with an
+ * orange CTA and an indigo sweep between them. These are fixed
+ * hues; they do not change between themes. What changes is which
+ * of them a surface uses, and the tuned-for-contrast variants
+ * further down.
  * ───────────────────────────────────────────────────────────── */
 @theme {
-  --color-zass-primary: #e63946;
-  --color-zass-secondary: #ff6b35;
-  --color-zass-accent: #ffb703;
-  --color-zass-cream: #fff9f5;
-  --color-zass-dark: #171717;
-  --color-zass-success: #22c55e;
-  --color-zass-warning: #f59e0b;
-  --color-zass-error: #ef4444;
+  --color-zass-primary: #22d3ee;
+  --color-zass-secondary: #ff8a3d;
+  --color-zass-accent: #fbbf24;
+  --color-zass-violet: #8b5cf6;
+  --color-zass-mist: #f2f8fb;
+  --color-zass-dark: #0a1622;
+  --color-zass-success: #34d399;
+  --color-zass-warning: #fbbf24;
+  --color-zass-error: #fb7185;
 
   /* Tints/shades, for hovers, rings and washes. */
-  --color-zass-primary-hover: #cf2f3c;
-  --color-zass-primary-soft: #fdecee;
-  --color-zass-secondary-hover: #ec5a26;
-  --color-zass-secondary-soft: #fff0e9;
-  --color-zass-accent-soft: #fff5dc;
-  --color-zass-success-soft: #e8f9ef;
-  --color-zass-warning-soft: #fef4e2;
-  --color-zass-error-soft: #fdeceb;
+  --color-zass-primary-hover: #67e8f9;
+  --color-zass-primary-soft: #0d2f3d;
+  --color-zass-secondary-hover: #ffa163;
+  --color-zass-secondary-soft: #3a2010;
+  --color-zass-accent-soft: #362a0c;
+  --color-zass-violet-soft: #241b45;
+  --color-zass-success-soft: #0a2c22;
+  --color-zass-warning-soft: #362a0c;
+  --color-zass-error-soft: #3a1620;
 
   --font-display:
     var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -39,10 +43,10 @@
   --radius-card: 20px;
   --radius-panel: 24px;
 
-  /* Warm-tinted shadows. A neutral gray shadow on cream reads as dirt. */
-  --shadow-card: 0 1px 2px rgb(87 58 46 / 0.04), 0 8px 24px -12px rgb(87 58 46 / 0.12);
-  --shadow-card-hover: 0 2px 4px rgb(87 58 46 / 0.06), 0 18px 40px -16px rgb(87 58 46 / 0.22);
-  --shadow-panel: 0 24px 64px -24px rgb(87 58 46 / 0.28);
+  /* Cool-tinted shadows. A warm shadow on navy reads as mud. */
+  --shadow-card: 0 1px 2px rgb(3 18 32 / 0.06), 0 8px 24px -12px rgb(3 18 32 / 0.18);
+  --shadow-card-hover: 0 2px 4px rgb(3 18 32 / 0.08), 0 18px 40px -16px rgb(3 18 32 / 0.32);
+  --shadow-panel: 0 24px 64px -24px rgb(3 18 32 / 0.42);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -53,80 +57,95 @@
  * design rather than an inversion of the first.
  * ───────────────────────────────────────────────────────────── */
 :root {
-  --canvas: #fff9f5;
+  --canvas: #f2f8fb;
   --surface: #ffffff;
-  --surface-muted: #faf4f0;
-  --surface-sunken: #f4ece7;
-  --surface-inverse: #171717;
+  --surface-muted: #edf4f9;
+  --surface-sunken: #e2edf4;
+  --surface-inverse: #0a1622;
 
-  --border-subtle: #f0e6e0;
-  --border-default: #e6d9d2;
-  --border-strong: #d3c2b9;
+  --border-subtle: #e3edf4;
+  --border-default: #cfdfe9;
+  --border-strong: #a7c0d1;
 
-  --text-primary: #171717;
-  --text-secondary: #6b6259;
-  --text-muted: #9a9089;
-  --text-inverse: #fff9f5;
+  --text-primary: #0a1622;
+  --text-secondary: #4c6577;
+  --text-muted: #75909f;
+  --text-inverse: #f2f8fb;
 
-  --brand: #e63946;
-  --brand-hover: #cf2f3c;
+  /* Cyan deepened until white text clears AA on it — the neon value
+     belongs on the dark ground, not on paper. */
+  --brand: #0e7490;
+  --brand-hover: #155e75;
   --brand-contrast: #ffffff;
-  --brand-soft: #fdecee;
-  --brand-ring: rgb(230 57 70 / 0.35);
+  --brand-soft: #dff3f9;
+  --brand-ring: rgb(14 116 144 / 0.3);
 
-  --secondary: #ff6b35;
-  --secondary-soft: #fff0e9;
-  --accent: #f59f00;
-  --accent-soft: #fff5dc;
+  --secondary: #d9480f;
+  --secondary-soft: #ffece0;
+  --accent: #b45309;
+  --accent-soft: #fff3d9;
+  --violet: #5b46d9;
+  --violet-soft: #ebe8fd;
 
-  --state-success: #16a34a;
-  --state-success-soft: #e8f9ef;
+  --state-success: #047857;
+  --state-success-soft: #ddf6ed;
   --state-warning: #b45309;
-  --state-warning-soft: #fef4e2;
+  --state-warning-soft: #fff3d9;
   --state-error: #dc2626;
-  --state-error-soft: #fdeceb;
+  --state-error-soft: #fdeaea;
 
-  --skeleton-base: #f1e7e1;
-  --skeleton-sheen: #fbf6f3;
+  --skeleton-base: #e4eef5;
+  --skeleton-sheen: #f5fafd;
+
+  /* Glows read as a light-touch coloured lift on paper, and as real
+     neon bloom in the dark theme. */
+  --glow-brand: 0 8px 28px -10px rgb(14 116 144 / 0.4);
+  --glow-warm: 0 8px 28px -10px rgb(217 72 15 / 0.4);
 }
 
 .dark {
-  --canvas: #141211;
-  --surface: #1e1b1a;
-  --surface-muted: #262221;
-  --surface-sunken: #100e0d;
-  --surface-inverse: #fff9f5;
+  --canvas: #0a1622;
+  --surface: #111f2d;
+  --surface-muted: #17293a;
+  --surface-sunken: #060e17;
+  --surface-inverse: #eaf4fa;
 
-  --border-subtle: #2b2725;
-  --border-default: #38322f;
-  --border-strong: #4d4542;
+  --border-subtle: #1c3145;
+  --border-default: #264057;
+  --border-strong: #38596f;
 
-  --text-primary: #f7f2ef;
-  --text-secondary: #b0a7a1;
-  --text-muted: #857b75;
-  --text-inverse: #171717;
+  --text-primary: #e8f3fa;
+  --text-secondary: #9cb5c8;
+  --text-muted: #6b8599;
+  --text-inverse: #0a1622;
 
-  /* Same hues, lifted for contrast against a dark ground — not hue-shifted. */
-  --brand: #ff5a67;
-  --brand-hover: #ff7079;
-  --brand-contrast: #2a0d10;
-  --brand-soft: #34191c;
-  --brand-ring: rgb(255 90 103 / 0.4);
+  /* Same hues, taken to full neon against the navy ground — this is
+     the theme the palette was designed for. */
+  --brand: #22d3ee;
+  --brand-hover: #67e8f9;
+  --brand-contrast: #04202b;
+  --brand-soft: #0d2f3d;
+  --brand-ring: rgb(34 211 238 / 0.38);
 
-  --secondary: #ff8355;
-  --secondary-soft: #351c12;
-  --accent: #ffc833;
-  --accent-soft: #35290c;
+  --secondary: #ff8a3d;
+  --secondary-soft: #3a2010;
+  --accent: #fbbf24;
+  --accent-soft: #362a0c;
+  --violet: #a78bfa;
+  --violet-soft: #241b45;
 
-  --state-success: #4ade80;
-  --state-success-soft: #102a1a;
+  --state-success: #34d399;
+  --state-success-soft: #0a2c22;
   --state-warning: #fbbf24;
-  --state-warning-soft: #302109;
-  --state-error: #f87171;
-  --state-error-soft: #331616;
+  --state-warning-soft: #362a0c;
+  --state-error: #fb7185;
+  --state-error-soft: #3a1620;
 
-  --skeleton-base: #262221;
-  --skeleton-sheen: #322d2b;
+  --skeleton-base: #17293a;
+  --skeleton-sheen: #22384b;
+
+  --glow-brand: 0 0 0 1px rgb(34 211 238 / 0.16), 0 10px 34px -8px rgb(34 211 238 / 0.45);
+  --glow-warm: 0 0 0 1px rgb(255 138 61 / 0.18), 0 10px 34px -8px rgb(255 138 61 / 0.5);
 }
 
 /* Expose the semantic layer to Tailwind as utilities: bg-surface,
@@ -156,6 +175,8 @@
   --color-accent-warm-soft: var(--secondary-soft);
   --color-accent-gold: var(--accent);
   --color-accent-gold-soft: var(--accent-soft);
+  --color-accent-violet: var(--violet);
+  --color-accent-violet-soft: var(--violet-soft);
 
   --color-success: var(--state-success);
   --color-success-soft: var(--state-success-soft);
@@ -163,6 +184,10 @@
   --color-warning-soft: var(--state-warning-soft);
   --color-danger: var(--state-error);
   --color-danger-soft: var(--state-error-soft);
+
+  /* shadow-glow / shadow-glow-warm */
+  --shadow-glow: var(--glow-brand);
+  --shadow-glow-warm: var(--glow-warm);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -268,25 +293,121 @@
     }
   }
 
+  /* Two cyan/violet blooms over the canvas, the way the wheel lights
+     the page from its centre rather than a flat top-to-bottom ramp. */
   .gradient-hero {
-    background-image: linear-gradient(160deg, #fff9f5 0%, #ffeee4 55%, #ffe3d3 100%);
+    background-color: var(--canvas);
+    background-image:
+      radial-gradient(70rem 40rem at 78% -10%, rgb(14 116 144 / 0.14) 0%, transparent 60%),
+      radial-gradient(55rem 35rem at 8% 105%, rgb(91 70 217 / 0.12) 0%, transparent 62%);
   }
   .dark .gradient-hero {
-    background-image: linear-gradient(160deg, #141211 0%, #1f1715 55%, #2a1a15 100%);
+    background-image:
+      radial-gradient(70rem 40rem at 78% -10%, rgb(34 211 238 / 0.16) 0%, transparent 60%),
+      radial-gradient(55rem 35rem at 8% 105%, rgb(139 92 246 / 0.14) 0%, transparent 62%),
+      radial-gradient(40rem 30rem at 50% 50%, rgb(255 138 61 / 0.06) 0%, transparent 70%);
+  }
+
+  /* The faint perspective grid behind the hero art. Sits under content
+     at low opacity; purely decorative, so it never carries meaning. */
+  .grid-backdrop {
+    background-image:
+      linear-gradient(to right, var(--border-subtle) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
+    mask-image: radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
   }
 
   .gradient-brand {
-    background-image: linear-gradient(120deg, #e63946 0%, #ff6b35 100%);
+    background-image: linear-gradient(120deg, #0e7490 0%, #5b46d9 100%);
+  }
+  .dark .gradient-brand {
+    background-image: linear-gradient(120deg, #22d3ee 0%, #8b5cf6 100%);
+  }
+
+  /* The orange CTA ring from the centre of the wheel. */
+  .gradient-warm {
+    background-image: linear-gradient(120deg, #d9480f 0%, #b45309 100%);
+  }
+  .dark .gradient-warm {
+    background-image: linear-gradient(120deg, #ff8a3d 0%, #fbbf24 100%);
   }
 
   .text-gradient-brand {
-    background-image: linear-gradient(120deg, #e63946 0%, #ff6b35 100%);
+    background-image: linear-gradient(120deg, #0e7490 0%, #5b46d9 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .dark .text-gradient-brand {
-    background-image: linear-gradient(120deg, #ff5a67 0%, #ff8355 100%);
+    background-image: linear-gradient(120deg, #22d3ee 0%, #a78bfa 100%);
+  }
+
+  /* A hairline neon edge — used on cards and the sticky nav so panels
+     separate from the canvas without a heavy border. */
+  .neon-edge {
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+      var(--shadow-card);
+  }
+
+  /* Horizontal rails: the scrollbar is noise under a row of cards, and the
+     snap points are what make a flick land on a card rather than between two. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail {
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.25rem;
+  }
+  .rail > * {
+    scroll-snap-align: start;
+  }
+
+  /* The hero's plate: concentric warm rings under the food art, echoing the
+     wheel the palette's orange CTA ring is taken from. */
+  .hero-plate {
+    background-image:
+      radial-gradient(circle at 50% 50%, rgb(217 72 15 / 0.16) 0%, transparent 42%),
+      conic-gradient(
+        from 210deg,
+        rgb(14 116 144 / 0.22),
+        rgb(91 70 217 / 0.18),
+        rgb(217 72 15 / 0.22),
+        rgb(14 116 144 / 0.22)
+      );
+  }
+  .dark .hero-plate {
+    background-image:
+      radial-gradient(circle at 50% 50%, rgb(255 138 61 / 0.22) 0%, transparent 42%),
+      conic-gradient(
+        from 210deg,
+        rgb(34 211 238 / 0.3),
+        rgb(139 92 246 / 0.26),
+        rgb(255 138 61 / 0.3),
+        rgb(34 211 238 / 0.3)
+      );
+  }
+
+  /* The plate turns slowly enough to read as ambient rather than as motion
+     asking for attention; prefers-reduced-motion stops it below. */
+  .hero-plate-spin {
+    animation: zass-orbit 60s linear infinite;
+  }
+
+  @keyframes zass-orbit {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .skeleton-sheen {

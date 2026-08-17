@@ -1,34 +1,43 @@
 import { RestaurantStatus, PriceRange } from './enums'
 
+/**
+ * A restaurant, mirroring `restaurant-response.dto.ts` on the backend.
+ *
+ * The optional strings are `null` on the wire, not absent — checking them with
+ * `!== undefined` passes a null straight through to an <img> or a paragraph.
+ */
 export interface RestaurantDto {
   id: string
   name: string
-  nameUr?: string
+  nameUr: string | null
   slug: string
-  description?: string
-  logoUrl?: string
-  coverUrl?: string
-  phone?: string
+  description: string | null
+  logoUrl: string | null
+  coverUrl: string | null
+  phone: string
   addressLine: string
-  landmark?: string
+  landmark: string | null
   latitude: number
   longitude: number
   city: { id: string; name: string; slug: string }
   zone: { id: string; name: string; slug: string }
   categories: Array<{ id: string; name: string; slug?: string }>
   status: RestaurantStatus
-  priceRange?: PriceRange
+  priceRange: PriceRange
+  /** The owner's manual on/off switch. */
   isAcceptingOrders: boolean
   isFeatured: boolean
   isOpenNow: boolean
+  /** Approved, accepting orders *and* open — the flag to gate ordering on. */
   canOrderNow: boolean
-  opensInMinutes?: number
+  opensInMinutes: number | null
   rating: number
   ratingCount: number
   minOrderAmount: number
   avgPreparationMinutes: number
   deliveryRadiusMeters: number
-  distanceMeters?: number
+  /** Metres from the coordinates supplied in the query, when they were. */
+  distanceMeters?: number | null
   images?: RestaurantImageDto[]
   hours?: BusinessHourResponseDto[]
   createdAt: string
@@ -36,21 +45,22 @@ export interface RestaurantDto {
 
 export interface RestaurantAdminDto extends RestaurantDto {
   ownerId: string
+  /** Platform commission percentage. */
   commissionRate: number
-  submittedAt?: string
-  approvedAt?: string
-  approvedById?: string
-  rejectionReason?: string
-  deletedAt?: string
+  submittedAt: string | null
+  approvedAt: string | null
+  approvedById: string | null
+  rejectionReason: string | null
+  deletedAt: string | null
 }
 
 export interface CategoryDto {
   id: string
   name: string
-  nameUr?: string
+  nameUr: string | null
   slug: string
-  iconUrl?: string
-  sortOrder?: number
+  iconUrl: string | null
+  sortOrder: number
   isActive: boolean
 }
 
@@ -67,27 +77,23 @@ export type UpdateRestaurantCategoryDto = Partial<CreateRestaurantCategoryDto>
 
 export interface RestaurantImageDto {
   id: string
-  restaurantId: string
   url: string
-  caption?: string
-  sortOrder?: number
-  createdAt: string
+  caption: string | null
+  sortOrder: number
 }
 
 export interface BusinessHourResponseDto {
-  id: string
-  restaurantId: string
   dayOfWeek: string
+  /** "11:00", in the restaurant's local time. */
   opensAt: string
   closesAt: string
   isClosed: boolean
-  createdAt: string
 }
 
 export interface OpenState {
   isOpenNow: boolean
-  opensInMinutes?: number
-  closesInMinutes?: number
+  opensInMinutes: number | null
+  closesInMinutes: number | null
 }
 
 export interface RegisterRestaurantDto {

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!--
+    The stand-in for a dish or cover photo we do not have.
+
+    Deliberately drawn on a transparent ground in one mid-tone: the tile behind
+    it is a themed surface, so the same file reads correctly on paper and on
+    navy without needing a second dark-mode asset.
+  -->
+  <g stroke="#8AA4B6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8">
+    <circle cx="80" cy="60" r="31" fill="#8AA4B6" fill-opacity="0.12" />
+    <circle cx="80" cy="60" r="19" />
+
+    <!-- fork -->
+    <path d="M37 30v13M45 30v13M53 30v13" />
+    <path d="M37 43h16v3a8 8 0 0 1-8 8 8 8 0 0 1-8-8z" fill="#8AA4B6" fill-opacity="0.12" />
+    <path d="M45 54v36" />
+
+    <!-- knife -->
+    <path d="M117 30c5 7 5 19 0 26h-8V47c0-7 3-13 8-17z" fill="#8AA4B6" fill-opacity="0.12" />
+    <path d="M113 56v34" />
+  </g>
+</svg>

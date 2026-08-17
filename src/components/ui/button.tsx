@@ -20,16 +20,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-brand text-brand-contrast shadow-card hover:bg-brand-hover hover:shadow-card-hover",
+        // The glow is the hover reward across the solid variants — it is what
+        // makes a neon palette feel lit rather than merely dark.
+        primary: "bg-brand text-brand-contrast shadow-card hover:bg-brand-hover hover:shadow-glow",
         secondary:
-          "bg-accent-warm text-white shadow-card hover:bg-zass-secondary-hover hover:shadow-card-hover dark:text-[#2a0f06]",
+          "bg-accent-warm text-white shadow-card hover:bg-zass-secondary-hover hover:shadow-glow-warm dark:text-[#2a1204]",
         outline:
           "border border-border-strong bg-transparent text-primary hover:border-brand hover:bg-brand-soft hover:text-brand",
         ghost: "bg-transparent text-secondary hover:bg-surface-muted hover:text-primary",
-        danger: "bg-danger text-white shadow-card hover:brightness-110 dark:text-[#2a0d0d]",
-        success: "bg-success text-white shadow-card hover:brightness-110 dark:text-[#062713]",
+        danger: "bg-danger text-white shadow-card hover:brightness-110 dark:text-[#2a0d12]",
+        success: "bg-success text-white shadow-card hover:brightness-110 dark:text-[#04231a]",
         gradient:
-          "gradient-brand text-white shadow-card hover:shadow-card-hover hover:brightness-105",
+          "gradient-brand text-white shadow-card hover:shadow-glow hover:brightness-105 dark:text-[#04202b]",
+        /** The wheel's centre CTA: orange ring, warm bloom. */
+        neon: "gradient-warm text-white shadow-card hover:shadow-glow-warm hover:brightness-105 dark:text-[#2a1204]",
       },
       size: {
         sm: "h-9 rounded-[10px] px-3.5 text-sm",

@@ -1,52 +1,48 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
-import { RevealGroup, RevealItem } from "@/components/ui/reveal";
-import { Badge } from "@/components/ui/status-pill";
+import { CategoryStrip } from "@/components/home/category-strip";
+import { Hero } from "@/components/home/hero";
+import { OfferBanner } from "@/components/home/offer-banner";
+import { PopularRail } from "@/components/home/popular-rail";
+import { PromoBand } from "@/components/home/promo-band";
+import { RestaurantRail } from "@/components/home/restaurant-rail";
 
 /**
- * Placeholder home.
+ * The storefront.
  *
- * The real hero, categories, featured restaurants and offers band are Phase 3 —
- * they need /banners, /restaurants/categories, /search/popular and
- * /coupons/available, and §5.2 is explicit that none of it may be fabricated in
- * the meantime. This stands the shell up without inventing a single figure.
+ * Every section below the hero is fed by a real endpoint — categories,
+ * restaurants, popular dishes, the signed-in customer's own coupons — and each
+ * one hides itself rather than inventing content when its source is empty.
  */
 export default function HomePage() {
   return (
-    <section className="gradient-hero">
-      <RevealGroup
-        trigger="mount"
-        className="container-zass flex min-h-[70vh] flex-col items-start justify-center gap-6 py-24"
-      >
-        <RevealItem>
-          <Badge variant="soft">Phase 1 · Design system &amp; shell</Badge>
-        </RevealItem>
+    <>
+      <Hero />
 
-        <RevealItem>
-          <h1 className="max-w-3xl text-5xl leading-[1.05] lg:text-7xl">
-            Your cravings.
-            <br />
-            <span className="text-gradient-brand">Delivered.</span>
-          </h1>
-        </RevealItem>
+      <div className="container-zass flex flex-col gap-16 py-14 lg:gap-20 lg:py-20">
+        <CategoryStrip />
 
-        <RevealItem>
-          <p className="max-w-xl text-lg leading-relaxed text-secondary">
-            The storefront lands in Phase 3, once the restaurant, category and search endpoints are
-            wired up. For now, the foundation this whole app is built on is ready to review.
-          </p>
-        </RevealItem>
+        <PromoBand />
 
-        <RevealItem className="flex flex-wrap items-center gap-3 pt-2">
-          <Button size="lg" variant="gradient" asChild>
-            <Link href="/design-system">View the design system</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link href="/login">Sign in</Link>
-          </Button>
-        </RevealItem>
-      </RevealGroup>
-    </section>
+        <RestaurantRail
+          title="Top restaurants"
+          description="The highest-rated kitchens delivering right now."
+          query={{ limit: 8, sortBy: "rating", sortOrder: "desc", acceptingOnly: true }}
+        />
+
+        <PopularRail
+          title="Popular near you"
+          description="The dishes people are ordering most this week."
+        />
+
+        <OfferBanner />
+
+        <RestaurantRail
+          title="New on ZassDelivery"
+          description="Kitchens that just joined."
+          query={{ limit: 8, sortBy: "createdAt", sortOrder: "desc" }}
+          emptyTitle="No new kitchens this week"
+          emptyDescription="Newly approved restaurants show up here as they join."
+        />
+      </div>
+    </>
   );
 }

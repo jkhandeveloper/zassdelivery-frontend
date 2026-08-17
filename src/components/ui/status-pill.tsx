@@ -190,11 +190,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        solid: "gradient-brand text-white",
+        solid: "gradient-brand text-white dark:text-[#04202b]",
         soft: "bg-brand-soft text-brand",
         outline: "border border-border-strong text-secondary",
         gold: "bg-accent-gold-soft text-accent-gold",
         dark: "bg-surface-inverse text-inverse",
+        /** Cuisine/vibe tags — the tinted chip pairs under a card's title. */
+        warm: "bg-accent-warm-soft text-accent-warm",
+        violet: "bg-accent-violet-soft text-accent-violet",
       },
       size: {
         sm: "px-2.5 py-0.5 text-xs",

@@ -60,14 +60,14 @@ export default function DesignSystemPage() {
       <Section title="Palette" description="§2's tokens, plus the semantic surfaces built on them.">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
           {[
-            { name: "Primary", className: "bg-zass-primary", hex: "#E63946" },
-            { name: "Secondary", className: "bg-zass-secondary", hex: "#FF6B35" },
-            { name: "Accent", className: "bg-zass-accent", hex: "#FFB703" },
-            { name: "Cream", className: "bg-zass-cream", hex: "#FFF9F5" },
-            { name: "Dark", className: "bg-zass-dark", hex: "#171717" },
-            { name: "Success", className: "bg-zass-success", hex: "#22C55E" },
-            { name: "Warning", className: "bg-zass-warning", hex: "#F59E0B" },
-            { name: "Error", className: "bg-zass-error", hex: "#EF4444" },
+            { name: "Primary", className: "bg-zass-primary", hex: "#22D3EE" },
+            { name: "Secondary", className: "bg-zass-secondary", hex: "#FF8A3D" },
+            { name: "Accent", className: "bg-zass-accent", hex: "#FBBF24" },
+            { name: "Violet", className: "bg-zass-violet", hex: "#8B5CF6" },
+            { name: "Mist", className: "bg-zass-mist", hex: "#F2F8FB" },
+            { name: "Dark", className: "bg-zass-dark", hex: "#0A1622" },
+            { name: "Success", className: "bg-zass-success", hex: "#34D399" },
+            { name: "Error", className: "bg-zass-error", hex: "#FB7185" },
           ].map((swatch) => (
             <div key={swatch.name} className="flex flex-col gap-2">
               <div
@@ -102,6 +102,7 @@ export default function DesignSystemPage() {
           <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="gradient">Gradient</Button>
+          <Button variant="neon">Neon</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="danger">Danger</Button>
@@ -172,6 +173,8 @@ export default function DesignSystemPage() {
           <Badge variant="solid">30% off</Badge>
           <Badge variant="soft">Free delivery</Badge>
           <Badge variant="gold">Popular</Badge>
+          <Badge variant="warm">Street food</Badge>
+          <Badge variant="violet">Late night</Badge>
           <Badge variant="outline">Halal</Badge>
           <Badge variant="dark">New</Badge>
         </div>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- The stand-in for a restaurant logo or storefront image. Same ground rules
+       as placeholder-food.svg: transparent, one mid-tone, theme-agnostic. -->
+  <g stroke="#8AA4B6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8">
+    <path d="M42 52h76v40H42z" fill="#8AA4B6" fill-opacity="0.1" />
+    <path d="M36 34h88l8 18H28z" fill="#8AA4B6" fill-opacity="0.16" />
+    <path d="M28 52c0 6 5 10 11 10s11-4 11-10M50 52c0 6 5 10 11 10s11-4 11-10M72 52c0 6 5 10 11 10s11-4 11-10M94 52c0 6 5 10 11 10s11-4 11-10M116 52c0 6 5 10 11 10s11-4 11-10" />
+    <path d="M68 92V72h24v20" />
+  </g>
+</svg>

@@ -34,7 +34,7 @@ const COLUMNS = [
 /** §2: dark, premium. The last thing on every customer page. */
 export function Footer() {
   return (
-    <footer className="mt-auto bg-zass-dark text-[#c9c0ba]">
+    <footer className="mt-auto bg-zass-dark text-[#9cb5c8]">
       <div className="container-zass py-16 lg:py-20">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.5fr_repeat(3,1fr)]">
           <div className="flex flex-col gap-4">
@@ -69,7 +69,7 @@ export function Footer() {
           <p className="text-sm">
             © {new Date().getFullYear()} ZassDelivery. All rights reserved.
           </p>
-          <p className="text-sm">Made for Pakistan 🇵🇰</p>
+          <p className="text-sm">Made for Pakistan</p>
         </div>
       </div>
     </footer>

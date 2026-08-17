@@ -1,7 +1,17 @@
+/**
+ * Search results, mirroring `search-response.dto.ts` on the backend.
+ *
+ * Verified against the live responses rather than transcribed from prose: a
+ * dish hit carries `effectivePrice` (not `price`), its own id is the menu item
+ * id, and every hit that can be navigated to carries the restaurant's slug —
+ * which is what the storefront routes are keyed by.
+ */
+
 export interface GlobalSearchDto {
   restaurants: RestaurantHitDto[]
   dishes: FoodHitDto[]
   categories: CategoryHitDto[]
+  /** Total matches across all three groups. */
   totalResults: number
 }
 
@@ -9,47 +19,88 @@ export interface RestaurantHitDto {
   id: string
   name: string
   slug: string
-  logoUrl?: string
+  logoUrl: string | null
+  coverUrl: string | null
+  description: string | null
   rating: number
-  distance?: number
+  ratingCount: number
+  priceRange: string
   minOrderAmount: number
-  deliveryTime: number
-  isOpenNow: boolean
+  avgPreparationMinutes: number
+  cityName: string
+  zoneName: string
+  /** Category names, already flattened. */
+  categories: string[]
+  isAcceptingOrders: boolean
+  /** Metres from the supplied coordinates; null when none were given. */
+  distanceMeters: number | null
+  /** Full-text rank. Zero when the request carried no search term. */
+  relevance: number
 }
 
 export interface FoodHitDto {
+  /** The menu item's id — what /cart/items expects. */
   id: string
   name: string
-  itemId: string
+  description: string | null
+  imageUrl: string | null
+  basePrice: number
+  discountedPrice: number | null
+  /** What the customer pays: the discount when there is one, else basePrice. */
+  effectivePrice: number
+  isVegetarian: boolean
+  spiceLevel: string
+  rating: number
+  ratingCount: number
   restaurantId: string
   restaurantName: string
-  price: number
-  imageUrl?: string
-  rating: number
-  isVegetarian: boolean
+  restaurantSlug: string
+  restaurantRating: number
+  distanceMeters: number | null
+  relevance: number
 }
 
 export interface CategoryHitDto {
   id: string
   name: string
   slug: string
-  imageUrl?: string
+  iconUrl: string | null
+  /** Active restaurants in this category. */
+  restaurantCount: number
 }
 
-export interface TrendingHitDto extends FoodHitDto {
-  orders: number
+/** Trending is restaurants, not dishes — the shape differs from a food hit. */
+export interface TrendingHitDto {
+  restaurantId: string
+  name: string
+  slug: string
+  logoUrl: string | null
+  rating: number
+  /** Delivered orders inside the window. */
+  recentOrders: number
 }
 
-export interface PopularFoodHitDto extends FoodHitDto {
-  orders: number
+export interface PopularFoodHitDto {
+  id: string
+  name: string
+  imageUrl: string | null
+  effectivePrice: number
+  rating: number
+  ratingCount: number
+  restaurantName: string
+  restaurantSlug: string
+  /** Lifetime order lines for this dish. */
+  orderCount: number
 }
 
 export interface AutocompleteHitDto {
   type: 'restaurant' | 'dish' | 'category'
   id: string
   label: string
-  slug?: string
-  imageUrl?: string
+  /** Where to navigate. For a dish this is its restaurant's slug. */
+  slug: string
+  imageUrl: string | null
+  /** Trigram similarity, 0–1. A prefix match scores 1. */
   score: number
 }
 

@@ -20,14 +20,15 @@ export interface CartDto {
 }
 
 /**
- * An empty cart has no restaurant to report, so the API returns this shape
- * instead. Narrow on `items.length` or the absence of `restaurant`.
+ * An empty cart has no restaurant, no lines and no totals to report, so the API
+ * answers with this stub instead — verified against `EmptyCartDto` on the
+ * backend. Nothing but `isEmpty` and `message` exists on it, so narrow with
+ * `isFilledCart` before reaching for items or totals.
  */
 export interface EmptyCartDto {
-  id?: string
-  items: []
-  totals?: Partial<CartTotalsDto>
-  restaurant?: undefined
+  id: null
+  isEmpty: true
+  message: string
 }
 
 export interface CartRestaurantDto {

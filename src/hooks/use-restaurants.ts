@@ -47,10 +47,12 @@ export function useRestaurantImages(id: string) {
   })
 }
 
-export function useRestaurantCategories() {
+export function useRestaurantCategories(
+  query?: Parameters<typeof restaurantApi.getRestaurantCategories>[0],
+) {
   return useQuery({
-    queryKey: [...restaurantKeys.all, 'categories'],
-    queryFn: () => restaurantApi.getRestaurantCategories(),
+    queryKey: [...restaurantKeys.all, 'categories', query || {}],
+    queryFn: () => restaurantApi.getRestaurantCategories(query),
     staleTime: 30 * 60 * 1000,
   })
 }

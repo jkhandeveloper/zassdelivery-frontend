@@ -1,20 +1,21 @@
 import type { AddressLabel } from './enums'
 import type { UserStatus } from './auth'
 
+/** The account, mirroring `user-response.dto.ts` — optional strings arrive null. */
 export interface UserDto {
   id: string
   phone: string
   fullName: string
-  email?: string
-  avatarUrl?: string
+  email: string | null
+  avatarUrl: string | null
   locale: string
   role: string
   status: UserStatus
-  staffRestaurantId?: string
+  staffRestaurantId: string | null
   isPhoneVerified: boolean
-  lastLoginAt?: string
+  lastLoginAt: string | null
   createdAt: string
-  deletedAt?: string
+  deletedAt?: string | null
 }
 
 export interface UpdateProfileDto {
@@ -27,17 +28,17 @@ export interface UpdateProfileDto {
 
 export interface AddressDto {
   id: string
-  label?: AddressLabel
+  label: AddressLabel | null
   line1: string
-  line2?: string
-  landmark?: string
+  line2: string | null
+  landmark: string | null
   cityId: string
   zoneId: string
   latitude: number
   longitude: number
-  recipientName?: string
-  recipientPhone?: string
-  deliveryNotes?: string
+  recipientName: string | null
+  recipientPhone: string | null
+  deliveryNotes: string | null
   isDefault: boolean
   isDeliverable: boolean
   createdAt: string
