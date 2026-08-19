@@ -1,16 +1,26 @@
-import { PhasePlaceholder } from "@/components/layout/phase-placeholder";
+"use client";
 
-export const metadata = { title: "Support" };
+import { SupportView } from "@/components/support/support-view";
+import { TicketCategory } from "@/types/enums";
 
-export default function Page() {
+/**
+ * Rider support.
+ *
+ * Lives inside the rider shell rather than linking to the customer `/support`
+ * page — that route sits in the storefront layout, so sending a rider there put
+ * them behind the customer navbar with a cart and a restaurant list.
+ */
+export default function RiderSupportPage() {
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
+    <SupportView
       title="Support"
-      description="Raise a ticket and follow the conversation."
-      endpoints={[
-        "GET /support-tickets",
-        "POST /support-tickets",
+      description="Something wrong with a run, your earnings or your account? Open a ticket and we'll pick it up."
+      categories={[
+        TicketCategory.DELIVERY_ISSUE,
+        TicketCategory.ORDER_ISSUE,
+        TicketCategory.PAYMENT_ISSUE,
+        TicketCategory.ACCOUNT,
+        TicketCategory.OTHER,
       ]}
     />
   );

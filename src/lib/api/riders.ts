@@ -4,6 +4,7 @@ import type {
   RegisterRiderDto,
   UpdateRiderDto,
   RiderDocumentDto,
+  RiderWalletDto,
   UploadDocumentDto,
   SetAvailabilityDto,
   UpdateLocationDto,
@@ -83,7 +84,7 @@ export const riderApi = {
   getEarningsSummary: () =>
     apiGet<EarningsSummaryDto>('/riders/me/earnings/summary'),
 
-  getWallet: () => apiGet('/riders/me/wallet'),
+  getWallet: () => apiGet<RiderWalletDto>('/riders/me/wallet'),
 
   getWalletTransactions: (query?: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }) =>
     apiGetPaginated<WalletTransactionDto>('/riders/me/wallet/transactions', { params: query }),

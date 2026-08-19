@@ -61,10 +61,12 @@ export interface MenuItemDto {
 
 /** The management view: same item, plus the inventory fields customers never see. */
 export interface MenuItemAdminDto extends MenuItemDto {
-  trackInventory?: boolean
-  stockQuantity?: number | null
-  lowStockThreshold?: number | null
-  deletedAt?: string | null
+  trackInventory: boolean
+  stockQuantity: number
+  lowStockThreshold: number
+  /** Already computed by the API — do not re-derive it from the two above. */
+  isLowStock: boolean
+  deletedAt: string | null
 }
 
 export interface MenuVariantDto {

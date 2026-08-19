@@ -2,7 +2,7 @@
 
 [← Back to docs index](README.md)
 
-All **250 endpoints are implemented and working**. Base URL:
+All **251 endpoints are implemented and working**. Base URL:
 
 ```
 http://localhost:3000/api/v1
@@ -54,12 +54,13 @@ curl http://localhost:3000/api/v1/orders \
 | Authentication | 6 | Public |
 | Restaurants | 5 | Public |
 | Menus | 4 | Public |
+| Zones | 1 | Public |
 | Restaurant Categories | 3 | Admin permissions |
 | Realtime | 3 | Signed-in |
 | Audit Log | 3 | `audit.read` |
 | Health | 3 | Public |
 | Payment Webhooks | 2 | Gateway only — signature verified |
-| **Total** | **250** | |
+| **Total** | **251** | |
 
 ---
 
@@ -156,6 +157,26 @@ banners.update  payouts.approve
 > Some vendor and order endpoints carry **no** role decorator — ownership is enforced inside the
 > use-case instead. Swagger will not show a role hint on those, but they are still protected.
 > Test them explicitly (see QA-TESTING case API-05).
+
+---
+
+## Delivery geography
+
+```
+GET /zones      public, unpaginated
+```
+
+Returns every active zone in an active city with its `centerLat`, `centerLng` and
+`radiusMeters`, plus baseline `deliveryFee`, `minOrderAmount` and `etaMinutes`.
+
+This matters more than a reference list. **An address is only saved when its coordinates fall
+inside a zone** — `POST /me/addresses` resolves the zone from the point and returns `422` for
+anything outside every one, and `POST /restaurant-management` does the same. A client that
+cannot see the service area can only offer the customer a blind guess against a rejection, which
+is precisely what a hardcoded `latitude: 0, longitude: 0` produced.
+
+The frontend tests the point against these circles with the same Haversine formula the backend
+uses (`src/types/geo.ts`), so a location the picker calls "inside" is one the API accepts.
 
 ---
 

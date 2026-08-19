@@ -26,7 +26,10 @@ const RIDER_NAV: readonly RoleNavGroup[] = [
   },
   {
     heading: "Help",
-    items: [{ href: "/support", label: "Support", icon: LifeBuoy }],
+    // The rider's own support screen, not the customer one at /support — that
+    // route lives in the customer shell, so sending a rider there dropped them
+    // onto the storefront navbar and let them order food from the portal.
+    items: [{ href: "/rider/support", label: "Support", icon: LifeBuoy }],
   },
 ];
 

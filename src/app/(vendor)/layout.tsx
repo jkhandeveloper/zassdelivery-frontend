@@ -36,7 +36,10 @@ const VENDOR_NAV: readonly RoleNavGroup[] = [
   },
   {
     heading: "Help",
-    items: [{ href: "/support", label: "Support", icon: LifeBuoy }],
+    // The vendor's own support screen, not the customer one at /support — that
+    // route lives in the customer shell, so sending a vendor there dropped them
+    // onto the storefront navbar and let them order food from the portal.
+    items: [{ href: "/vendor/support", label: "Support", icon: LifeBuoy }],
   },
 ];
 

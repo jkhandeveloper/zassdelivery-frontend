@@ -1,35 +1,46 @@
 import { TicketStatus, TicketPriority, TicketCategory, AuditAction } from './enums'
 
+/**
+ * Support tickets, mirroring the backend's `admin-response.dto.ts`.
+ *
+ * Transcribed from the source: the identifier is `ticketNumber`, the opening
+ * message is the first entry in `messages` rather than a `description` field,
+ * and the counterparty is denormalised onto the ticket as `customerName` /
+ * `assignedToName` rather than nested objects.
+ */
 export interface TicketDto {
   id: string
-  number: string
-  userId: string
+  ticketNumber: string
   category: TicketCategory
-  subject: string
-  description: string
-  status: TicketStatus
   priority: TicketPriority
-  orderId?: string
-  assignedToId?: string
-  assignedTo?: { id: string; fullName: string }
-  attachmentUrl?: string
-  internalNotes?: SupportTicketMessageDto[]
+  status: TicketStatus
+  subject: string
+  customerName: string
+  customerPhone: string
+  assignedToName: string | null
+  assignedToId: string | null
+  orderNumber: string | null
+  orderId: string | null
+  messageCount: number
   messages: SupportTicketMessageDto[]
-  isRead: boolean
+  /** Whether it is still awaiting somebody. */
+  isOpen: boolean
+  resolvedAt: string | null
+  closedAt: string | null
   createdAt: string
   updatedAt: string
-  resolvedAt?: string
-  closedAt?: string
 }
 
 export interface SupportTicketMessageDto {
   id: string
-  ticketId: string
-  authorId: string
-  author: { id: string; fullName: string; role: string }
   message: string
-  attachmentUrl?: string
+  attachmentUrl: string | null
+  /** Internal notes are never shown to the customer. */
   isInternal: boolean
+  senderName: string
+  senderRole: string
+  /** Whether the sender was the person who opened the ticket. */
+  fromCustomer: boolean
   createdAt: string
 }
 

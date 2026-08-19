@@ -1,18 +1,23 @@
-import { PhasePlaceholder } from "@/components/layout/phase-placeholder";
+"use client";
 
-export const metadata = { title: "Order queue" };
+import { PortalHeader } from "@/components/layout/portal-page";
+import { OrderQueue } from "@/components/vendor/order-queue";
+import { VendorGate } from "@/components/vendor/vendor-gate";
+import { AcceptingOrdersToggle } from "@/components/vendor/accepting-toggle";
 
-export default function Page() {
+export default function VendorOrdersPage() {
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
-      title="Order queue"
-      description="Incoming orders, from accept through to ready for pickup."
-      endpoints={[
-        "GET /order-management/restaurants/:id",
-        "POST /order-management/:id/accept",
-        "POST /order-management/:id/ready",
-      ]}
-    />
+    <VendorGate>
+      {(restaurant) => (
+        <div className="flex flex-col gap-6">
+          <PortalHeader
+            title="Order queue"
+            description="Live tickets, newest first. New orders arrive on their own."
+            action={<AcceptingOrdersToggle restaurant={restaurant} />}
+          />
+          <OrderQueue restaurantId={restaurant.id} />
+        </div>
+      )}
+    </VendorGate>
   );
 }
