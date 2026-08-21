@@ -1,4 +1,5 @@
-import { RestaurantStatus, PriceRange } from './enums'
+import type { UserStatus } from './auth'
+import { RestaurantStatus, PriceRange, BusinessType } from './enums'
 
 /**
  * A restaurant, mirroring `restaurant-response.dto.ts` on the backend.
@@ -23,6 +24,8 @@ export interface RestaurantDto {
   zone: { id: string; name: string; slug: string }
   categories: Array<{ id: string; name: string; slug?: string }>
   status: RestaurantStatus
+  /** What sort of place this is. `categories` is what it cooks. */
+  businessType: BusinessType
   priceRange: PriceRange
   /** The owner's manual on/off switch. */
   isAcceptingOrders: boolean
@@ -107,6 +110,7 @@ export interface RegisterRestaurantDto {
   latitude: number
   longitude: number
   categoryIds: string[]
+  businessType?: BusinessType
   priceRange?: PriceRange
   minOrderAmount?: number
   avgPreparationMinutes?: number
@@ -124,6 +128,7 @@ export interface UpdateRestaurantDto {
   latitude?: number
   longitude?: number
   categoryIds?: string[]
+  businessType?: BusinessType
   priceRange?: PriceRange
   minOrderAmount?: number
   avgPreparationMinutes?: number
@@ -161,9 +166,8 @@ export interface RestaurantStaffDto {
   id: string
   phone: string
   fullName: string
-  email?: string
-  role: 'VENDOR_STAFF'
-  status: string
+  email: string | null
+  status: UserStatus
   createdAt: string
 }
 

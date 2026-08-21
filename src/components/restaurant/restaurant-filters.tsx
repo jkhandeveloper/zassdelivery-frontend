@@ -6,12 +6,15 @@ import * as React from "react";
 import { Input, NativeSelect } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRestaurantCategories } from "@/hooks/use-restaurants";
+import { BUSINESS_TYPES, BUSINESS_TYPE_ORDER } from "@/lib/business-types";
 import { cn } from "@/lib/utils";
 import { PriceRange } from "@/types/enums";
 
 export interface RestaurantFilterState {
   search: string;
   category: string;
+  /** A `BusinessType`, or "" for every kind of place. */
+  businessType: string;
   price: string;
   minRating: string;
   openOnly: boolean;
@@ -106,6 +109,7 @@ export function RestaurantFilters({
   const hasFilters =
     state.search !== "" ||
     state.category !== "" ||
+    state.businessType !== "" ||
     state.price !== "" ||
     state.minRating !== "" ||
     state.openOnly ||
@@ -139,7 +143,7 @@ export function RestaurantFilters({
           }}
         >
           <label htmlFor="filter-search" className="sr-only">
-            Search restaurants
+            Search places to order from
           </label>
           {/*
             Uncontrolled, keyed on the committed query: typing stays local to the
@@ -153,11 +157,38 @@ export function RestaurantFilters({
             name="q"
             type="search"
             defaultValue={state.search}
-            placeholder="Search restaurants…"
+            placeholder="Search restaurants, bakeries, cafes…"
             leadingIcon={<Search className="size-4" />}
             className="h-11"
           />
         </form>
+      </FilterGroup>
+
+      <FilterGroup label="Kind of place">
+        <div className="-mx-2 flex flex-col">
+          <RadioRow
+            name="businessType"
+            checked={state.businessType === ""}
+            onChange={() => onChange({ type: null })}
+          >
+            Everything
+          </RadioRow>
+          {BUSINESS_TYPE_ORDER.map((type) => {
+            const { label, icon: Icon } = BUSINESS_TYPES[type];
+
+            return (
+              <RadioRow
+                key={type}
+                name="businessType"
+                checked={state.businessType === type}
+                onChange={() => onChange({ type })}
+              >
+                <Icon aria-hidden className="size-4 shrink-0" />
+                {label}
+              </RadioRow>
+            );
+          })}
+        </div>
       </FilterGroup>
 
       <FilterGroup label="Cuisines">
@@ -262,7 +293,7 @@ export function RestaurantFilters({
 
       <FilterGroup label="Sort by">
         <label htmlFor="filter-sort" className="sr-only">
-          Sort restaurants
+          Sort results
         </label>
         <NativeSelect
           id="filter-sort"

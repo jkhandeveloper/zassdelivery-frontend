@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/status-pill";
 import { useMenuItems, useRestaurantMenus } from "@/hooks/use-menus";
 import { useQuickAdd } from "@/hooks/use-quick-add";
 import { useRestaurant, useRestaurantHours } from "@/hooks/use-restaurants";
+import { BUSINESS_TYPES, businessTypeLabel } from "@/lib/business-types";
 import { cn, formatLandmark, formatPrice, hasText } from "@/lib/utils";
 import { SpiceLevel } from "@/types/enums";
 import type { MenuItemDto } from "@/types/menu";
@@ -103,11 +104,13 @@ export function RestaurantDetail({ slug }: { slug: string }) {
     return (
       <ErrorState
         error={restaurantQuery.error}
-        title="We couldn't find that restaurant"
+        title="We couldn't find that place"
         onRetry={() => void restaurantQuery.refetch()}
       />
     );
   }
+
+  const TypeIcon = (BUSINESS_TYPES[restaurant.businessType] ?? BUSINESS_TYPES.RESTAURANT).icon;
 
   // Categories come nested on the menus; items arrive separately and are grouped
   // by menuCategoryId so each section renders in menu order.
@@ -191,6 +194,10 @@ export function RestaurantDetail({ slug }: { slug: string }) {
                   <span className="numeric text-muted">({restaurant.ratingCount})</span>
                 </span>
               )}
+              <span className="inline-flex items-center gap-1.5 font-semibold text-primary">
+                <TypeIcon aria-hidden className="size-4" />
+                {businessTypeLabel(restaurant.businessType)}
+              </span>
               {restaurant.categories.length > 0 && (
                 <span className="truncate">
                   {restaurant.categories.map((category) => category.name).join(" · ")}

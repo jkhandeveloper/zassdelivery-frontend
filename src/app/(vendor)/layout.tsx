@@ -26,7 +26,7 @@ const VENDOR_NAV: readonly RoleNavGroup[] = [
     ],
   },
   {
-    heading: "Restaurant",
+    heading: "Business",
     items: [
       { href: "/vendor/settings/profile", label: "Profile", icon: Store },
       { href: "/vendor/settings/hours", label: "Opening hours", icon: Clock },

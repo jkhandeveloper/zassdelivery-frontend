@@ -7,7 +7,7 @@ export default function Page() {
     <PhasePlaceholder
       phase="Coming soon"
       title="Restaurants"
-      description="The approval queue and every restaurant on the platform."
+      description="The approval queue and every business on the platform — restaurants, bakeries, cafes and shops."
       endpoints={[
         "GET /restaurant-management",
         "POST /restaurant-management/:id/approve",

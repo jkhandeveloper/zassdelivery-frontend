@@ -56,6 +56,9 @@ const CUISINE_ICONS: Record<string, ReactNode> = {
   healthy: <Salad className="size-5" />,
   seafood: <Fish className="size-5" />,
   chinese: <Wheat className="size-5" />,
+  continental: <Salad className="size-5" />,
+  "chai-coffee": <Coffee className="size-5" />,
+  chai: <Coffee className="size-5" />,
 };
 
 function iconFor(slug: string, name: string): ReactNode {
@@ -66,7 +69,7 @@ function iconFor(slug: string, name: string): ReactNode {
 }
 
 const TILE =
-  "group flex w-28 shrink-0 flex-col items-center gap-2 rounded-[var(--radius-card)] border border-border-subtle bg-surface p-4 shadow-card transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-brand/40 hover:shadow-glow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transform-none motion-reduce:transition-none";
+  "group flex min-h-[7.5rem] w-28 shrink-0 flex-col items-center gap-2 rounded-[var(--radius-card)] border border-border-subtle bg-surface p-4 shadow-card transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-brand/40 hover:shadow-glow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transform-none motion-reduce:transition-none";
 
 export function CategoryStrip() {
   const { data, isPending, isError } = useRestaurantCategories({ activeOnly: true });
@@ -103,7 +106,7 @@ export function CategoryStrip() {
               iconFor(category.slug, category.name)
             )}
           </span>
-          <span className="line-clamp-1 text-center text-xs font-bold text-primary">
+          <span className="line-clamp-2 text-balance text-center text-xs font-bold leading-snug text-primary">
             {category.name}
           </span>
         </Link>

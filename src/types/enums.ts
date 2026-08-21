@@ -34,6 +34,29 @@ export const RestaurantStatus = {
 } as const;
 export type RestaurantStatus = (typeof RestaurantStatus)[keyof typeof RestaurantStatus];
 
+/**
+ * What kind of business a listing is.
+ *
+ * Not the same axis as the cuisine categories: a bakery and a dhaba can both be
+ * filed under "Desi". This answers "what sort of place is this", the categories
+ * answer "what do they cook", and customers filter on each separately.
+ */
+export const BusinessType = {
+  RESTAURANT: "RESTAURANT",
+  CAFE: "CAFE",
+  BAKERY: "BAKERY",
+  CAFETERIA: "CAFETERIA",
+  FAST_FOOD: "FAST_FOOD",
+  DHABA: "DHABA",
+  SWEET_SHOP: "SWEET_SHOP",
+  JUICE_CORNER: "JUICE_CORNER",
+  DESSERT_PARLOUR: "DESSERT_PARLOUR",
+  HOME_KITCHEN: "HOME_KITCHEN",
+  CLOUD_KITCHEN: "CLOUD_KITCHEN",
+  GROCERY: "GROCERY",
+} as const;
+export type BusinessType = (typeof BusinessType)[keyof typeof BusinessType];
+
 export const PriceRange = {
   BUDGET: "BUDGET",
   MODERATE: "MODERATE",

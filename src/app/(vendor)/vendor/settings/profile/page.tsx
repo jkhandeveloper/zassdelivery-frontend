@@ -10,7 +10,8 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { VendorGate } from "@/components/vendor/vendor-gate";
 import { useUpdateMyRestaurant } from "@/hooks/use-vendor";
 import { ApiError } from "@/lib/api-client";
-import { PriceRange } from "@/types/enums";
+import { BUSINESS_TYPES, BUSINESS_TYPE_ORDER } from "@/lib/business-types";
+import { BusinessType, PriceRange } from "@/types/enums";
 import type { RestaurantAdminDto } from "@/types/restaurant";
 
 const PRICE_LABELS: Array<{ value: PriceRange; label: string }> = [
@@ -35,6 +36,7 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
   const [phone, setPhone] = React.useState(restaurant.phone);
   const [addressLine, setAddressLine] = React.useState(restaurant.addressLine);
   const [landmark, setLandmark] = React.useState(restaurant.landmark ?? "");
+  const [businessType, setBusinessType] = React.useState<BusinessType>(restaurant.businessType);
   const [priceRange, setPriceRange] = React.useState<PriceRange>(restaurant.priceRange);
   const [minOrderAmount, setMinOrderAmount] = React.useState(String(restaurant.minOrderAmount));
   const [prepMinutes, setPrepMinutes] = React.useState(
@@ -47,7 +49,7 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
   return (
     <div className="flex flex-col gap-6">
       <PortalHeader
-        title="Restaurant details"
+        title="Business details"
         description="What customers see on your storefront."
         action={<StatusPill status={restaurant.status} />}
       />
@@ -64,6 +66,7 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
               phone: phone.trim(),
               addressLine: addressLine.trim(),
               landmark: landmark.trim(),
+              businessType,
               priceRange,
               minOrderAmount: Number(minOrderAmount),
               avgPreparationMinutes: Number(prepMinutes),
@@ -81,7 +84,7 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
       >
         <Panel title="The basics">
           <div className="flex flex-col gap-4">
-            <Field label="Restaurant name" htmlFor="vendor-name" required>
+            <Field label="Business name" htmlFor="vendor-name" required>
               <Input
                 id="vendor-name"
                 value={name}
@@ -91,9 +94,27 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
             </Field>
 
             <Field
+              label="Kind of business"
+              htmlFor="vendor-business-type"
+              hint={BUSINESS_TYPES[businessType].hint}
+            >
+              <NativeSelect
+                id="vendor-business-type"
+                value={businessType}
+                onChange={(event) => setBusinessType(event.target.value as BusinessType)}
+              >
+                {BUSINESS_TYPE_ORDER.map((type) => (
+                  <option key={type} value={type}>
+                    {BUSINESS_TYPES[type].label}
+                  </option>
+                ))}
+              </NativeSelect>
+            </Field>
+
+            <Field
               label="Description"
               htmlFor="vendor-description"
-              hint="A line or two about the kitchen — this sits under your name on the storefront."
+              hint="A line or two about the place — this sits under your name on the storefront."
             >
               <Textarea
                 id="vendor-description"

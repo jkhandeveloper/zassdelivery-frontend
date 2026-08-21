@@ -34,7 +34,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokens = useAuthStore((state) => state.tokens);
   const hydrated = useAuthStore((state) => state.hydrated);
 
-  const [revalidated, setRevalidated] = React.useState(false);
+  /**
+   * The account whose session has been checked against the server.
+   *
+   * Tracked by id rather than as a flat "have we revalidated yet" boolean:
+   * signing in *within* a page load has to start its own check, and a boolean
+   * set once on boot — when there was no session to check — never flipped
+   * again, which left every guarded route on its skeleton until a reload.
+   */
+  const [revalidatedFor, setRevalidatedFor] = React.useState<string | null>(null);
+
+  const hasSession = tokens !== null;
+  const userId = user?.id ?? null;
 
   // Kept in a ref so the session-lost effect below does not re-register on
   // every navigation. Written in an effect rather than during render.
@@ -77,9 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * changed, or its permissions revoked since the token was minted.
    */
   React.useEffect(() => {
-    // No session to revalidate — `isReady` accounts for that case directly
-    // rather than round-tripping through state.
-    if (!hydrated || useAuthStore.getState().tokens === null) {
+    // Nothing to check: storage has not been read back yet, there is no
+    // session, or this account has already been through the round trip —
+    // including the sign-in that just happened, which recorded its own id.
+    if (!hydrated || !hasSession || revalidatedFor === userId) {
       return;
     }
 
@@ -99,17 +111,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       .finally(() => {
         if (!cancelled) {
-          setRevalidated(true);
+          setRevalidatedFor(useAuthStore.getState().user?.id ?? null);
         }
       });
 
     return () => {
       cancelled = true;
     };
-    // Deliberately keyed on `hydrated` alone: the token is read imperatively
-    // above so that a silent refresh, which rotates it, does not fire another
-    // /auth/me on every rotation.
-  }, [hydrated]);
+    // Keyed on whether a session exists rather than on the token itself, so a
+    // silent refresh — which rotates the token but changes neither flag — does
+    // not fire another /auth/me on every rotation.
+  }, [hydrated, hasSession, revalidatedFor, userId]);
 
   // The socket's handshake token is kept current by RealtimeProvider, which
   // reacts to the same access token in the store.
@@ -118,6 +130,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (payload: LoginPayload) => {
       const result = await authApi.login(payload);
       useAuthStore.getState().setSession(result.user, result.tokens);
+      // This user came straight from the server, so the boot check has nothing
+      // left to ask — recording it here is what makes the portal render
+      // immediately instead of waiting for a reload.
+      setRevalidatedFor(result.user.id);
       queryClient.clear();
 
       return result.user;
@@ -129,6 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (payload: RegisterPayload) => {
       const result = await authApi.register(payload);
       useAuthStore.getState().setSession(result.user, result.tokens);
+      setRevalidatedFor(result.user.id);
       queryClient.clear();
 
       return result.user;
@@ -172,9 +189,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user],
   );
 
-  // Ready once storage has been read and — if there was a session in it — the
-  // server has been asked whether it is still good.
-  const isReady = hydrated && (tokens === null || revalidated);
+  // Ready once storage has been read and — if there is a session — the server
+  // has been asked whether this account is still good.
+  const isReady = hydrated && (!hasSession || revalidatedFor === userId);
 
   const value = React.useMemo<AuthContextValue>(
     () => ({

@@ -59,11 +59,11 @@ export function VendorGate({
     return (
       <EmptyState
         icon={<Store className="size-8" />}
-        title="Register your restaurant"
-        description="Your owner account is ready. Add your kitchen's details and we'll review the listing — you register it yourself, an administrator only approves it."
+        title="List your business"
+        description="Your owner account is ready. Add your details — restaurant, bakery, cafe or shop — and we'll review the listing. You register it yourself; an administrator only approves it."
         action={
           <Button asChild>
-            <Link href="/vendor/onboarding">Register my restaurant</Link>
+            <Link href="/vendor/onboarding">List my business</Link>
           </Button>
         }
       />
@@ -153,7 +153,7 @@ export function VendorGate({
 
         <Panel
           title="Waiting on approval"
-          description="An administrator reviews every restaurant by hand. Nothing goes live until they approve it."
+          description="An administrator reviews every listing by hand. Nothing goes live until they approve it."
         >
           <div className="flex flex-col gap-5">
             <div className="flex items-start gap-3 rounded-[var(--radius-input)] bg-warning-soft px-4 py-3 text-sm font-medium text-warning">
@@ -166,7 +166,7 @@ export function VendorGate({
 
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline">
-                <Link href="/vendor/settings/profile">Restaurant details</Link>
+                <Link href="/vendor/settings/profile">Business details</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link href="/vendor/settings/hours">Opening hours</Link>

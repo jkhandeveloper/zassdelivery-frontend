@@ -1,6 +1,7 @@
 import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '../api-client'
 import type { RestaurantDto, RestaurantAdminDto, CategoryDto, RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, ReorderImagesDto, RegisterRestaurantStaffDto, RestaurantStaffDto, SetAcceptingOrdersDto, RejectRestaurantDto, ChangeRestaurantStatusDto, BusinessHourResponseDto, RestaurantImageDto, CreateRestaurantCategoryDto, UpdateRestaurantCategoryDto } from '@/types/restaurant'
 import type { OpenState } from '@/types/restaurant'
+import type { BusinessType } from '@/types/enums'
 
 export const restaurantApi = {
   // Public storefront
@@ -13,6 +14,7 @@ export const restaurantApi = {
     cityId?: string
     zoneId?: string
     category?: string
+    businessType?: BusinessType
     priceRange?: string
     minRating?: number
     acceptingOnly?: boolean
@@ -44,6 +46,7 @@ export const restaurantApi = {
     sortOrder?: 'asc' | 'desc'
     search?: string
     status?: string
+    businessType?: BusinessType
     ownerId?: string
     includeDeleted?: boolean
   }) => apiGetPaginated<RestaurantAdminDto>('/restaurant-management', { params: query }),

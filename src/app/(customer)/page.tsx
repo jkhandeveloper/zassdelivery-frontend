@@ -1,9 +1,11 @@
+import { BusinessTypeStrip } from "@/components/home/business-type-strip";
 import { CategoryStrip } from "@/components/home/category-strip";
 import { Hero } from "@/components/home/hero";
 import { OfferBanner } from "@/components/home/offer-banner";
 import { PopularRail } from "@/components/home/popular-rail";
 import { PromoBand } from "@/components/home/promo-band";
 import { RestaurantRail } from "@/components/home/restaurant-rail";
+import { SectionHeader } from "@/components/ui/section-header";
 
 /**
  * The storefront.
@@ -20,11 +22,20 @@ export default function HomePage() {
       <div className="container-zass flex flex-col gap-16 py-14 lg:gap-20 lg:py-20">
         <CategoryStrip />
 
+        <section className="flex flex-col gap-5">
+          <SectionHeader
+            title="Order from anywhere"
+            description="Restaurants, bakeries, cafes, cafeterias and shops — all delivering near you."
+            viewAllHref="/restaurants"
+          />
+          <BusinessTypeStrip />
+        </section>
+
         <PromoBand />
 
         <RestaurantRail
-          title="Top restaurants"
-          description="The highest-rated kitchens delivering right now."
+          title="Top rated near you"
+          description="The highest-rated places delivering right now."
           query={{ limit: 8, sortBy: "rating", sortOrder: "desc", acceptingOnly: true }}
         />
 
@@ -37,10 +48,10 @@ export default function HomePage() {
 
         <RestaurantRail
           title="New on ZassDelivery"
-          description="Kitchens that just joined."
+          description="Places that just joined."
           query={{ limit: 8, sortBy: "createdAt", sortOrder: "desc" }}
-          emptyTitle="No new kitchens this week"
-          emptyDescription="Newly approved restaurants show up here as they join."
+          emptyTitle="Nothing new this week"
+          emptyDescription="Newly approved places show up here as they join."
         />
       </div>
     </>

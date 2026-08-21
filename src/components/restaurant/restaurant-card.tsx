@@ -7,6 +7,7 @@ import { FavoriteButton } from "@/components/restaurant/favorite-button";
 import { Media } from "@/components/ui/media";
 import { Rating } from "@/components/ui/rating";
 import { Badge } from "@/components/ui/status-pill";
+import { BUSINESS_TYPES, businessTypeLabel } from "@/lib/business-types";
 import { cn, formatPrice, hasText } from "@/lib/utils";
 import type { RestaurantDto } from "@/types/restaurant";
 
@@ -38,6 +39,7 @@ export function RestaurantCard({
     opensInMinutes,
     isFeatured,
     distanceMeters,
+    businessType,
   } = restaurant;
 
   // Open but not accepting orders is a real state — the kitchen has paused.
@@ -48,6 +50,8 @@ export function RestaurantCard({
       : typeof opensInMinutes === "number" && opensInMinutes > 0
         ? `Opens in ${opensInMinutes} min`
         : "Closed";
+
+  const TypeIcon = (BUSINESS_TYPES[businessType] ?? BUSINESS_TYPES.RESTAURANT).icon;
 
   return (
     <article
@@ -106,6 +110,16 @@ export function RestaurantCard({
         </h3>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+          {/*
+            Shown on every card, restaurants included: the platform lists
+            bakeries, cafes and shops too, and labelling only the non-restaurants
+            would read as though a restaurant were the normal case and the rest
+            an exception.
+          */}
+          <span className="inline-flex items-center gap-1 font-semibold text-secondary">
+            <TypeIcon aria-hidden className="size-3.5" />
+            {businessTypeLabel(businessType)}
+          </span>
           {ratingCount > 0 && <Rating value={rating} count={ratingCount} size="sm" compact />}
           <span className="inline-flex items-center gap-1">
             <Clock aria-hidden className="size-3.5" />

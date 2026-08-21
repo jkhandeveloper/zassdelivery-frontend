@@ -14,7 +14,9 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { RestaurantGridSkeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { useRestaurants } from "@/hooks/use-restaurants";
+import { businessTypeCountNoun } from "@/lib/business-types";
 import { cn } from "@/lib/utils";
+import type { BusinessType } from "@/types/enums";
 
 const PAGE_SIZE = 12;
 
@@ -35,6 +37,7 @@ export function RestaurantBrowser() {
   const state: RestaurantFilterState = {
     search: searchParams.get("q") ?? "",
     category: searchParams.get("category") ?? "",
+    businessType: searchParams.get("type") ?? "",
     price: searchParams.get("price") ?? "",
     minRating: searchParams.get("rating") ?? "",
     openOnly: searchParams.get("open") === "1",
@@ -94,6 +97,7 @@ export function RestaurantBrowser() {
     limit: PAGE_SIZE,
     ...(state.search !== "" && { search: state.search }),
     ...(state.category !== "" && { category: state.category }),
+    ...(state.businessType !== "" && { businessType: state.businessType as BusinessType }),
     ...(state.price !== "" && { priceRange: state.price }),
     ...(state.minRating !== "" && { minRating: Number(state.minRating) }),
     ...(state.openOnly && { acceptingOnly: true }),
@@ -106,6 +110,7 @@ export function RestaurantBrowser() {
   const hasFilters =
     state.search !== "" ||
     state.category !== "" ||
+    state.businessType !== "" ||
     state.price !== "" ||
     state.minRating !== "" ||
     state.openOnly;
@@ -157,7 +162,8 @@ export function RestaurantBrowser() {
 
           {data !== undefined && (
             <span className="numeric ml-auto text-sm text-muted" aria-live="polite">
-              {data.meta.total} {data.meta.total === 1 ? "restaurant" : "restaurants"} found
+              {data.meta.total} {businessTypeCountNoun(state.businessType as BusinessType | "", data.meta.total)}{" "}
+              found
             </span>
           )}
         </div>
@@ -168,11 +174,11 @@ export function RestaurantBrowser() {
           <ErrorState error={error} onRetry={() => void refetch()} />
         ) : data.items.length === 0 ? (
           <EmptyState
-            title={hasFilters ? "No restaurants match those filters" : "No restaurants here yet"}
+            title={hasFilters ? "Nothing matches those filters" : "No places here yet"}
             description={
               hasFilters
-                ? "Try widening your search — fewer filters, or a different cuisine."
-                : "We're still signing up kitchens in your area. Check back soon."
+                ? "Try widening your search — fewer filters, another cuisine, or a different kind of place."
+                : "We're still signing up restaurants, bakeries and cafes in your area. Check back soon."
             }
             action={
               hasFilters ? (

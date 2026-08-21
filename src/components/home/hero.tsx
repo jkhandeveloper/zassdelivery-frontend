@@ -63,7 +63,8 @@ export function Hero() {
 
           <RevealItem>
             <p className="max-w-lg text-lg leading-relaxed text-secondary">
-              Order from the restaurants you already love, follow your rider the whole way, and pay
+              Order from the restaurants, bakeries and cafes you already love, follow your rider
+              the whole way, and pay
               however suits you.
             </p>
           </RevealItem>
@@ -72,7 +73,7 @@ export function Hero() {
             <form onSubmit={submit} role="search" className="flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
                 <label htmlFor="hero-search" className="sr-only">
-                  Search restaurants or dishes
+                  Search places or dishes
                 </label>
                 <Search
                   aria-hidden
@@ -83,7 +84,7 @@ export function Hero() {
                   type="search"
                   value={term}
                   onChange={(event) => setTerm(event.target.value)}
-                  placeholder="Search for biryani, pizza or a restaurant"
+                  placeholder="Search for biryani, a bakery or a cafe"
                   className="h-14 w-full rounded-full border border-border-default bg-surface pl-12 pr-4 text-[0.9375rem] text-primary shadow-card transition-all placeholder:text-muted focus:border-brand focus:outline-none focus:ring-4 focus:ring-[var(--brand-ring)]"
                 />
               </div>

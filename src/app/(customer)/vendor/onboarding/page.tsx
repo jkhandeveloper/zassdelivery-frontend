@@ -15,8 +15,9 @@ import { EmptyState } from "@/components/ui/states";
 import { useRegisterRestaurant, useRestaurantCategories } from "@/hooks/use-restaurants";
 import { ApiError } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+import { BUSINESS_TYPES, BUSINESS_TYPE_ORDER } from "@/lib/business-types";
 import { UserRole } from "@/types/auth";
-import { PriceRange } from "@/types/enums";
+import { BusinessType, PriceRange } from "@/types/enums";
 
 const PRICE_LABELS: Array<{ value: PriceRange; label: string }> = [
   { value: PriceRange.BUDGET, label: "Budget — under Rs 500 a head" },
@@ -44,14 +45,15 @@ export default function VendorOnboardingPage() {
   return (
     <div className="container-zass py-10">
       <Breadcrumbs
-        items={[{ label: "Home", href: "/" }, { label: "List your restaurant" }]}
+        items={[{ label: "Home", href: "/" }, { label: "List your business" }]}
       />
 
       <header className="mb-8 mt-4 flex flex-col gap-2">
-        <h1 className="text-3xl sm:text-4xl">List your restaurant</h1>
+        <h1 className="text-3xl sm:text-4xl">List your business</h1>
         <p className="max-w-2xl text-secondary">
-          Tell us about your kitchen and we&apos;ll review the listing. Nothing goes live until
-          an administrator approves it — usually within a working day.
+          Restaurant, bakery, cafe, cafeteria or shop — tell us about it and we&apos;ll review the
+          listing. Nothing goes live until an administrator approves it, usually within a working
+          day.
         </p>
       </header>
 
@@ -61,7 +63,7 @@ export default function VendorOnboardingPage() {
         <EmptyState
           icon={<Store className="size-8" />}
           title="Create an owner account first"
-          description="Sign up as a restaurant owner, then come back here to register your kitchen."
+          description="Sign up as a business owner, then come back here to register your place."
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <Button asChild>
@@ -76,8 +78,8 @@ export default function VendorOnboardingPage() {
       ) : user?.role !== UserRole.VENDOR_OWNER ? (
         <EmptyState
           icon={<Store className="size-8" />}
-          title="This needs a restaurant owner account"
-          description={`You're signed in as a ${user?.role.toLowerCase().replace(/_/g, " ")}. Registering a restaurant needs an owner account — sign up as one, or ask support to change your role.`}
+          title="This needs a business owner account"
+          description={`You're signed in as a ${user?.role.toLowerCase().replace(/_/g, " ")}. Listing a business needs an owner account — sign up as one, or ask support to change your role.`}
           action={
             <Button asChild variant="outline">
               <Link href="/support">Contact support</Link>
@@ -103,6 +105,7 @@ function RegistrationForm() {
   const [landmark, setLandmark] = React.useState("");
   const [location, setLocation] = React.useState<PickedLocation | null>(null);
   const [categoryIds, setCategoryIds] = React.useState<string[]>([]);
+  const [businessType, setBusinessType] = React.useState<BusinessType>(BusinessType.RESTAURANT);
   const [priceRange, setPriceRange] = React.useState<PriceRange>(PriceRange.MODERATE);
   const [minOrderAmount, setMinOrderAmount] = React.useState("300");
   const [prepMinutes, setPrepMinutes] = React.useState("25");
@@ -149,6 +152,7 @@ function RegistrationForm() {
             latitude: location.latitude,
             longitude: location.longitude,
             categoryIds,
+            businessType,
             priceRange,
             minOrderAmount: Number(minOrderAmount),
             avgPreparationMinutes: Number(prepMinutes),
@@ -159,14 +163,52 @@ function RegistrationForm() {
               toast.error(
                 error instanceof ApiError
                   ? error.message
-                  : "We couldn't register your restaurant.",
+                  : "We couldn't register your business.",
               ),
           },
         );
       }}
     >
-      <Section title="About your kitchen">
-        <Field label="Restaurant name" htmlFor="reg-name" required>
+      <Section
+        title="What kind of business is this?"
+        description="It decides how customers find you — someone after a birthday cake browses bakeries, not restaurants."
+      >
+        <div
+          role="radiogroup"
+          aria-label="Kind of business"
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+        >
+          {BUSINESS_TYPE_ORDER.map((type) => {
+            const { label, icon: Icon } = BUSINESS_TYPES[type];
+            const selected = businessType === type;
+
+            return (
+              <button
+                key={type}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setBusinessType(type)}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-xl border px-3.5 py-3 text-left text-sm font-semibold transition-colors",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+                  selected
+                    ? "border-brand bg-brand-soft text-brand"
+                    : "border-border-default bg-surface-muted text-secondary hover:border-brand",
+                )}
+              >
+                <Icon aria-hidden className="size-4 shrink-0" />
+                <span className="truncate">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="text-sm text-muted">{BUSINESS_TYPES[businessType].hint}</p>
+      </Section>
+
+      <Section title="About your business">
+        <Field label="Business name" htmlFor="reg-name" required>
           <Input
             id="reg-name"
             value={name}
@@ -215,7 +257,7 @@ function RegistrationForm() {
 
       <Section
         title="Where you are"
-        description="We resolve your delivery zone from this, and it decides what customers pay for delivery — so it has to be the actual kitchen."
+        description="We resolve your delivery zone from this, and it decides what customers pay for delivery — so it has to be where you actually cook or trade."
       >
         <LocationPicker value={location} onChange={setLocation} />
 

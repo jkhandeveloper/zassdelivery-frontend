@@ -56,7 +56,7 @@ export function OfferBanner() {
             asChild
             className="border-white/60 text-white hover:bg-white/15 hover:text-white dark:border-black/25 dark:text-[#2a1204]"
           >
-            <Link href="/restaurants">Browse restaurants</Link>
+            <Link href="/restaurants">Browse places</Link>
           </Button>
         </div>
       </div>

@@ -19,7 +19,7 @@ export function RestaurantRail({
   description,
   query,
   viewAllHref = "/restaurants",
-  emptyTitle = "No restaurants here yet",
+  emptyTitle = "Nothing here yet",
   emptyDescription = "We're still signing up kitchens in your area. Check back soon.",
 }: {
   title: string;
@@ -52,7 +52,7 @@ export function RestaurantRail({
           description={emptyDescription}
           action={
             <Button variant="outline" asChild>
-              <Link href="/restaurants">Browse all restaurants</Link>
+              <Link href="/restaurants">Browse everywhere</Link>
             </Button>
           }
         />

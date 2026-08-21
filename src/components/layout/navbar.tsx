@@ -32,7 +32,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/restaurants", label: "Restaurants" },
+  { href: "/restaurants", label: "Order from" },
   { href: "/offers", label: "Offers" },
   { href: "/orders", label: "Track order" },
   { href: "/about", label: "About us" },

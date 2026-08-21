@@ -13,7 +13,12 @@ import type {
   SetBusinessHoursDto,
   UpdateRestaurantDto,
 } from "@/types/restaurant";
-import type { AdjustStockDto, ListMenuItemsAdminQueryDto, UpdateMenuItemDto } from "@/types/menu";
+import type {
+  AdjustStockDto,
+  CreateMenuItemDto,
+  ListMenuItemsAdminQueryDto,
+  UpdateMenuItemDto,
+} from "@/types/menu";
 
 import { restaurantKeys } from "./use-restaurants";
 
@@ -231,6 +236,53 @@ export function useVendorMenuItems(
     queryFn: () => menuApi.getRestaurantItemsAdmin(restaurantId as string, query),
     enabled: restaurantId !== null,
     staleTime: 30 * 1000,
+  });
+}
+
+export interface CreateDishInput {
+  /** An existing section, or `null` to create `newSectionName` first. */
+  menuCategoryId: string | null;
+  /** Only read when `menuCategoryId` is null. */
+  newSectionName?: string;
+  dish: Omit<CreateMenuItemDto, "menuCategoryId">;
+}
+
+/**
+ * Adds a dish, creating the menu and section it needs if they do not exist.
+ *
+ * The API hangs items off a category and categories off a menu, so a
+ * restaurant that has never had a menu cannot be given a dish in one call. A
+ * vendor should not have to know that: they type a section name, and the two
+ * parents are created underneath them.
+ */
+export function useCreateMenuItem(restaurantId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ menuCategoryId, newSectionName, dish }: CreateDishInput) => {
+      let categoryId = menuCategoryId;
+
+      if (categoryId === null) {
+        const name = newSectionName?.trim() ?? "";
+
+        if (name === "") {
+          throw new Error("A dish needs a section to sit in.");
+        }
+
+        const menus = await menuApi.getRestaurantMenusAdmin(restaurantId);
+        const menu =
+          menus.items[0] ?? (await menuApi.createMenu(restaurantId, { name: "Main Menu" }));
+
+        categoryId = (await menuApi.createMenuCategory(menu.id, { name })).id;
+      }
+
+      return menuApi.createMenuItem({ ...dish, menuCategoryId: categoryId });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...vendorKeys.all, "items"] });
+      // A new section changes the menu tree the picker reads from.
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.menus(restaurantId) });
+    },
   });
 }
 

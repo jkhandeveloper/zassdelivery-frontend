@@ -7,6 +7,8 @@
  * which is what the storefront routes are keyed by.
  */
 
+import type { BusinessType } from './enums'
+
 export interface GlobalSearchDto {
   restaurants: RestaurantHitDto[]
   dishes: FoodHitDto[]
@@ -24,6 +26,7 @@ export interface RestaurantHitDto {
   description: string | null
   rating: number
   ratingCount: number
+  businessType: BusinessType
   priceRange: string
   minOrderAmount: number
   avgPreparationMinutes: number
@@ -113,6 +116,7 @@ export interface SearchRestaurantsDto {
   cityId?: string
   zoneId?: string
   category?: string
+  businessType?: BusinessType
   priceRange?: string
   minRating?: number
   openNow?: boolean
