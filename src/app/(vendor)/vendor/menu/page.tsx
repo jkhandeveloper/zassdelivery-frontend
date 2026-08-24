@@ -187,6 +187,7 @@ function AddDishForm({
   const [newSection, setNewSection] = React.useState("");
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
+  const [imageUrl, setImageUrl] = React.useState("");
   const [basePrice, setBasePrice] = React.useState("");
   const [discountedPrice, setDiscountedPrice] = React.useState("");
   const [prepMinutes, setPrepMinutes] = React.useState("");
@@ -245,6 +246,7 @@ function AddDishForm({
                 spiceLevel,
                 isVegetarian,
                 ...(description.trim() !== "" && { description: description.trim() }),
+                ...(imageUrl.trim() !== "" && { imageUrl: imageUrl.trim() }),
                 ...(discount !== null && { discountedPrice: discount }),
                 ...(prepMinutes.trim() !== "" && {
                   preparationMinutes: Number(prepMinutes),
@@ -395,6 +397,28 @@ function AddDishForm({
             maxLength={800}
             rows={2}
           />
+        </Field>
+
+        <Field
+          label="Photo"
+          htmlFor="dish-image"
+          hint="Optional. Paste the address of a photo you've already uploaded somewhere."
+        >
+          <div className="flex items-center gap-3">
+            {hasText(imageUrl) && (
+              <span className="size-14 shrink-0 overflow-hidden rounded-xl bg-surface-muted">
+                <Media src={imageUrl} alt="" variant="food" />
+              </span>
+            )}
+            <Input
+              id="dish-image"
+              type="url"
+              value={imageUrl}
+              onChange={(event) => setImageUrl(event.target.value)}
+              placeholder="https://cdn.zassdelivery.pk/dishes/chapli-kabab.jpg"
+              className="flex-1"
+            />
+          </div>
         </Field>
 
         <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">

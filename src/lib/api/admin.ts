@@ -29,23 +29,25 @@ export const adminApi = {
   getSalesReport: (query?: ReportWindowDto) =>
     apiGet<SalesReportDto>('/admin/reports/sales', { params: query }),
 
+  // The report endpoints return bare arrays — they are already capped by
+  // `limit` server-side and carry no pagination envelope to unpack.
   getRestaurantLeaderboard: (query?: LeaderboardQueryDto) =>
-    apiGetPaginated<LeaderboardRowDto>('/admin/reports/restaurants', { params: query }),
+    apiGet<LeaderboardRowDto[]>('/admin/reports/restaurants', { params: query }),
 
   getRiderLeaderboard: (query?: LeaderboardQueryDto) =>
-    apiGetPaginated<LeaderboardRowDto>('/admin/reports/riders', { params: query }),
+    apiGet<LeaderboardRowDto[]>('/admin/reports/riders', { params: query }),
 
   getCustomerLeaderboard: (query?: LeaderboardQueryDto) =>
-    apiGetPaginated<LeaderboardRowDto>('/admin/reports/customers', { params: query }),
+    apiGet<LeaderboardRowDto[]>('/admin/reports/customers', { params: query }),
 
   getZoneReport: (query?: ReportWindowDto) =>
-    apiGetPaginated<ZoneReportRowDto>('/admin/reports/zones', { params: query }),
+    apiGet<ZoneReportRowDto[]>('/admin/reports/zones', { params: query }),
 
   getCouponReport: (query?: ReportWindowDto) =>
-    apiGetPaginated<CouponReportRowDto>('/admin/reports/coupons', { params: query }),
+    apiGet<CouponReportRowDto[]>('/admin/reports/coupons', { params: query }),
 
   getCancellationReport: (query?: ReportWindowDto) =>
-    apiGetPaginated<CancellationReportRowDto>('/admin/reports/cancellations', { params: query }),
+    apiGet<CancellationReportRowDto[]>('/admin/reports/cancellations', { params: query }),
 
   // Coupons
   listCouponsPublic: (query?: ListCouponsQueryDto) =>

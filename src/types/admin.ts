@@ -1,96 +1,130 @@
-import type { CouponType, BannerPlacement } from './enums'
+import type { BannerPlacement, CouponType, SettingValueType } from './enums'
+
+/**
+ * Admin dashboard, reporting, coupons, banners and settings — transcribed from
+ * the backend's `admin-response.dto.ts` and `admin.dto.ts`.
+ *
+ * Read from the source rather than from the endpoint list: the dashboard's
+ * `actionsRequired` is a single number (the queues added up), not an object;
+ * the report endpoints return bare arrays rather than paginated envelopes; and
+ * a setting is keyed by `key` with no `id`, carrying both the raw `value` and
+ * the `typedValue` the API has already coerced.
+ */
+
+// ── Dashboard ──────────────────────────────────────────────────
 
 export interface DashboardDto {
   totals: DashboardTotalsDto
+  /** The part that is actually a to-do list: every number has a screen behind it. */
   queues: DashboardQueuesDto
   operations: DashboardOperationsDto
+  /** The last 14 days. */
   trend: TimeSeriesPointDto[]
-  actionsRequired: DashboardActionsRequiredDto
+  /** Everything in the queues, added up. */
+  actionsRequired: number
   generatedAt: string
 }
 
 export interface DashboardTotalsDto {
-  activeUsers: number
-  totalOrders: number
-  totalRevenue: number
-  pendingPayments: number
-  activeRiders: number
-  activeRestaurants: number
+  customers: number
+  riders: number
+  restaurants: number
+  ordersToday: number
+  /** Orders somewhere between placed and delivered. */
+  ordersInFlight: number
+  revenueToday: number
+  revenueThisMonth: number
+  averageOrderValue: number
 }
 
 export interface DashboardQueuesDto {
-  pendingRestaurantApprovals: number
-  pendingRiderApprovals: number
-  pendingDocumentVerifications: number
-  openSupportTickets: number
-  pendingPayoutRequests: number
+  restaurantsAwaitingApproval: number
+  ridersAwaitingApproval: number
+  /** Placed, not yet accepted by the kitchen. */
+  ordersAwaitingRestaurant: number
+  /** Cooking or cooked with nobody to carry them — the cold-delivery number. */
+  ordersAwaitingRider: number
+  openTickets: number
+  pendingWithdrawals: number
+  /** Gateway callbacks stored but not applied. */
+  unresolvedWebhooks: number
 }
 
 export interface DashboardOperationsDto {
-  onlineRiders: number
-  activeDeliveries: number
-  onlineRestaurants: number
-  acceptingOrdersRestaurants: number
+  ridersOnline: number
+  ridersOnDelivery: number
+  restaurantsAcceptingOrders: number
+  /** Approved but paused or outside their hours. */
+  restaurantsClosed: number
 }
 
 export interface TimeSeriesPointDto {
+  /** "2026-08-10" — a calendar day, not an instant. */
   date: string
   orders: number
   revenue: number
-  delivery: number
 }
 
-export interface DashboardActionsRequiredDto {
-  restaurantApprovals: number
-  riderApprovals: number
-  documentVerifications: number
-  supportTickets: number
-  payoutRequests: number
+// ── Reports ────────────────────────────────────────────────────
+
+export interface BreakdownRowDto {
+  label: string
+  count: number
+  /** Absent on breakdowns that only count, e.g. by status. */
+  amount?: number
 }
 
 export interface SalesReportDto {
-  period: { from: string; to: string }
-  totalOrders: number
-  totalRevenue: number
-  totalCommission: number
-  totalRefunds: number
+  from: string
+  to: string
+  orders: number
+  /** Orders that were paid for, or will be — cancellations excluded. */
+  revenue: number
+  commission: number
+  deliveryFees: number
+  discounts: number
   averageOrderValue: number
-  byPaymentMethod: Record<string, number>
-  daily: Array<{ date: string; orders: number; revenue: number }>
+  daily: TimeSeriesPointDto[]
+  byPaymentMethod: BreakdownRowDto[]
+  byStatus: BreakdownRowDto[]
 }
 
+/** One row of any leaderboard. On the rider board, `revenue` is what they earned. */
 export interface LeaderboardRowDto {
-  rank: number
   id: string
   name: string
-  metric: number
-  change: number
-  trend: 'up' | 'down' | 'stable'
+  orders: number
+  revenue: number
+  rating: number | null
 }
 
 export interface ZoneReportRowDto {
-  zone: { id: string; name: string }
+  zoneId: string
+  zoneName: string
   orders: number
   revenue: number
-  activeRestaurants: number
-  activeRiders: number
+  averageOrderValue: number
 }
 
 export interface CouponReportRowDto {
-  id: string
+  couponId: string
   code: string
-  type: CouponType
-  value: number
-  uses: number
-  revenue: number
+  redemptions: number
+  /** What the discount actually cost. */
   discount: number
 }
 
+/**
+ * Cancellations split by who decided.
+ *
+ * A customer changing their mind and a kitchen rejecting orders it cannot cook
+ * are the same bar on a chart and entirely different problems, so the API keeps
+ * `cancelledBy` separate rather than collapsing both into one reason.
+ */
 export interface CancellationReportRowDto {
-  reason: string
+  status: string
+  cancelledBy: string | null
   count: number
-  percentage: number
-  revenue: number
 }
 
 export interface ReportWindowDto {
@@ -98,11 +132,11 @@ export interface ReportWindowDto {
   to?: string
 }
 
-export interface LeaderboardQueryDto {
-  from?: string
-  to?: string
+export interface LeaderboardQueryDto extends ReportWindowDto {
   limit?: number
 }
+
+// ── Coupons ────────────────────────────────────────────────────
 
 export interface CouponDto {
   id: string
@@ -122,7 +156,7 @@ export interface CouponDto {
   zoneId: string | null
   firstOrderOnly: boolean
   isActive: boolean
-  /** Active *and* inside its date window — what decides if it is usable now. */
+  /** Active, inside its window *and* not exhausted — what decides usability now. */
   isLive: boolean
   /** Null when usageLimit is null, i.e. unlimited. */
   remainingUses: number | null
@@ -146,27 +180,12 @@ export interface CreateCouponDto {
   isActive?: boolean
 }
 
-export interface UpdateCouponDto {
-  code?: string
-  type?: CouponType
-  value?: number
-  maxDiscountAmount?: number
-  minOrderAmount?: number
-  description?: string
-  startsAt?: string
-  expiresAt?: string
-  usageLimit?: number
-  perUserLimit?: number
-  restaurantId?: string
-  zoneId?: string
-  firstOrderOnly?: boolean
-  isActive?: boolean
-}
+export type UpdateCouponDto = Partial<CreateCouponDto>
 
 export interface ListCouponsQueryDto {
   page?: number
   limit?: number
-  sortBy?: string
+  sortBy?: 'createdAt' | 'expiresAt' | 'usageCount' | 'value'
   sortOrder?: 'asc' | 'desc'
   search?: string
   type?: CouponType
@@ -175,19 +194,24 @@ export interface ListCouponsQueryDto {
   restaurantId?: string
 }
 
+// ── Banners ────────────────────────────────────────────────────
+
 export interface BannerDto {
   id: string
   title: string
-  subtitle?: string
+  subtitle: string | null
   imageUrl: string
   placement: BannerPlacement
-  restaurantId?: string
-  linkUrl?: string
-  cityId?: string
+  restaurantId: string | null
+  linkUrl: string | null
+  cityId: string | null
+  /** Lower sorts first. */
   sortOrder: number
-  startsAt?: string
-  endsAt?: string
+  startsAt: string | null
+  endsAt: string | null
   isActive: boolean
+  /** Active *and* inside its display window. */
+  isLive: boolean
   createdAt: string
 }
 
@@ -205,19 +229,7 @@ export interface CreateBannerDto {
   isActive?: boolean
 }
 
-export interface UpdateBannerDto {
-  title?: string
-  subtitle?: string
-  imageUrl?: string
-  placement?: BannerPlacement
-  restaurantId?: string
-  linkUrl?: string
-  cityId?: string
-  sortOrder?: number
-  startsAt?: string
-  endsAt?: string
-  isActive?: boolean
-}
+export type UpdateBannerDto = Partial<CreateBannerDto>
 
 export interface ListBannersQueryDto {
   page?: number
@@ -233,13 +245,19 @@ export interface ReorderBannersDto {
   banners: Array<{ id: string; sortOrder: number }>
 }
 
+// ── Settings ───────────────────────────────────────────────────
+
 export interface SettingDto {
-  id: string
+  /** "group.name", lower-case with underscores. The primary key. */
   key: string
-  value: unknown
-  valueType: string
-  group?: string
-  description?: string
+  /** The value as stored — always a string, whatever the declared type. */
+  value: string
+  valueType: SettingValueType
+  /** The value coerced to its declared type — what a client should read. */
+  typedValue: unknown
+  group: string
+  description: string | null
+  /** Public settings are readable by client apps; private ones never leave the API. */
   isPublic: boolean
   updatedAt: string
 }
@@ -251,13 +269,14 @@ export interface SettingGroupDto {
 
 export interface UpsertSettingDto {
   key: string
-  value: unknown
-  valueType?: string
+  value: string
+  valueType?: SettingValueType
   group?: string
   description?: string
   isPublic?: boolean
 }
 
+/** Applied together or not at all. */
 export interface UpsertSettingsDto {
   settings: UpsertSettingDto[]
 }

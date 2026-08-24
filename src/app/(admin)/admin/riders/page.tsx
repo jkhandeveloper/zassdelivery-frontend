@@ -1,18 +1,14 @@
-import { PhasePlaceholder } from "@/components/layout/phase-placeholder";
+import { Suspense } from "react";
+
+import { AdminRidersView } from "@/components/admin/riders-view";
 
 export const metadata = { title: "Riders" };
 
 export default function Page() {
+  // Reads `?status=` so the dashboard can link straight to the approval queue.
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
-      title="Riders"
-      description="Rider approvals, document verification and suspensions."
-      endpoints={[
-        "GET /rider-management/riders",
-        "POST /rider-management/riders/:id/approve",
-        "POST /rider-management/documents/:id/verify",
-      ]}
-    />
+    <Suspense>
+      <AdminRidersView />
+    </Suspense>
   );
 }

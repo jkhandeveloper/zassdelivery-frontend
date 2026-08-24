@@ -1,30 +1,55 @@
-import { PaymentMethod, PaymentStatus, TransactionType, TransactionStatus } from './enums'
+import {
+  PaymentMethod,
+  PaymentStatus,
+  TransactionType,
+  TransactionStatus,
+  WebhookStatus,
+} from './enums'
 
+/**
+ * A payment attempt, mirroring `payment-response.dto.ts`.
+ *
+ * `refundableAmount` is the figure a refund form must be bounded by — it is
+ * `amount` minus what has already gone back, computed by the API so two clients
+ * cannot disagree about how much of an order is still refundable.
+ */
 export interface PaymentDto {
   id: string
+  /** Our merchant reference, quoted to the gateway and to support. */
+  reference: string | null
   orderId: string
   orderNumber: string
-  amount: number
   method: PaymentMethod
   status: PaymentStatus
-  reference?: string
-  failureReason?: string
-  collectedAt?: string
-  expiresAt?: string
+  /** Status phrasing already written by the API — prefer it to a local map. */
+  statusText: string
+  amount: number
+  currency: string
+  refundedAmount: number
+  /** What can still be refunded on this attempt. */
+  refundableAmount: number
+  gateway: string | null
+  /** The gateway's own transaction id, once it has issued one. */
+  gatewayTransactionId: string | null
+  failureReason: string | null
+  expiresAt: string | null
+  paidAt: string | null
+  failedAt: string | null
   createdAt: string
-  updatedAt: string
 }
 
+/** One movement of money. Append-only: a correction is another row, not an edit. */
 export interface TransactionDto {
   id: string
-  orderId?: string
-  userId?: string
-  amount: number
   type: TransactionType
-  method: PaymentMethod
   status: TransactionStatus
-  reference?: string
-  description?: string
+  amount: number
+  currency: string
+  reference: string
+  description: string | null
+  orderId: string | null
+  paymentId: string | null
+  processedAt: string | null
   createdAt: string
 }
 
@@ -62,7 +87,16 @@ export interface ListPaymentsQueryDto {
   limit?: number
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  /** Matches our reference, the gateway transaction id or the order number. */
   search?: string
+  status?: PaymentStatus
+  method?: PaymentMethod
+  gateway?: string
+  orderId?: string
+  /** Staff view: the paying customer. */
+  userId?: string
+  from?: string
+  to?: string
 }
 
 export interface ListTransactionsQueryDto {
@@ -70,6 +104,12 @@ export interface ListTransactionsQueryDto {
   limit?: number
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  search?: string
+  type?: TransactionType
+  status?: TransactionStatus
+  orderId?: string
+  userId?: string
+  paymentId?: string
   from?: string
   to?: string
 }
@@ -113,9 +153,30 @@ export interface InvoiceDto {
 }
 
 export interface RefundPaymentDto {
+  /** Omit to refund everything still refundable. */
   amount?: number
   reason: string
+  /** SOURCE returns it the way it arrived, falling back to the wallet. */
   destination?: 'SOURCE' | 'WALLET'
+}
+
+/**
+ * The result of refunding a payment attempt.
+ *
+ * `destination` is where the money *actually* went, which is not always where
+ * it was asked to go: a gateway that refuses a return sends it to the wallet
+ * instead, and the operator has to be told which happened.
+ */
+export interface PaymentRefundOutcome {
+  payment: PaymentDto
+  /** Moved by this call. */
+  refunded: number
+  /** The running total on this payment. */
+  totalRefunded: number
+  destination: 'GATEWAY' | 'WALLET'
+  /** False while a gateway is still processing the return. */
+  immediate: boolean
+  message: string
 }
 
 export interface FailPaymentDto {
@@ -127,30 +188,56 @@ export interface LedgerSummaryQueryDto {
   to?: string
 }
 
+export interface LedgerLineDto {
+  type: TransactionType
+  status: TransactionStatus
+  count: number
+  amount: number
+}
+
+/**
+ * Money moved over a window.
+ *
+ * Counts only what actually succeeded: a refund the gateway is still processing
+ * is money promised, not money gone.
+ */
 export interface LedgerSummaryDto {
-  period: { from: string; to: string }
-  totalPayments: number
-  totalRefunds: number
-  totalFees: number
-  netAmount: number
-  byMethod: Record<string, number>
+  from: string
+  to: string
+  lines: LedgerLineDto[]
+  /** Successful customer payments in the window. */
+  collected: number
+  refunded: number
+  commission: number
+  /** Money paid out to riders in the window. */
+  payouts: number
+  /** Collected minus refunded. */
+  net: number
 }
 
 export interface WebhookEventDto {
   id: string
   gateway: string
-  payload: Record<string, unknown>
-  status: 'RECEIVED' | 'PROCESSED' | 'DUPLICATE' | 'INVALID' | 'FAILED'
-  processedAt?: string
-  error?: string
-  createdAt: string
+  eventId: string
+  status: WebhookStatus
+  paymentId: string | null
+  error: string | null
+  /** Deliveries received, including replays. */
+  attempts: number
+  receivedAt: string
+  processedAt: string | null
+  /** The callback as received. Staff view only. */
+  payload?: unknown
 }
 
 export interface ListWebhookEventsQueryDto {
   page?: number
   limit?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
   gateway?: string
-  status?: string
+  status?: WebhookStatus
+  paymentId?: string
   from?: string
   to?: string
 }

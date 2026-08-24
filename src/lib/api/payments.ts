@@ -12,6 +12,7 @@ import type {
   InvoiceSummaryDto,
   InvoiceDto,
   RefundPaymentDto,
+  PaymentRefundOutcome,
   FailPaymentDto,
   LedgerSummaryQueryDto,
   LedgerSummaryDto,
@@ -53,11 +54,14 @@ export const paymentApi = {
   listPaymentsAdmin: (query?: ListPaymentsQueryDto) =>
     apiGetPaginated<PaymentDto>('/payment-management/payments', { params: query }),
 
-  getOutstandingCash: () =>
-    apiGetPaginated<PaymentDto>('/payment-management/payments/outstanding-cash'),
+  /** Cash orders still owing — anything lingering is a reconciliation question. */
+  getOutstandingCash: (query?: ListPaymentsQueryDto) =>
+    apiGetPaginated<PaymentDto>('/payment-management/payments/outstanding-cash', {
+      params: query,
+    }),
 
   refundPayment: (id: string, data: RefundPaymentDto) =>
-    apiPost(`/payment-management/payments/${id}/refund`, data),
+    apiPost<PaymentRefundOutcome>(`/payment-management/payments/${id}/refund`, data),
 
   markCollected: (id: string) =>
     apiPost<PaymentDto>(`/payment-management/payments/${id}/mark-collected`, {}),

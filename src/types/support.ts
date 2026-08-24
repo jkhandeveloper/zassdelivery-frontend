@@ -58,6 +58,8 @@ export interface ListTicketsQueryDto {
   limit?: number
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  /** Matches the ticket number or subject. */
+  search?: string
   status?: TicketStatus
   priority?: TicketPriority
   category?: TicketCategory
@@ -91,15 +93,28 @@ export interface QueueSummaryDto {
   open: number
 }
 
+/**
+ * One entry in the audit trail.
+ *
+ * The actor is denormalised onto the row (`actorName` / `actorRole`) rather than
+ * nested, and the change is the whole record twice — `before` and `after` — not
+ * a per-field diff, so the diff is computed here rather than read off the wire.
+ * Both are null for a CREATE and a DELETE respectively.
+ */
 export interface AuditLogDto {
   id: string
-  entityType: string
-  entityId: string
   action: AuditAction
-  actorId: string
-  actor: { id: string; fullName: string; role: string }
-  changes: Record<string, { before: unknown; after: unknown }>
-  reason?: string
+  /** The kind of record that changed — "Coupon", "Restaurant", "User". */
+  entityType: string
+  entityId: string | null
+  actorName: string | null
+  actorId: string | null
+  actorRole: string | null
+  before: unknown
+  after: unknown
+  ipAddress: string | null
+  /** Correlates the entry with the request that produced it. */
+  requestId: string | null
   createdAt: string
 }
 

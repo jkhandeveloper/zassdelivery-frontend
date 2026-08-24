@@ -318,6 +318,30 @@ export const BannerPlacement = {
 } as const;
 export type BannerPlacement = (typeof BannerPlacement)[keyof typeof BannerPlacement];
 
+/** How a stored platform setting should be read back. */
+export const SettingValueType = {
+  STRING: "STRING",
+  NUMBER: "NUMBER",
+  BOOLEAN: "BOOLEAN",
+  JSON: "JSON",
+} as const;
+export type SettingValueType = (typeof SettingValueType)[keyof typeof SettingValueType];
+
+/**
+ * What became of a gateway callback.
+ *
+ * INVALID is a signature that did not verify; FAILED is a genuine callback we
+ * could not apply — only the second one is worth replaying.
+ */
+export const WebhookStatus = {
+  RECEIVED: "RECEIVED",
+  PROCESSED: "PROCESSED",
+  DUPLICATE: "DUPLICATE",
+  INVALID: "INVALID",
+  FAILED: "FAILED",
+} as const;
+export type WebhookStatus = (typeof WebhookStatus)[keyof typeof WebhookStatus];
+
 export const AuditAction = {
   CREATE: "CREATE",
   UPDATE: "UPDATE",

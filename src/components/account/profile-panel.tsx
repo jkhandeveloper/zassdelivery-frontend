@@ -76,6 +76,7 @@ function ProfileFields({ user }: { user: UserDto }) {
 
   const [fullName, setFullName] = React.useState(user.fullName);
   const [email, setEmail] = React.useState(user.email ?? "");
+  const [avatarUrl, setAvatarUrl] = React.useState(user.avatarUrl ?? "");
 
   const initials = user.fullName
     .split(" ")
@@ -92,6 +93,7 @@ function ProfileFields({ user }: { user: UserDto }) {
           {
             fullName: fullName.trim(),
             ...(email.trim() !== "" && { email: email.trim() }),
+            avatarUrl: avatarUrl.trim() === "" ? undefined : avatarUrl.trim(),
           },
           {
             onSuccess: () => {
@@ -110,8 +112,8 @@ function ProfileFields({ user }: { user: UserDto }) {
     >
       <div className="flex flex-wrap items-center gap-5">
         <span className="gradient-brand grid size-20 shrink-0 place-items-center overflow-hidden rounded-full font-display text-2xl font-extrabold text-white shadow-card dark:text-[#04202b]">
-          {hasText(user.avatarUrl) ? (
-            <Media src={user.avatarUrl} className="rounded-full" />
+          {hasText(avatarUrl) ? (
+            <Media src={avatarUrl} className="rounded-full" />
           ) : initials === "" ? (
             <UserRound className="size-8" />
           ) : (
@@ -132,6 +134,20 @@ function ProfileFields({ user }: { user: UserDto }) {
           </div>
         </div>
       </div>
+
+      <Field
+        label="Profile photo"
+        htmlFor="profile-avatar"
+        hint="Optional. Paste the address of a photo you've already uploaded somewhere."
+      >
+        <Input
+          id="profile-avatar"
+          type="url"
+          value={avatarUrl}
+          onChange={(event) => setAvatarUrl(event.target.value)}
+          placeholder="https://cdn.zassdelivery.pk/avatars/ahmad.jpg"
+        />
+      </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Full name" htmlFor="profile-name" required>

@@ -1,18 +1,14 @@
-import { PhasePlaceholder } from "@/components/layout/phase-placeholder";
+import { Suspense } from "react";
+
+import { AdminPaymentsView } from "@/components/admin/payments-view";
 
 export const metadata = { title: "Payments" };
 
 export default function Page() {
+  // Reads `?tab=` so the dashboard can link straight to payouts or callbacks.
   return (
-    <PhasePlaceholder
-      phase="Coming soon"
-      title="Payments"
-      description="Payments, refunds, the ledger and gateway callbacks."
-      endpoints={[
-        "GET /payment-management/payments",
-        "POST /payment-management/payments/:id/refund",
-        "GET /payment-management/webhooks",
-      ]}
-    />
+    <Suspense>
+      <AdminPaymentsView />
+    </Suspense>
   );
 }

@@ -141,8 +141,15 @@ export interface RefundOrderDto {
   reason: string
 }
 
+/**
+ * What a refund actually did.
+ *
+ * `refunded` is the amount moved by *this* call and `totalRefunded` is the
+ * running total on the order — a partial refund makes them differ, so a screen
+ * that shows only one of them will eventually mislead.
+ */
 export interface RefundOutcome {
   message: string
-  refunded: boolean
+  refunded: number
   totalRefunded: number
 }
