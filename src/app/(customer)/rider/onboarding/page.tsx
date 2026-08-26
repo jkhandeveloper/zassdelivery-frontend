@@ -8,11 +8,13 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { FilePicker } from "@/components/ui/file-picker";
 import { Field, Input, NativeSelect } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/states";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useZones } from "@/hooks/use-geo";
+import { useUploadFile } from "@/hooks/use-uploads";
 import {
   useRegisterRider,
   useRiderDocuments,
@@ -380,7 +382,7 @@ function DocumentsStep({ rider }: { rider: RiderDto }) {
       ) : (
         <Section
           title="Upload your documents"
-          description="Paste the address of each scan or photo you've uploaded. An administrator verifies them before your application can be approved."
+          description="Take a photo of each document or pick one off this device. An administrator verifies them before your application can be approved."
         >
           <ul className="flex flex-col gap-4">
             {DOCUMENTS.map((document) => {
@@ -414,26 +416,20 @@ function DocumentsStep({ rider }: { rider: RiderDto }) {
 
                   <DocumentUpload
                     type={document.value}
+                    label={document.label}
                     hasExisting={existing !== undefined}
-                    pending={upload.isPending}
-                    onSubmit={(fileUrl, number) =>
-                      upload.mutate(
-                        {
-                          type: document.value,
-                          fileUrl,
-                          ...(number !== "" && { number }),
-                        },
-                        {
-                          onSuccess: () => toast.success(`${document.label} uploaded`),
-                          onError: (error) =>
-                            toast.error(
-                              error instanceof ApiError
-                                ? error.message
-                                : "We couldn't upload that document.",
-                            ),
-                        },
-                      )
-                    }
+                    existingUrl={existing?.fileUrl ?? null}
+                    // One mutation serves every row, so the pending flag has to
+                    // be narrowed to the row that actually started it.
+                    pending={upload.isPending && upload.variables?.type === document.value}
+                    onSubmit={async (fileUrl, number) => {
+                      await upload.mutateAsync({
+                        type: document.value,
+                        fileUrl,
+                        ...(number !== "" && { number }),
+                      });
+                      toast.success(`${document.label} uploaded`);
+                    }}
                   />
                 </li>
               );
@@ -447,55 +443,92 @@ function DocumentsStep({ rider }: { rider: RiderDto }) {
 
 function DocumentUpload({
   type,
+  label,
   hasExisting,
+  existingUrl,
   pending,
   onSubmit,
 }: {
   type: string;
+  label: string;
   hasExisting: boolean;
+  existingUrl: string | null;
   pending: boolean;
-  onSubmit: (fileUrl: string, number: string) => void;
+  onSubmit: (fileUrl: string, number: string) => Promise<void>;
 }) {
-  const [fileUrl, setFileUrl] = React.useState("");
+  const [file, setFile] = React.useState<File | null>(null);
   const [number, setNumber] = React.useState("");
+  const [error, setError] = React.useState<string>();
+  const storeFile = useUploadFile();
+
+  const busy = storeFile.isPending || pending;
 
   return (
     <form
-      className="flex flex-wrap items-end gap-2"
+      className="flex flex-col gap-3"
       onSubmit={(event) => {
         event.preventDefault();
-        if (fileUrl.trim() === "") return;
+        if (file === null || busy) return;
 
-        onSubmit(fileUrl.trim(), number.trim());
-        setFileUrl("");
-        setNumber("");
+        setError(undefined);
+
+        // Two calls, in order: the file goes to storage, and the URL it comes
+        // back with is what the document record is filed against. Attaching a
+        // URL that does not resolve yet would leave an administrator reviewing
+        // a broken link, so nothing is submitted until the file is stored.
+        void (async () => {
+          try {
+            const stored = await storeFile.mutateAsync({ file, folder: "rider-documents" });
+            await onSubmit(stored.url, number.trim());
+
+            setFile(null);
+            setNumber("");
+          } catch (failure) {
+            setError(
+              failure instanceof ApiError
+                ? failure.message
+                : "We couldn't upload that document. Please try again.",
+            );
+          }
+        })();
       }}
     >
-      <Field label="File address" htmlFor={`doc-url-${type}`} className="min-w-56 flex-1">
-        <Input
-          id={`doc-url-${type}`}
-          type="url"
-          value={fileUrl}
-          onChange={(event) => setFileUrl(event.target.value)}
-          placeholder="https://…/cnic-front.jpg"
-          className="h-11"
-        />
-      </Field>
+      <FilePicker
+        id={`doc-file-${type}`}
+        label={label}
+        value={file}
+        onChange={(next) => {
+          setError(undefined);
+          setFile(next);
+        }}
+        progress={storeFile.progress}
+        disabled={busy}
+        error={error}
+        existingUrl={existingUrl}
+      />
 
-      <Field label="Number on it" htmlFor={`doc-number-${type}`} className="w-44">
-        <Input
-          id={`doc-number-${type}`}
-          value={number}
-          onChange={(event) => setNumber(event.target.value)}
-          placeholder="Optional"
-          className="h-11"
-        />
-      </Field>
+      <div className="flex flex-wrap items-end gap-2">
+        <Field
+          label="Number on it"
+          htmlFor={`doc-number-${type}`}
+          className="w-44"
+          hint="Optional"
+        >
+          <Input
+            id={`doc-number-${type}`}
+            value={number}
+            onChange={(event) => setNumber(event.target.value)}
+            placeholder="1710112345678"
+            className="h-11"
+            disabled={busy}
+          />
+        </Field>
 
-      <Button type="submit" variant="outline" loading={pending} disabled={fileUrl.trim() === ""}>
-        <Upload className="size-4" />
-        {hasExisting ? "Replace" : "Upload"}
-      </Button>
+        <Button type="submit" variant="outline" loading={busy} disabled={file === null}>
+          <Upload className="size-4" />
+          {hasExisting ? "Replace" : "Upload"}
+        </Button>
+      </div>
     </form>
   );
 }

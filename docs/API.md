@@ -60,7 +60,8 @@ curl http://localhost:3000/api/v1/orders \
 | Audit Log | 3 | `audit.read` |
 | Health | 3 | Public |
 | Payment Webhooks | 2 | Gateway only — signature verified |
-| **Total** | **251** | |
+| Uploads | 2 | Signed-in to upload; reading is public |
+| **Total** | **253** | |
 
 ---
 
@@ -110,6 +111,25 @@ Errors follow the same discipline — **always capture `requestId`**:
 | **Money** | Returned as a number, in PKR. |
 | **Variant prices are absolute** | A variant's price replaces the base price; it is not added to it. |
 | **Health is unwrapped** | `/health` returns raw Terminus output, not the standard envelope. |
+| **Files are uploaded separately** | No endpoint takes a file inline. Post it to `/uploads` first and send the URL you get back. |
+
+---
+
+## Uploading files
+
+Every endpoint takes JSON, so a file is two calls rather than one:
+
+1. `POST /uploads` — `multipart/form-data` with `file` and `folder`. Returns `{ url, key, folder, fileName, mimeType, size }`.
+2. Send that `url` as the record's own field — `fileUrl` on a rider document, `logoUrl` on a restaurant.
+
+| Detail | Value |
+| --- | --- |
+| Accepted types | JPG, PNG, WebP, HEIC, PDF |
+| Size limit | `UPLOAD_MAX_FILE_SIZE_MB`, 10MB by default |
+| Folders | `rider-documents`, `restaurant-logos`, `menu-items`, `avatars`, `support-attachments` |
+| Storage | MinIO, or any S3-compatible bucket. The bucket stays private. |
+| Reading back | `GET /uploads/:folder/:name` is public — the object name is a random UUID, so the URL is the capability. It works in an `<img>` or a new tab, where a bearer token cannot be attached. |
+| Not configured | Without `MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` the upload route answers `503`; nothing else is affected. |
 
 ---
 

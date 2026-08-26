@@ -12,6 +12,8 @@
 | Health check | `http://localhost:3000/api/v1/health` | Reports database and Redis status |
 | PostgreSQL | `localhost:5433` | Docker container `zass_postgres` |
 | Redis | `localhost:6379` | Docker container `zass_redis` |
+| MinIO (S3 API) | `localhost:9000` | Docker container `zass_minio` — holds uploaded documents and photos |
+| MinIO console | `http://localhost:9001` | Browse the bucket. Signs in with `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` |
 
 > **Port 5433 is deliberate.** PostgreSQL runs on 5433, not the default 5432, because most
 > machines already have a local PostgreSQL. Connecting to the wrong one produces a confusing
@@ -24,7 +26,7 @@
 ```bash
 # 1. Dependencies (from the backend directory)
 cd /var/www/zassdelivery
-docker compose up -d postgres redis
+docker compose up -d postgres redis minio
 
 # 2. Backend  →  http://localhost:3000
 npm run start:dev

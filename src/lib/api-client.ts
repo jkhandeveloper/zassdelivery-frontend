@@ -276,6 +276,38 @@ export async function apiPut<T>(
   }
 }
 
+/**
+ * A multipart upload.
+ *
+ * Kept apart from `apiPost` for three reasons: the JSON content type has to be
+ * dropped so the browser can set the multipart boundary itself, the 20s
+ * default timeout is far too short for a photo on a mobile connection, and a
+ * progress callback is worth having when the wait is measured in seconds.
+ */
+export async function apiUpload<T>(
+  url: string,
+  form: FormData,
+  options?: { onProgress?: (percent: number) => void; signal?: AbortSignal },
+): Promise<T> {
+  try {
+    const response = await apiClient.post<ApiSuccess<T>>(url, form, {
+      // Undefined, not deleted: axios then infers `multipart/form-data` along
+      // with the boundary. A hand-written value would have no boundary at all.
+      headers: { "Content-Type": undefined },
+      timeout: 120_000,
+      signal: options?.signal,
+      onUploadProgress: (event) => {
+        if (options?.onProgress === undefined || event.total === undefined) return;
+        options.onProgress(Math.round((event.loaded / event.total) * 100));
+      },
+    });
+
+    return response.data.data;
+  } catch (error) {
+    throw toApiError(error);
+  }
+}
+
 export async function apiDelete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
   try {
     const response = await apiClient.delete<ApiSuccess<T>>(url, config);
