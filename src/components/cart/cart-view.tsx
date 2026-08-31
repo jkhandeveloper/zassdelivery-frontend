@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ArrowRight, ShoppingBag, Tag, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, MapPin, ShoppingBag, Tag, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import {
   useApplyCoupon,
   useCart,
   useClearCart,
+  useEnsureCartAddress,
   useRemoveCartItem,
   useRemoveCoupon,
   useUpdateCartItem,
@@ -25,7 +26,7 @@ import {
 import { ApiError } from "@/lib/api-client";
 import { isFilledCart } from "@/lib/cart";
 import { cn, formatPrice } from "@/lib/utils";
-import type { CartLineDto } from "@/types/cart";
+import type { CartDeliveryDto, CartLineDto } from "@/types/cart";
 
 /**
  * One line in the cart.
@@ -178,12 +179,71 @@ function CouponBox({ appliedCode }: { appliedCode: string | null }) {
   );
 }
 
+/**
+ * Where this basket is being delivered, above the money it is priced from.
+ *
+ * The header's "Deliver to" is the address book; this is the cart's own
+ * address — the one the delivery fee and ETA are quoted against — so the two
+ * are shown separately and this one carries the way to change it.
+ */
+function DeliverToRow({
+  delivery,
+  resolving,
+}: {
+  delivery: CartDeliveryDto;
+  resolving: boolean;
+}) {
+  const chosen = delivery.addressLine !== null && delivery.addressLine !== "";
+
+  return (
+    <div className="flex items-start gap-2.5 rounded-[var(--radius-input)] bg-surface-muted px-3.5 py-2.5">
+      <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-brand" />
+
+      <div className="flex min-w-0 flex-1 flex-col leading-tight">
+        <span className="text-[0.6875rem] font-semibold uppercase tracking-wide text-muted">
+          Deliver to
+        </span>
+
+        {resolving && !chosen ? (
+          <Skeleton className="mt-1 h-4 w-32" />
+        ) : (
+          <span
+            className={cn(
+              "truncate text-sm font-bold",
+              chosen ? "text-primary" : "text-danger",
+            )}
+          >
+            {chosen ? delivery.addressLine : "No address chosen yet"}
+          </span>
+        )}
+
+        {chosen && delivery.etaMinutes !== null && (
+          <span className="numeric text-xs text-muted">
+            About {delivery.etaMinutes} min away
+            {delivery.distanceKm !== null && ` · ${delivery.distanceKm.toFixed(1)} km`}
+          </span>
+        )}
+      </div>
+
+      <Link
+        href="/checkout"
+        className="shrink-0 text-xs font-bold text-brand underline-offset-2 hover:underline"
+      >
+        {chosen ? "Change" : "Choose"}
+      </Link>
+    </div>
+  );
+}
+
 export function CartView() {
   const { isAuthenticated, isReady } = useAuth();
   const signedIn = isReady && isAuthenticated;
 
   const cart = useCart(signedIn);
   const clear = useClearCart();
+
+  const liveCart = isFilledCart(cart.data) ? cart.data : null;
+  const { isResolving: resolvingAddress } = useEnsureCartAddress(liveCart, signedIn);
 
   if (isReady && !isAuthenticated) {
     return (
@@ -217,8 +277,6 @@ export function CartView() {
     return <ErrorState error={cart.error} onRetry={() => void cart.refetch()} />;
   }
 
-  const liveCart = isFilledCart(cart.data) ? cart.data : null;
-
   if (liveCart === null) {
     return (
       <EmptyState
@@ -234,8 +292,13 @@ export function CartView() {
     );
   }
 
-  const blocking = liveCart.issues.filter((issue) => issue.blocking);
-  const advisory = liveCart.issues.filter((issue) => !issue.blocking);
+  // The missing-address complaint is about to answer itself while the default
+  // address is on its way, so it is held back rather than flashed on screen.
+  const issues = liveCart.issues.filter(
+    (issue) => !(resolvingAddress && issue.code === "NO_ADDRESS"),
+  );
+  const blocking = issues.filter((issue) => issue.blocking);
+  const advisory = issues.filter((issue) => !issue.blocking);
 
   return (
     <div className="flex flex-col gap-14">
@@ -307,6 +370,8 @@ export function CartView() {
         <aside className="flex flex-col gap-4 rounded-[var(--radius-panel)] border border-border-subtle bg-surface p-5 shadow-card lg:sticky lg:top-24">
           <h2 className="font-display text-lg font-extrabold text-primary">Order summary</h2>
 
+          <DeliverToRow delivery={liveCart.delivery} resolving={resolvingAddress} />
+
           <CouponBox appliedCode={liveCart.couponCode} />
 
           <OrderSummary
@@ -326,7 +391,9 @@ export function CartView() {
                   <ArrowRight aria-hidden className="size-4" />
                 </Link>
               ) : (
-                <span>Resolve the issues above</span>
+                <span>
+                  {resolvingAddress ? "Getting your address…" : "Resolve the issues above"}
+                </span>
               )}
             </Button>
 

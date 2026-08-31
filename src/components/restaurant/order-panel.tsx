@@ -8,7 +8,7 @@ import { OrderSummary } from "@/components/cart/order-summary";
 import { Button } from "@/components/ui/button";
 import { Media } from "@/components/ui/media";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCart } from "@/hooks/use-cart";
+import { useCart, useEnsureCartAddress } from "@/hooks/use-cart";
 import { useAddresses } from "@/hooks/use-users";
 import { isFilledCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
@@ -35,6 +35,10 @@ export function RestaurantOrderPanel({ restaurant }: { restaurant: RestaurantDto
 
   const items = addresses.data?.items ?? [];
   const preferred = items.find((address) => address.isDefault) ?? items[0];
+
+  // The fee below is only quoted once the cart carries an address, so the
+  // default is attached here too — the panel's total is the cart's total.
+  useEnsureCartAddress(liveCart, signedIn);
 
   return (
     <div className="flex flex-col gap-4 rounded-[var(--radius-panel)] border border-border-subtle bg-surface p-5 shadow-card">

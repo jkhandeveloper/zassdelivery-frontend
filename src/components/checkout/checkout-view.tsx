@@ -25,7 +25,7 @@ import { Field, Textarea } from "@/components/ui/input";
 import { Media } from "@/components/ui/media";
 import { Skeleton, SkeletonRegion } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
-import { useCart, usePlaceOrder, useSetDeliveryAddress } from "@/hooks/use-cart";
+import { useCart, useEnsureCartAddress, usePlaceOrder, useSetDeliveryAddress } from "@/hooks/use-cart";
 import { usePaymentMethods, useStartCheckout } from "@/hooks/use-payments";
 import { useAddresses } from "@/hooks/use-users";
 import { ApiError } from "@/lib/api-client";
@@ -181,19 +181,9 @@ export function CheckoutView() {
   const selectedAddressId = liveCart?.delivery.addressId ?? null;
 
   // An empty delivery block on a cart whose owner already has a default address
-  // is a dead end, so the default is sent for them — once. The ref is what keeps
-  // "once" true: the mutation object is new on every render, so a guard on its
-  // pending flag alone would fire again before the first call lands.
-  const autoSelected = React.useRef(false);
-
-  React.useEffect(() => {
-    if (autoSelected.current) return;
-    if (liveCart === null || selectedAddressId !== null || addressList.length === 0) return;
-
-    autoSelected.current = true;
-    const preferred = addressList.find((address) => address.isDefault) ?? addressList[0];
-    setAddress.mutate({ addressId: preferred.id });
-  }, [addressList, liveCart, selectedAddressId, setAddress]);
+  // is a dead end, so the default is sent for them — the same way the cart page
+  // does it, so the totals match on both screens.
+  useEnsureCartAddress(liveCart, signedIn);
 
   if (isReady && !isAuthenticated) {
     return (
