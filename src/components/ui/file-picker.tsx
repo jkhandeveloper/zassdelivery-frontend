@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ACCEPT_ATTRIBUTE,
+  ACCEPT_IMAGES,
+  ACCEPTED_IMAGE_TYPES,
   ACCEPTED_UPLOAD_TYPES,
-  formatFileSize,
+  IMAGE_EXTENSIONS,
   MAX_UPLOAD_BYTES,
+  UPLOAD_EXTENSIONS,
+  formatFileSize,
 } from "@/types/upload";
 
 export interface FilePickerProps {
@@ -26,6 +30,8 @@ export interface FilePickerProps {
   error?: string;
   /** What is already on file, offered as a link so a rider can check it first. */
   existingUrl?: string | null;
+  /** Drops PDF from what may be chosen — for a field that ends up in an `<img>`. */
+  imagesOnly?: boolean;
   className?: string;
 }
 
@@ -48,6 +54,7 @@ export function FilePicker({
   disabled = false,
   error,
   existingUrl,
+  imagesOnly = false,
   className,
 }: FilePickerProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -57,6 +64,10 @@ export function FilePicker({
   const preview = useImagePreview(value);
   const uploading = progress !== null;
   const message = error ?? rejection;
+
+  const allowedTypes: readonly string[] = imagesOnly ? ACCEPTED_IMAGE_TYPES : ACCEPTED_UPLOAD_TYPES;
+  const allowedExtensions: readonly string[] = imagesOnly ? IMAGE_EXTENSIONS : UPLOAD_EXTENSIONS;
+  const allowedText = imagesOnly ? "JPG, PNG, WebP or HEIC" : "JPG, PNG, WebP, HEIC or PDF";
 
   function accept(file: File | undefined): void {
     setRejection(undefined);
@@ -68,13 +79,13 @@ export function FilePicker({
     const typeIsKnown = file.type !== "";
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
 
-    if (typeIsKnown && !(ACCEPTED_UPLOAD_TYPES as readonly string[]).includes(file.type)) {
-      setRejection("That file type isn't accepted. Choose a JPG, PNG, WebP, HEIC or PDF.");
+    if (typeIsKnown && !allowedTypes.includes(file.type)) {
+      setRejection(`That file type isn't accepted. Choose a ${allowedText}.`);
       return;
     }
 
-    if (!typeIsKnown && !["jpg", "jpeg", "png", "webp", "heic", "heif", "pdf"].includes(extension)) {
-      setRejection("That file type isn't accepted. Choose a JPG, PNG, WebP, HEIC or PDF.");
+    if (!typeIsKnown && !allowedExtensions.includes(extension)) {
+      setRejection(`That file type isn't accepted. Choose a ${allowedText}.`);
       return;
     }
 
@@ -107,7 +118,7 @@ export function FilePicker({
         ref={inputRef}
         id={id}
         type="file"
-        accept={ACCEPT_ATTRIBUTE}
+        accept={imagesOnly ? ACCEPT_IMAGES : ACCEPT_ATTRIBUTE}
         aria-label={`${label} file`}
         className="sr-only"
         // Out of the tab order on purpose: the visible button below opens the
@@ -147,10 +158,10 @@ export function FilePicker({
               onClick={() => inputRef.current?.click()}
             >
               <Camera className="size-4" />
-              Choose a file
+              {imagesOnly ? "Choose a photo" : "Choose a file"}
             </Button>
             <span className="text-xs text-muted">
-              Take a photo, or pick one from this device. JPG, PNG, WebP, HEIC or PDF, up to{" "}
+              Take a photo, or pick one from this device. {allowedText}, up to{" "}
               {formatFileSize(MAX_UPLOAD_BYTES)}.
             </span>
           </div>

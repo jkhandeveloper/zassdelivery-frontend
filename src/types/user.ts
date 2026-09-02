@@ -21,7 +21,8 @@ export interface UserDto {
 export interface UpdateProfileDto {
   fullName?: string
   email?: string
-  avatarUrl?: string
+  /** `null` removes the photo; omitting the field leaves it as it is. */
+  avatarUrl?: string | null
   locale?: string
   pushToken?: string
 }

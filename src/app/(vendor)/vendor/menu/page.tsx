@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Panel, PortalHeader } from "@/components/layout/portal-page";
 import { Button } from "@/components/ui/button";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import { Field, Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { Media } from "@/components/ui/media";
 import { ListSkeleton } from "@/components/ui/skeleton";
@@ -399,27 +400,15 @@ function AddDishForm({
           />
         </Field>
 
-        <Field
+        <ImageUploadField
+          id="dish-image"
           label="Photo"
-          htmlFor="dish-image"
-          hint="Optional. Paste the address of a photo you've already uploaded somewhere."
-        >
-          <div className="flex items-center gap-3">
-            {hasText(imageUrl) && (
-              <span className="size-14 shrink-0 overflow-hidden rounded-xl bg-surface-muted">
-                <Media src={imageUrl} alt="" variant="food" />
-              </span>
-            )}
-            <Input
-              id="dish-image"
-              type="url"
-              value={imageUrl}
-              onChange={(event) => setImageUrl(event.target.value)}
-              placeholder="https://cdn.zassdelivery.pk/dishes/chapli-kabab.jpg"
-              className="flex-1"
-            />
-          </div>
-        </Field>
+          hint="Optional, but a dish with a photo sells noticeably better."
+          folder="menu-items"
+          value={imageUrl}
+          onChange={setImageUrl}
+          disabled={create.isPending}
+        />
 
         <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
           <input

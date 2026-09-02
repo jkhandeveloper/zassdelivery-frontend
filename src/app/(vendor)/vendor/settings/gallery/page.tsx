@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Panel, PortalHeader } from "@/components/layout/portal-page";
 import { Button } from "@/components/ui/button";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import { Field, Input } from "@/components/ui/input";
 import { Media } from "@/components/ui/media";
 import { Skeleton, SkeletonRegion } from "@/components/ui/skeleton";
@@ -62,7 +63,7 @@ function Gallery({ restaurantId }: { restaurantId: string }) {
 
       <Panel
         title="Add a photo"
-        description="Paste the address of an image you've already uploaded somewhere."
+        description="Choose a picture from this device — it's uploaded as soon as you pick it."
       >
         <form
           className="flex flex-col gap-4"
@@ -89,17 +90,16 @@ function Gallery({ restaurantId }: { restaurantId: string }) {
             );
           }}
         >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Image address" htmlFor="gallery-url" required>
-              <Input
-                id="gallery-url"
-                type="url"
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                placeholder="https://…/dining-room.jpg"
-                required
-              />
-            </Field>
+          <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+            <ImageUploadField
+              id="gallery-photo"
+              label="Photo"
+              folder="restaurant-gallery"
+              value={url}
+              onChange={setUrl}
+              required
+              disabled={add.isPending}
+            />
             <Field label="Caption" htmlFor="gallery-caption" hint="Optional.">
               <Input
                 id="gallery-caption"

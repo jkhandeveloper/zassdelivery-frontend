@@ -13,6 +13,7 @@ import { EmptyState, ErrorState } from "@/components/ui/states";
 import { StatusPill } from "@/components/ui/status-pill";
 import {
   useAcceptOrder,
+  useMarkDelivered,
   useMarkPreparing,
   useMarkReady,
   useRejectOrder,
@@ -84,9 +85,20 @@ export function OrderQueue({ restaurantId }: { restaurantId: string }) {
       ),
     },
     {
-      title: "Waiting for a rider",
-      hint: "Cooked and ready to collect.",
+      title: "Ready to deliver",
+      hint: "Cooked and waiting to be collected.",
       orders: items.filter((order) => order.status === OrderStatus.READY_FOR_PICKUP),
+    },
+    {
+      // A rider has it, so there is nothing left for the kitchen to do — but the
+      // ticket stays on the board until it lands, because a vendor who delivers
+      // their own orders is the one who closes it.
+      title: "Out for delivery",
+      hint: "On its way to the customer.",
+      orders: items.filter(
+        (order) =>
+          order.status === OrderStatus.PICKED_UP || order.status === OrderStatus.ON_THE_WAY,
+      ),
     },
   ];
 
@@ -101,7 +113,7 @@ export function OrderQueue({ restaurantId }: { restaurantId: string }) {
   }
 
   return (
-    <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
+    <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-4">
       {columns.map((column) => (
         <section key={column.title} className="flex flex-col gap-3">
           <header className="flex items-baseline justify-between gap-2">
@@ -135,12 +147,17 @@ function TicketCard({ order }: { order: OrderDto }) {
   const reject = useRejectOrder();
   const preparing = useMarkPreparing();
   const ready = useMarkReady();
+  const delivered = useMarkDelivered();
 
   const [rejecting, setRejecting] = React.useState(false);
   const [reason, setReason] = React.useState("");
 
   const working =
-    accept.isPending || reject.isPending || preparing.isPending || ready.isPending;
+    accept.isPending ||
+    reject.isPending ||
+    preparing.isPending ||
+    ready.isPending ||
+    delivered.isPending;
 
   const fail = (error: unknown, fallback: string) =>
     toast.error(error instanceof ApiError ? error.message : fallback);
@@ -311,6 +328,27 @@ function TicketCard({ order }: { order: OrderDto }) {
               }
             >
               Ready for pickup
+            </Button>
+          )}
+
+          {/* How a vendor who delivers their own orders finishes one. A rider
+              normally closes their run against the customer's code in the rider
+              app, so this is the fallback rather than the usual path. */}
+          {order.allowedTransitions.includes(OrderStatus.DELIVERED) && (
+            <Button
+              size="sm"
+              variant="success"
+              className="flex-1"
+              loading={delivered.isPending}
+              disabled={working}
+              onClick={() =>
+                delivered.mutate(order.id, {
+                  onSuccess: () => toast.success(`Order ${order.orderNumber} marked delivered`),
+                  onError: (error) => fail(error, "We couldn't mark that order delivered."),
+                })
+              }
+            >
+              Mark delivered
             </Button>
           )}
 

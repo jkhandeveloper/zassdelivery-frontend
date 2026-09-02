@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { NewAddressForm } from "@/components/account/address-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import { Field, Input } from "@/components/ui/input";
 import { ProfileSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -93,7 +94,9 @@ function ProfileFields({ user }: { user: UserDto }) {
           {
             fullName: fullName.trim(),
             ...(email.trim() !== "" && { email: email.trim() }),
-            avatarUrl: avatarUrl.trim() === "" ? undefined : avatarUrl.trim(),
+            // null rather than undefined, so removing the photo actually clears
+            // it — an omitted field means "leave it as it is".
+            avatarUrl: avatarUrl.trim() === "" ? null : avatarUrl.trim(),
           },
           {
             onSuccess: () => {
@@ -135,19 +138,17 @@ function ProfileFields({ user }: { user: UserDto }) {
         </div>
       </div>
 
-      <Field
+      <ImageUploadField
+        id="profile-avatar"
         label="Profile photo"
-        htmlFor="profile-avatar"
-        hint="Optional. Paste the address of a photo you've already uploaded somewhere."
-      >
-        <Input
-          id="profile-avatar"
-          type="url"
-          value={avatarUrl}
-          onChange={(event) => setAvatarUrl(event.target.value)}
-          placeholder="https://cdn.zassdelivery.pk/avatars/ahmad.jpg"
-        />
-      </Field>
+        hint="Optional. It's saved with the rest of your details."
+        folder="avatars"
+        shape="circle"
+        variant="store"
+        value={avatarUrl}
+        onChange={setAvatarUrl}
+        disabled={update.isPending}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Full name" htmlFor="profile-name" required>

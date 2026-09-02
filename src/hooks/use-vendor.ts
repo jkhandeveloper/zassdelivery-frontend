@@ -216,6 +216,17 @@ export function useMarkReady() {
   return useOrderTransition((id: string) => orderApi.markReady(id));
 }
 
+/**
+ * Closes an order out from the kitchen's side.
+ *
+ * For a vendor who delivers themselves there is no rider to confirm a code, so
+ * the API lets the restaurant mark it delivered — the button is still gated on
+ * `allowedTransitions`, which is what decides whether it is offered at all.
+ */
+export function useMarkDelivered() {
+  return useOrderTransition((id: string) => orderApi.markDelivered(id));
+}
+
 // ── Menu ─────────────────────────────────────────────────────
 
 export function useVendorMenus(restaurantId: string | null) {

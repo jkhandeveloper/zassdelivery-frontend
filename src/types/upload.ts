@@ -2,6 +2,7 @@
 export type UploadFolder =
   | 'rider-documents'
   | 'restaurant-logos'
+  | 'restaurant-gallery'
   | 'menu-items'
   | 'avatars'
   | 'support-attachments'
@@ -17,21 +18,36 @@ export interface UploadedFileDto {
 }
 
 /**
- * What the API accepts, kept in one place so the file picker's `accept`
- * attribute and its rejection message can never drift from each other.
+ * The picture formats the API accepts.
+ *
+ * Split out from the full list because most upload fields in the product are
+ * photos — a logo, a dish, a gallery shot — and a PDF picked for one of those
+ * would upload happily and then render as a broken image.
  */
-export const ACCEPTED_UPLOAD_TYPES = [
+export const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
   'image/heic',
   'image/heif',
-  'application/pdf',
 ] as const
 
-/** For `<input type="file" accept>`. Extensions are listed because HEIC from an
- * iPhone often arrives with an empty or unexpected media type. */
-export const ACCEPT_ATTRIBUTE = `${ACCEPTED_UPLOAD_TYPES.join(',')},.jpg,.jpeg,.png,.webp,.heic,.heif,.pdf`
+/**
+ * What the API accepts, kept in one place so the file picker's `accept`
+ * attribute and its rejection message can never drift from each other.
+ */
+export const ACCEPTED_UPLOAD_TYPES = [...ACCEPTED_IMAGE_TYPES, 'application/pdf'] as const
+
+/** Extensions listed alongside the media types because HEIC from an iPhone often
+ * arrives with an empty or unexpected one. */
+export const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'] as const
+
+export const UPLOAD_EXTENSIONS = [...IMAGE_EXTENSIONS, 'pdf'] as const
+
+/** For `<input type="file" accept>`. */
+export const ACCEPT_IMAGES = `${ACCEPTED_IMAGE_TYPES.join(',')},${IMAGE_EXTENSIONS.map((extension) => `.${extension}`).join(',')}`
+
+export const ACCEPT_ATTRIBUTE = `${ACCEPTED_UPLOAD_TYPES.join(',')},${UPLOAD_EXTENSIONS.map((extension) => `.${extension}`).join(',')}`
 
 /** Must match `UPLOAD_MAX_FILE_SIZE_MB` on the API. */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
