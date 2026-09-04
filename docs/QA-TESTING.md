@@ -13,6 +13,11 @@ Step-by-step scenarios for manual testing.
 Before starting: confirm the environment is healthy ([SETUP.md](SETUP.md)) and check
 [FRONTEND-ROUTES.md](FRONTEND-ROUTES.md) so you do not test placeholder pages.
 
+> The **order journey** — vendor accepts, the nearest rider is offered the run, pickup, live
+> rider tracking on a map, and the delivery code — has its own document:
+> [QA-ORDER-LIFECYCLE.md](QA-ORDER-LIFECYCLE.md). It needs four browser sessions and a
+> simulated rider location, so it is kept separate from the single-window scenarios below.
+
 ---
 
 ## UI scenarios

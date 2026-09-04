@@ -24,11 +24,12 @@ now built in full; the admin portal and the customer marketing/legal pages are n
 | `/login` | ✅ Built | — |
 | `/register` | ✅ Built | With role selection |
 | `/design-system` | ✅ Built | Component reference, not a user-facing page |
-| `/cart` | ⛔ Placeholder | Items **can** be added from a menu; this page cannot show them yet |
-| `/checkout` | ⛔ Placeholder | — |
-| `/orders` | ⛔ Placeholder | — |
-| `/profile` | ⛔ Placeholder | — |
-| `/favorites` | ⛔ Placeholder | — |
+| `/cart` | ✅ Built | The basket, with quantities and coupon entry |
+| `/checkout` | ✅ Built | Address, payment method, place order |
+| `/orders` | ✅ Built | Active and previous orders; **Track** on anything still moving |
+| `/orders/[id]` | ✅ Built | Live tracking — status, rider, map; **realtime** |
+| `/profile` | ✅ Built | — |
+| `/favorites` | ✅ Built | — |
 | `/notifications` | ⛔ Placeholder | — |
 | `/support` | ⛔ Placeholder | Rider and vendor support are built at `/rider/support` and `/vendor/support` |
 | `/about` | ⛔ Placeholder | Marketing copy pending |

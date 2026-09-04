@@ -9,6 +9,7 @@ Manual testing and reference docs for the ZassDelivery platform.
 | [FRONTEND-ROUTES.md](FRONTEND-ROUTES.md) | Every route and whether it is actually built |
 | [API.md](API.md) | Backend API surface, conventions, rate limits |
 | [QA-TESTING.md](QA-TESTING.md) | Step-by-step manual test scenarios |
+| [QA-ORDER-LIFECYCLE.md](QA-ORDER-LIFECYCLE.md) | The order journey end to end: vendor accept → nearest rider → pickup → live tracking → delivery code |
 
 ---
 
@@ -16,11 +17,13 @@ Manual testing and reference docs for the ZassDelivery platform.
 
 The **backend is complete** — all 250 endpoints work.
 
-The **frontend is not**. It has 49 routes, but only **7 are real screens**. The other 42 are
-honest placeholders that say "Coming soon" and list the endpoints they will eventually use.
+The **frontend is not finished**. The customer, vendor and rider journeys are built, but a
+number of routes are still honest placeholders that say "Coming soon" and list the endpoints
+they will eventually use.
 
 > **Do not raise bugs against placeholder pages.** A page showing "Coming soon" is working as
-> intended. Check [FRONTEND-ROUTES.md](FRONTEND-ROUTES.md) before filing anything.
+> intended. Check [FRONTEND-ROUTES.md](FRONTEND-ROUTES.md) before filing anything — it is the
+> authority on which routes are real.
 
 ### What can be tested today
 
@@ -32,10 +35,11 @@ honest placeholders that say "Coming soon" and list the endpoints they will even
 | Offers | ✅ Built | ✅ | Requires sign-in |
 | Home page | ⚠️ Partial | ✅ | Hero and nav real; listing sections pending |
 | Cart | ⚠️ Partial | ✅ | Items can be **added**, but `/cart` is a placeholder |
-| Checkout, orders | ⛔ Placeholder | ✅ | API only |
-| Vendor portal | ⛔ Placeholder | ✅ | Shell and nav real; content API only |
-| Rider portal | ⛔ Placeholder | ✅ | Shell and nav real; content API only |
-| Admin portal | ⛔ Placeholder | ✅ | Shell and nav real; content API only |
+| Checkout, orders | ✅ Built | ✅ | Order history at `/orders`, live tracking at `/orders/[id]` |
+| Live order tracking | ✅ Built | ✅ | Map, rider position, status — see [QA-ORDER-LIFECYCLE.md](QA-ORDER-LIFECYCLE.md) |
+| Vendor portal | ✅ Built | ✅ | Live order queue, status changes, menu, staff |
+| Rider portal | ✅ Built | ✅ | Offers, deliveries, delivery code, earnings |
+| Admin portal | ⚠️ Partial | ✅ | Dispatch board and core screens built; some sections API only |
 
 Everything marked ⛔ must be tested **through the API** for now — see [API.md](API.md) and the
 API scenarios in [QA-TESTING.md](QA-TESTING.md). Swagger UI at

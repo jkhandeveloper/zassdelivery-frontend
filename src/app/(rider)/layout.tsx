@@ -6,6 +6,7 @@ import { Banknote, Bike, Inbox, LayoutDashboard, LifeBuoy, Wallet } from "lucide
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { RoleShell, type RoleNavGroup } from "@/components/layout/role-shell";
+import { LocationBroadcaster } from "@/components/rider/location-broadcaster";
 import { UserRole } from "@/types/auth";
 
 const RIDER_NAV: readonly RoleNavGroup[] = [
@@ -42,6 +43,9 @@ export default function RiderLayout({ children }: { children: ReactNode }) {
   return (
     <ProtectedRoute roles={[UserRole.RIDER]}>
       <RoleShell portal="Rider" accent="warm" groups={RIDER_NAV}>
+        {/* One position watcher for the whole portal, so a rider working from
+            their deliveries screen keeps reporting. */}
+        <LocationBroadcaster />
         <div id="main">{children}</div>
       </RoleShell>
     </ProtectedRoute>

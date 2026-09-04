@@ -179,6 +179,19 @@ export function leaveOrderRoom(orderId: string): void {
   }
 }
 
+/**
+ * A rider reporting where they are.
+ *
+ * Fire-and-forget by design: the position is only interesting while it is
+ * current, so a report that could not be delivered is worth less than the one
+ * arriving a second later, and blocking on an acknowledgement would only queue
+ * stale fixes behind a bad connection. The order it belongs to is resolved
+ * server-side from the rider's own accepted run — nothing here names one.
+ */
+export function reportRiderLocation(latitude: number, longitude: number): void {
+  snapshot.socket?.emit(ClientEvents.riderLocation, { latitude, longitude }, () => {});
+}
+
 export function joinRestaurantRoom(restaurantId: string): void {
   acquire(restaurantSubscriptions, restaurantId);
   snapshot.socket?.emit(ClientEvents.restaurantSubscribe, { restaurantId }, () => {});

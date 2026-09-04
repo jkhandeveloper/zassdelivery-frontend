@@ -70,11 +70,23 @@ export interface RiderLocationPayload {
   at: string;
 }
 
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
 export interface OrderSnapshotPayload extends OrderStatusPayload {
   restaurantName: string;
   estimatedDeliveryAt: string | null;
   rider: { id: string; name: string; phone: string } | null;
   riderLocation: RiderLocationPayload | null;
+  /** Where the rider collects from. */
+  pickup: Coordinates;
+  /**
+   * Where the order is going, or null for an address that never resolved to
+   * coordinates — the map draws the route it can and says so.
+   */
+  destination: Coordinates | null;
 }
 
 export interface RiderAssignedPayload {

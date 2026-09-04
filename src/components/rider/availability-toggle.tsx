@@ -5,7 +5,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useSetAvailability, useUpdateRiderLocation } from "@/hooks/use-riders";
+import { useSetAvailability } from "@/hooks/use-riders";
 import { ApiError } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { DriverAvailability } from "@/types/enums";
@@ -51,7 +51,6 @@ const STATES: Array<{
  */
 export function AvailabilityToggle({ rider }: { rider: RiderDto }) {
   const setAvailability = useSetAvailability();
-  const updateLocation = useUpdateRiderLocation();
   const [pending, setPending] = React.useState<SelfServiceAvailability | null>(null);
 
   const onDelivery = rider.availability === DriverAvailability.ON_DELIVERY;
@@ -103,30 +102,9 @@ export function AvailabilityToggle({ rider }: { rider: RiderDto }) {
     }
   };
 
-  // While online, keep dispatch's picture of where the rider is current. The
-  // socket carries the same fix to any customer watching their order, so this
-  // is the one write the whole live map hangs off.
-  React.useEffect(() => {
-    if (rider.availability === DriverAvailability.OFFLINE) return;
-    if (typeof navigator === "undefined" || navigator.geolocation === undefined) return;
-
-    const watchId = navigator.geolocation.watchPosition(
-      (position) =>
-        updateLocation.mutate({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        }),
-      // A denied or unavailable fix is not worth a toast every few seconds; the
-      // rider already saw the message when they went online.
-      () => undefined,
-      { enableHighAccuracy: true, maximumAge: 30_000, timeout: 20_000 },
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-    // `updateLocation` is a new object every render; the mutation it wraps is
-    // stable, so re-subscribing on it would restart the watch continuously.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rider.availability]);
+  // Keeping the position current afterwards is `LocationBroadcaster`'s job, in
+  // the rider layout. It used to live here, which meant reporting stopped the
+  // moment the rider navigated off the dashboard to the run they were doing.
 
   if (onDelivery) {
     return (

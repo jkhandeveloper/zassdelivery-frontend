@@ -24,10 +24,12 @@ export function useOrders(query?: ListOrdersQueryDto, enabled = true) {
   })
 }
 
-export function useOrder(id: string) {
+/** Same session scoping as `useOrders` — a signed-out caller only gets a 401. */
+export function useOrder(id: string, enabled = true) {
   return useQuery({
     queryKey: orderKeys.detail(id),
     queryFn: () => orderApi.getOrder(id),
+    enabled,
     staleTime: 30 * 1000,
   })
 }

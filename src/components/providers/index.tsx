@@ -4,6 +4,7 @@ import * as React from "react";
 import { Toaster } from "sonner";
 
 import { AuthProvider } from "./auth-provider";
+import { NotificationListener } from "./notification-listener";
 import { QueryProvider } from "./query-provider";
 import { RealtimeProvider } from "./realtime-provider";
 import { ThemeProvider } from "./theme-provider";
@@ -18,6 +19,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <QueryProvider>
         <AuthProvider>
           <RealtimeProvider>
+            <NotificationListener />
             {children}
             <Toaster
               position="top-right"

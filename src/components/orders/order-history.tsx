@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, MapPin, Package, Receipt } from "lucide-react";
+import { ChevronDown, MapPin, Navigation, Package, Receipt } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -18,6 +18,14 @@ import { OrderStatus } from "@/types/enums";
 import type { OrderDto } from "@/types/order";
 
 const PAGE_SIZE = 10;
+
+/** Statuses an order never moves out of. */
+const FINISHED_STATUSES: string[] = [
+  OrderStatus.DELIVERED,
+  OrderStatus.CANCELLED,
+  OrderStatus.REJECTED,
+  OrderStatus.FAILED,
+];
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -49,7 +57,11 @@ function OrderRow({ order }: { order: OrderDto }) {
   const [open, setOpen] = React.useState(false);
   const cancel = useCancelOrder(order.id);
 
-  const live = order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.CANCELLED;
+  // "Live" is every status the order can still move out of. Checking against
+  // the finished set rather than against DELIVERED and CANCELLED alone is what
+  // stops a rejected or failed order offering a tracking screen that would only
+  // ever show it standing still.
+  const live = !FINISHED_STATUSES.includes(order.status);
 
   return (
     <li className="overflow-hidden rounded-[var(--radius-card)] border border-border-subtle bg-surface shadow-card transition-colors hover:border-brand/30">
@@ -76,6 +88,15 @@ function OrderRow({ order }: { order: OrderDto }) {
         </span>
 
         <StatusPill status={order.status} label={order.statusText} withDot className="shrink-0" />
+
+        {live && (
+          <Button size="sm" asChild className="shrink-0">
+            <Link href={`/orders/${order.id}`}>
+              <Navigation aria-hidden className="size-4" />
+              Track
+            </Link>
+          </Button>
+        )}
 
         <button
           type="button"
