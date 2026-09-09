@@ -120,7 +120,17 @@
       "Bash(node shots2.mjs)",
       "Bash(pkill -f \"next dev -p 8007\")",
       "Bash(ps -o pid,etime,cmd -p 382197)",
-      "Bash(kill 382197)"
+      "Bash(kill 382197)",
+      "Bash(echo \"backend exit=$?\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8005/contact)",
+      "Bash(curl -s http://localhost:8005/contact)",
+      "Bash(curl -s http://localhost:8055/contact)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8055/notifications)",
+      "Bash(curl -s http://localhost:8055/notifications)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8055/support)",
+      "Bash(curl -s http://localhost:8055/support)",
+      "Bash(pkill -f \"next dev -p 8055\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8055/contact)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",

@@ -19,11 +19,13 @@ import * as React from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Media } from "@/components/ui/media";
 import { useCart } from "@/hooks/use-cart";
+import { useUnreadCount } from "@/hooks/use-notifications";
 import { useAutocomplete } from "@/hooks/use-search";
 import { useAddresses } from "@/hooks/use-users";
 import { isFilledCart } from "@/lib/cart";
-import { cn } from "@/lib/utils";
+import { cn, hasText } from "@/lib/utils";
 import { homeRouteForRole, UserRole } from "@/types/auth";
 
 import { ConnectionIndicator } from "./connection-indicator";
@@ -117,15 +119,7 @@ export function Navbar() {
           <ConnectionIndicator className="hidden 2xl:inline-flex" />
           <ThemeToggle className="hidden lg:inline-flex" />
 
-          {isAuthenticated && (
-            <Link
-              href="/notifications"
-              aria-label="Notifications"
-              className="relative grid size-10 place-items-center rounded-full text-secondary transition-colors hover:bg-surface-muted hover:text-primary"
-            >
-              <Bell className="size-5" />
-            </Link>
-          )}
+          {isAuthenticated && <NotificationBell />}
 
           <Link
             href="/cart"
@@ -145,6 +139,7 @@ export function Navbar() {
           ) : isAuthenticated && user !== null ? (
             <UserMenu
               name={user.fullName}
+              avatarUrl={user.avatarUrl}
               role={user.role}
               dashboardHref={homeRouteForRole(user)}
               onLogout={() => void logout()}
@@ -300,13 +295,40 @@ function HeaderSearch({ className }: { className?: string }) {
   );
 }
 
+/**
+ * The bell, with the unread count the notifications screen reads from the same
+ * endpoint — rendered only for a signed-in header, so the query never fires for
+ * a visitor who has nothing to count.
+ */
+function NotificationBell() {
+  const unread = useUnreadCount();
+  const total = unread.data?.total ?? 0;
+
+  return (
+    <Link
+      href="/notifications"
+      aria-label={total > 0 ? `Notifications, ${total} unread` : "Notifications"}
+      className="relative grid size-10 place-items-center rounded-full text-secondary transition-colors hover:bg-surface-muted hover:text-primary"
+    >
+      <Bell className="size-5" />
+      {total > 0 && (
+        <span className="numeric absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-brand px-1 text-[0.6875rem] font-extrabold text-brand-contrast">
+          {total > 99 ? "99+" : total}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 function UserMenu({
   name,
+  avatarUrl,
   role,
   dashboardHref,
   onLogout,
 }: {
   name: string;
+  avatarUrl: string | null;
   role: UserRole;
   dashboardHref: string;
   onLogout: () => void;
@@ -328,9 +350,15 @@ function UserMenu({
       >
         <span
           aria-hidden
-          className="gradient-brand grid size-10 place-items-center rounded-full text-sm font-bold text-white transition-transform hover:scale-105 motion-reduce:hover:scale-100 dark:text-[#04202b]"
+          className="gradient-brand grid size-10 place-items-center overflow-hidden rounded-full text-sm font-bold text-white transition-transform hover:scale-105 motion-reduce:hover:scale-100 dark:text-[#04202b]"
         >
-          {initials === "" ? <User className="size-5" /> : initials}
+          {hasText(avatarUrl) ? (
+            <Media src={avatarUrl} className="rounded-full" />
+          ) : initials === "" ? (
+            <User className="size-5" />
+          ) : (
+            initials
+          )}
         </span>
         <ChevronDown className="hidden size-3.5 sm:block" />
       </DropdownMenu.Trigger>

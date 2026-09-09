@@ -1,10 +1,12 @@
 "use client";
 
 import { ArrowLeft, LifeBuoy, MessageSquarePlus, Send } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { Panel, PortalHeader } from "@/components/layout/portal-page";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Field, Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { ListSkeleton, Skeleton, SkeletonRegion } from "@/components/ui/skeleton";
@@ -44,10 +46,31 @@ export function SupportView({
   description?: string;
   categories?: readonly TicketCategory[];
 }) {
+  const { isAuthenticated, isReady } = useAuth();
+  const signedIn = isReady && isAuthenticated;
+
   const [openTicketId, setOpenTicketId] = React.useState<string | null>(null);
   const [composing, setComposing] = React.useState(false);
 
-  const tickets = useTickets({ limit: 25, sortBy: "createdAt", sortOrder: "desc" });
+  // Held back until the session is known: the customer route is public, and an
+  // anonymous GET here would 401 into a full session-lost redirect rather than
+  // the sign-in prompt below.
+  const tickets = useTickets({ limit: 25, sortBy: "createdAt", sortOrder: "desc" }, signedIn);
+
+  if (isReady && !isAuthenticated) {
+    return (
+      <EmptyState
+        icon={<LifeBuoy className="size-8" />}
+        title="Sign in to open a ticket"
+        description="Tickets live on your account, so we can see the order you're asking about and reply in the same place."
+        action={
+          <Button asChild>
+            <Link href="/login?next=%2Fsupport">Sign in</Link>
+          </Button>
+        }
+      />
+    );
+  }
 
   if (openTicketId !== null) {
     return <TicketThread id={openTicketId} onBack={() => setOpenTicketId(null)} />;

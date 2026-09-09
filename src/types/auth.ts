@@ -38,6 +38,7 @@ export interface AuthUser {
   phone: string;
   fullName: string;
   email: string | null;
+  avatarUrl: string | null;
   role: UserRole;
   status: UserStatus;
   isPhoneVerified: boolean;
