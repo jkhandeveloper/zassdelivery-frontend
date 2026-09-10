@@ -8,6 +8,7 @@ import {
   Lock,
   MapPin,
   Plus,
+  QrCode,
   ShoppingBag,
   Smartphone,
   Wallet,
@@ -42,6 +43,7 @@ const METHOD_ICONS: Record<string, React.ReactNode> = {
   [PaymentMethod.EASYPAISA]: <Smartphone className="size-5" />,
   [PaymentMethod.WALLET]: <Wallet className="size-5" />,
   [PaymentMethod.BANK_TRANSFER]: <Banknote className="size-5" />,
+  [PaymentMethod.QR_TRANSFER]: <QrCode className="size-5" />,
 };
 
 /** The API names gateways in lowercase ("cash", "jazzcash"); these are for people. */
@@ -52,6 +54,7 @@ const METHOD_LABELS: Record<string, string> = {
   [PaymentMethod.EASYPAISA]: "Easypaisa",
   [PaymentMethod.WALLET]: "ZassDelivery wallet",
   [PaymentMethod.BANK_TRANSFER]: "Bank transfer",
+  [PaymentMethod.QR_TRANSFER]: "Scan & pay — JazzCash, Easypaisa or bank QR",
 };
 
 const METHOD_HINTS: Record<string, string> = {
@@ -61,6 +64,7 @@ const METHOD_HINTS: Record<string, string> = {
   [PaymentMethod.EASYPAISA]: "You'll be taken to Easypaisa to confirm",
   [PaymentMethod.WALLET]: "Paid from your ZassDelivery balance",
   [PaymentMethod.BANK_TRANSFER]: "Transfer the total from your bank",
+  [PaymentMethod.QR_TRANSFER]: "Scan the restaurant's QR on the next screen and pay them directly",
 };
 
 function Panel({
@@ -166,7 +170,11 @@ export function CheckoutView() {
 
   const cart = useCart(signedIn);
   const addresses = useAddresses({ limit: 20 }, signedIn);
-  const methods = usePaymentMethods(signedIn);
+
+  const liveCart = isFilledCart(cart.data) ? cart.data : null;
+  // Asked per restaurant: scan-to-pay is only on offer where this kitchen has
+  // put up a QR code.
+  const methods = usePaymentMethods(liveCart?.restaurant.id ?? null, signedIn && liveCart !== null);
 
   const setAddress = useSetDeliveryAddress();
   const placeOrder = usePlaceOrder();
@@ -176,7 +184,6 @@ export function CheckoutView() {
   const [note, setNote] = React.useState("");
   const [addingAddress, setAddingAddress] = React.useState(false);
 
-  const liveCart = isFilledCart(cart.data) ? cart.data : null;
   const addressList = React.useMemo(() => addresses.data?.items ?? [], [addresses.data]);
   const selectedAddressId = liveCart?.delivery.addressId ?? null;
 
@@ -240,6 +247,15 @@ export function CheckoutView() {
         paymentMethod: method,
         ...(note.trim() !== "" && { customerNote: note.trim() }),
       });
+
+      // Scan-to-pay has nothing to redirect to: the order page shows the
+      // restaurant's codes, and it is where the customer watches the
+      // restaurant confirm the transfer.
+      if (method === PaymentMethod.QR_TRANSFER) {
+        toast.success(`Order ${order.orderNumber} placed — scan to pay`);
+        router.push(`/orders/${order.id}`);
+        return;
+      }
 
       // Cash needs no gateway hop; everything else is settled by the API's own
       // checkout call, which decides whether a redirect is involved.

@@ -17,6 +17,7 @@ import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { OrderPaymentCard } from "@/components/payments/order-payment-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,8 +27,9 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useOrderTracking } from "@/hooks/use-order-tracking";
 import { useCancelOrder, useOrder } from "@/hooks/use-orders";
 import { ApiError } from "@/lib/api-client";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payment-labels";
 import { cn, formatDateTime, formatPrice, formatTime, hasText } from "@/lib/utils";
-import { OrderStatus } from "@/types/enums";
+import { OrderStatus, PaymentMethod, PaymentStatus } from "@/types/enums";
 
 /**
  * Leaflet touches `window` at module scope, so the map is loaded on the client
@@ -64,6 +66,9 @@ const LIVE_STATUSES: string[] = [
   OrderStatus.PICKED_UP,
   OrderStatus.ON_THE_WAY,
 ];
+
+/** Statuses in which the order will never be paid for, because it will never arrive. */
+const CLOSED_STATUSES: string[] = [OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.FAILED];
 
 /**
  * One order, followed live.
@@ -132,6 +137,22 @@ export function OrderTracker({ orderId }: { orderId: string }) {
 
   const currentStep = STEP_ORDER.indexOf(status);
 
+  // Payment is the next thing to do on a scan-to-pay order, and a cash order
+  // can be paid by scanning the rider's code once a rider has it.
+  const payableByQr =
+    data.paymentStatus === PaymentStatus.PENDING &&
+    !CLOSED_STATUSES.includes(status) &&
+    (data.paymentMethod === PaymentMethod.QR_TRANSFER ||
+      (data.paymentMethod === PaymentMethod.CASH_ON_DELIVERY && rider !== null));
+
+  const paymentText = `${PAYMENT_METHOD_LABELS[data.paymentMethod]} · ${
+    data.paymentStatus === PaymentStatus.PAID
+      ? "paid"
+      : data.paymentStatus === PaymentStatus.PENDING
+        ? "not paid yet"
+        : data.paymentStatus.toLowerCase().replace(/_/g, " ")
+  }`;
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="flex flex-wrap items-start justify-between gap-4 p-5 sm:p-6">
@@ -161,6 +182,8 @@ export function OrderTracker({ orderId }: { orderId: string }) {
       </Card>
 
       <Progress currentStep={currentStep} status={status} />
+
+      {payableByQr && <OrderPaymentCard orderId={data.id} />}
 
       {live && (
         <>
@@ -211,6 +234,7 @@ export function OrderTracker({ orderId }: { orderId: string }) {
         restaurantName={data.restaurant.name}
         total={data.totals.totalAmount}
         itemCount={data.items.reduce((count, item) => count + item.quantity, 0)}
+        payment={paymentText}
       />
 
       {data.canCancel && live && (
@@ -343,12 +367,14 @@ function Summary({
   restaurantName,
   total,
   itemCount,
+  payment,
 }: {
   deliveryAddress: string;
   deliveryLandmark: string | null;
   restaurantName: string;
   total: number;
   itemCount: number;
+  payment: string;
 }) {
   return (
     <Card className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
@@ -360,6 +386,7 @@ function Summary({
           <span className="numeric text-sm text-secondary">
             {itemCount} {itemCount === 1 ? "item" : "items"} · {formatPrice(total)}
           </span>
+          <span className="text-sm text-secondary">{payment}</span>
         </div>
       </div>
 

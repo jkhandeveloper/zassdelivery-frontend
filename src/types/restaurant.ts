@@ -1,5 +1,6 @@
 import type { UserStatus } from './auth'
 import { RestaurantStatus, PriceRange, BusinessType } from './enums'
+import type { PaymentQrCodeDto } from './payment'
 
 /**
  * A restaurant, mirroring `restaurant-response.dto.ts` on the backend.
@@ -55,6 +56,8 @@ export interface RestaurantAdminDto extends RestaurantDto {
   approvedById: string | null
   rejectionReason: string | null
   deletedAt: string | null
+  /** Where scan-to-pay customers send money. Empty turns the option off at checkout. */
+  paymentQrCodes: PaymentQrCodeDto[]
 }
 
 export interface CategoryDto {

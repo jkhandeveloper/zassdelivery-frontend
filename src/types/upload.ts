@@ -6,6 +6,7 @@ export type UploadFolder =
   | 'menu-items'
   | 'avatars'
   | 'support-attachments'
+  | 'payment-qr-codes'
 
 export interface UploadedFileDto {
   /** Absolute URL the file reads back from. This is what records store. */

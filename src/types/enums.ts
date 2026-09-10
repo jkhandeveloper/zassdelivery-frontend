@@ -117,8 +117,19 @@ export const PaymentMethod = {
   JAZZCASH: "JAZZCASH",
   EASYPAISA: "EASYPAISA",
   BANK_TRANSFER: "BANK_TRANSFER",
+  /** Scanned the restaurant's or rider's own QR; the payee confirms receipt. */
+  QR_TRANSFER: "QR_TRANSFER",
 } as const;
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
+
+/** Where a scan-to-pay QR sends money. BANK covers Raast and bank-app QRs. */
+export const PaymentQrProvider = {
+  JAZZCASH: "JAZZCASH",
+  EASYPAISA: "EASYPAISA",
+  BANK: "BANK",
+  OTHER: "OTHER",
+} as const;
+export type PaymentQrProvider = (typeof PaymentQrProvider)[keyof typeof PaymentQrProvider];
 
 export const PaymentStatus = {
   PENDING: "PENDING",

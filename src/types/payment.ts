@@ -1,10 +1,60 @@
 import {
   PaymentMethod,
+  PaymentQrProvider,
   PaymentStatus,
   TransactionType,
   TransactionStatus,
   WebhookStatus,
 } from './enums'
+
+/** One scan-to-pay QR — a restaurant's or a rider's. */
+export interface PaymentQrCodeDto {
+  provider: PaymentQrProvider
+  /** "Meezan Bank", "SadaPay" — set for BANK and OTHER. */
+  label: string | null
+  /** The name the customer sees in their app before confirming. */
+  accountTitle: string
+  accountNumber: string | null
+  imageUrl: string
+}
+
+export interface PaymentQrCodeInputDto {
+  provider: PaymentQrProvider
+  label?: string
+  accountTitle: string
+  accountNumber?: string
+  imageUrl: string
+}
+
+/** The whole list: the API replaces rather than patches, and `[]` turns it off. */
+export interface SetPaymentQrCodesDto {
+  codes: PaymentQrCodeInputDto[]
+}
+
+export interface PaymentQrPayeeDto {
+  name: string
+  codes: PaymentQrCodeDto[]
+}
+
+/** What a customer can scan to pay for one order, and whether it has been. */
+export interface OrderPaymentQrDto {
+  orderId: string
+  orderNumber: string
+  amount: number
+  currency: string
+  paymentMethod: PaymentMethod
+  paymentStatus: PaymentStatus
+  restaurant: PaymentQrPayeeDto
+  /** The rider carrying the order, once one has accepted it. */
+  rider: PaymentQrPayeeDto | null
+}
+
+export interface MarkPaymentReceivedDto {
+  /** Which app or bank the money arrived through. */
+  channel: PaymentQrProvider
+  /** The transfer's TID. One TID can confirm one order only. */
+  reference?: string
+}
 
 /**
  * A payment attempt, mirroring `payment-response.dto.ts`.
@@ -59,9 +109,11 @@ export interface StartCheckoutDto {
 
 export interface CheckoutDto {
   payment: PaymentDto
-  action: 'REDIRECT' | 'SETTLED' | 'ON_DELIVERY'
+  action: 'REDIRECT' | 'SETTLED' | 'ON_DELIVERY' | 'SCAN_QR'
   message: string
   checkout?: CheckoutFieldsDto
+  /** Present only for SCAN_QR: the restaurant's codes. */
+  qrCodes?: PaymentQrCodeDto[]
 }
 
 export interface CheckoutFieldsDto {

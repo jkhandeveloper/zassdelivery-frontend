@@ -22,6 +22,7 @@ import type {
   PayoutStatus,
   VehicleType,
 } from './enums'
+import type { PaymentQrCodeDto } from './payment'
 
 export interface RiderVehicleDto {
   id: string
@@ -87,6 +88,8 @@ export interface RiderDto {
   /** Whether the rider may go online right now. */
   canGoOnline: boolean
   payout?: RiderPayoutDetailsDto
+  /** Codes a customer can scan to pay this rider at the door. Own profile only. */
+  paymentQrCodes?: PaymentQrCodeDto[]
   verifiedAt: string | null
   createdAt: string
 }

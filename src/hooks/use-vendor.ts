@@ -6,6 +6,7 @@ import { menuApi } from "@/lib/api/menus";
 import { orderApi } from "@/lib/api/orders";
 import { restaurantApi } from "@/lib/api/restaurants";
 import type { ListOrdersAdminQueryDto, RejectOrderDto } from "@/types/order";
+import type { SetPaymentQrCodesDto } from "@/types/payment";
 import type {
   AddRestaurantImageDto,
   RegisterRestaurantStaffDto,
@@ -101,6 +102,19 @@ export function useSetHours(restaurantId: string) {
     mutationFn: (data: SetBusinessHoursDto) => restaurantApi.setBusinessHours(restaurantId, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: restaurantKeys.hours(restaurantId) });
+      void queryClient.invalidateQueries({ queryKey: restaurantKeys.admin() });
+    },
+  });
+}
+
+/** Owner only — the API refuses staff, who must not be able to redirect the takings. */
+export function useSetRestaurantQrCodes(restaurantId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SetPaymentQrCodesDto) =>
+      restaurantApi.setPaymentQrCodes(restaurantId, data),
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: restaurantKeys.admin() });
     },
   });

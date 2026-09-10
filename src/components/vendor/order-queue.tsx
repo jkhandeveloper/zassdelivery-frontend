@@ -4,6 +4,7 @@ import { ClipboardList, Clock, Phone, User } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { MarkPaymentReceivedButton } from "@/components/payments/mark-received-button";
 import { useRealtimeEvent, useRestaurantRoom } from "@/components/providers/realtime-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,8 +21,9 @@ import {
   useRestaurantOrders,
 } from "@/hooks/use-vendor";
 import { ApiError } from "@/lib/api-client";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payment-labels";
 import { cn, formatPrice, formatRelative, formatTime, hasText } from "@/lib/utils";
-import { OrderStatus } from "@/types/enums";
+import { OrderStatus, PaymentMethod, PaymentStatus } from "@/types/enums";
 import type { OrderDto } from "@/types/order";
 
 /**
@@ -162,6 +164,12 @@ function TicketCard({ order }: { order: OrderDto }) {
   const fail = (error: unknown, fallback: string) =>
     toast.error(error instanceof ApiError ? error.message : fallback);
 
+  // The customer was shown this restaurant's QR, so the money comes here — and
+  // nobody but the kitchen can see whether it has.
+  const awaitingTransfer =
+    order.paymentMethod === PaymentMethod.QR_TRANSFER &&
+    order.paymentStatus === PaymentStatus.PENDING;
+
   return (
     <Card className="flex flex-col gap-3.5 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -201,10 +209,26 @@ function TicketCard({ order }: { order: OrderDto }) {
         <span className="numeric font-bold text-primary">
           {formatPrice(order.totals.totalAmount)}
         </span>
-        <span className="text-xs text-muted">
-          {order.paymentMethod.replace(/_/g, " ").toLowerCase()} · {order.paymentStatus.toLowerCase()}
+        <span className={cn("text-xs", awaitingTransfer ? "font-bold text-warning" : "text-muted")}>
+          {PAYMENT_METHOD_LABELS[order.paymentMethod]} ·{" "}
+          {awaitingTransfer ? "awaiting transfer" : order.paymentStatus.toLowerCase()}
         </span>
       </div>
+
+      {awaitingTransfer && (
+        <div className="flex flex-col gap-2 rounded-[var(--radius-input)] bg-warning-soft px-3 py-2.5">
+          <p className="text-xs font-medium text-warning">
+            Paying you by QR. Confirm once {formatPrice(order.totals.totalAmount)} shows in your
+            app.
+          </p>
+          <MarkPaymentReceivedButton
+            orderId={order.id}
+            orderNumber={order.orderNumber}
+            amount={order.totals.totalAmount}
+            className="self-start"
+          />
+        </div>
+      )}
 
       {order.estimatedDeliveryAt !== null && (
         <p className="numeric inline-flex items-center gap-1.5 text-xs text-muted">

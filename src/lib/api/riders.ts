@@ -28,6 +28,7 @@ import type {
   CancelAssignmentDto,
   RejectDocumentDto,
 } from '@/types/rider'
+import type { SetPaymentQrCodesDto } from '@/types/payment'
 
 export const riderApi = {
   // Rider self-service
@@ -38,6 +39,10 @@ export const riderApi = {
 
   updateRiderProfile: (data: UpdateRiderDto) =>
     apiPatch<RiderDto>('/riders/me', data),
+
+  /** Replaces the whole list; `[]` removes them. */
+  setPaymentQrCodes: (data: SetPaymentQrCodesDto) =>
+    apiPut<RiderDto>('/riders/me/payment-qr-codes', data),
 
   resubmitRiderApproval: () =>
     apiPost<RiderDto>('/riders/me/resubmit', {}),

@@ -503,7 +503,7 @@ function AssignModal({ order, onClose }: { order: OrderDto | null; onClose: () =
                   <Row label="Order total" value={formatPrice(order.totals.totalAmount)} />
                   <Row
                     label="Payment"
-                    value={`${order.paymentMethod === "CASH_ON_DELIVERY" ? "Cash on delivery" : "Prepaid"} · ${order.paymentStatus}`}
+                    value={`${order.paymentMethod === "CASH_ON_DELIVERY" ? "Cash on delivery" : order.paymentMethod === "QR_TRANSFER" ? "Scan & pay" : "Prepaid"} · ${order.paymentStatus}`}
                   />
                   {order.distanceKm !== null && (
                     <Row label="Distance" value={`${order.distanceKm.toFixed(1)} km`} />

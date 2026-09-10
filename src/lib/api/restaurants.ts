@@ -2,6 +2,7 @@ import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '.
 import type { RestaurantDto, RestaurantAdminDto, CategoryDto, RegisterRestaurantDto, UpdateRestaurantDto, SetBusinessHoursDto, AddRestaurantImageDto, ReorderImagesDto, RegisterRestaurantStaffDto, RestaurantStaffDto, SetAcceptingOrdersDto, RejectRestaurantDto, ChangeRestaurantStatusDto, BusinessHourResponseDto, RestaurantImageDto, CreateRestaurantCategoryDto, UpdateRestaurantCategoryDto } from '@/types/restaurant'
 import type { OpenState } from '@/types/restaurant'
 import type { BusinessType } from '@/types/enums'
+import type { PaymentQrCodeDto, SetPaymentQrCodesDto } from '@/types/payment'
 
 export const restaurantApi = {
   // Public storefront
@@ -83,6 +84,10 @@ export const restaurantApi = {
 
   deleteRestaurantImage: (id: string, imageId: string) =>
     apiDelete(`/restaurant-management/${id}/images/${imageId}`),
+
+  /** Owner only. Replaces the whole list; `[]` turns scan-to-pay off. */
+  setPaymentQrCodes: (id: string, data: SetPaymentQrCodesDto) =>
+    apiPut<PaymentQrCodeDto[]>(`/restaurant-management/${id}/payment-qr-codes`, data),
 
   registerRestaurantStaff: (id: string, data: RegisterRestaurantStaffDto) =>
     apiPost<RestaurantStaffDto>(`/restaurant-management/${id}/staff`, data),

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { riderApi } from "@/lib/api/riders";
+import type { SetPaymentQrCodesDto } from "@/types/payment";
 import type {
   ConfirmDeliveryDto,
   ListAssignmentsQueryDto,
@@ -65,6 +66,15 @@ export function useUpdateRiderProfile() {
 
   return useMutation({
     mutationFn: (data: UpdateRiderDto) => riderApi.updateRiderProfile(data),
+    onSuccess: (rider) => queryClient.setQueryData(riderKeys.profile(), rider),
+  });
+}
+
+export function useSetRiderQrCodes() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SetPaymentQrCodesDto) => riderApi.setPaymentQrCodes(data),
     onSuccess: (rider) => queryClient.setQueryData(riderKeys.profile(), rider),
   });
 }

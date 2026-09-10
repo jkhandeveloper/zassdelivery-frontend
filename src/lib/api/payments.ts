@@ -18,14 +18,25 @@ import type {
   LedgerSummaryDto,
   WebhookEventDto,
   ListWebhookEventsQueryDto,
+  OrderPaymentQrDto,
+  MarkPaymentReceivedDto,
 } from '@/types/payment'
 
 export const paymentApi = {
   // Customer checkout
-  getPaymentMethods: () => apiGet<GatewayAvailabilityDto[]>('/payments/methods'),
+  /** Scan-to-pay is reported per restaurant, so pass the one being checked out from. */
+  getPaymentMethods: (restaurantId?: string) =>
+    apiGet<GatewayAvailabilityDto[]>('/payments/methods', { params: { restaurantId } }),
 
   startCheckout: (orderId: string, data: StartCheckoutDto) =>
     apiPost<CheckoutDto>(`/payments/orders/${orderId}/checkout`, data),
+
+  getOrderPaymentQr: (orderId: string) =>
+    apiGet<OrderPaymentQrDto>(`/payments/orders/${orderId}/qr-codes`),
+
+  /** The restaurant or the rider, once the transfer shows in their app. */
+  markPaymentReceived: (orderId: string, data: MarkPaymentReceivedDto) =>
+    apiPost<PaymentDto>(`/payments/orders/${orderId}/mark-received`, data),
 
   verifyPayment: (paymentId: string) =>
     apiPost<PaymentVerificationDto>(`/payments/${paymentId}/verify`, {}),

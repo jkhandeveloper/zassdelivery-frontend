@@ -145,6 +145,7 @@ const PAYMENT_LABELS: Record<string, string> = {
   JAZZCASH: "JazzCash",
   EASYPAISA: "Easypaisa",
   BANK_TRANSFER: "Bank transfer",
+  QR_TRANSFER: "Scan & pay (QR)",
 };
 
 const STATUS_LABELS: Record<string, string> = {

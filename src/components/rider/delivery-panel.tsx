@@ -1,21 +1,44 @@
 "use client";
 
-import { Bike, CheckCircle2, MapPin, Package, Phone, Store, User, Wallet } from "lucide-react";
+import {
+  Bike,
+  CheckCircle2,
+  MapPin,
+  Package,
+  Phone,
+  QrCode,
+  Store,
+  User,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { Panel } from "@/components/layout/portal-page";
+import { MarkPaymentReceivedButton } from "@/components/payments/mark-received-button";
+import { PaymentQrList } from "@/components/payments/payment-qr-list";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalDescription,
+  ModalHeader,
+  ModalTitle,
+  ModalTrigger,
+} from "@/components/ui/modal";
 import { StatusPill } from "@/components/ui/status-pill";
 import {
   useConfirmDelivery,
   useIssueDeliveryCode,
   useMarkOnTheWay,
+  useRiderProfile,
 } from "@/hooks/use-riders";
 import { ApiError } from "@/lib/api-client";
 import { cn, formatPrice, hasText } from "@/lib/utils";
-import { OrderStatus } from "@/types/enums";
+import { OrderStatus, PaymentMethod, PaymentStatus } from "@/types/enums";
 import type { AssignmentDto } from "@/types/rider";
 
 /**
@@ -36,6 +59,15 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
 
   const fail = (error: unknown, fallback: string) =>
     toast.error(error instanceof ApiError ? error.message : fallback);
+
+  const scanToPay = order.paymentMethod === PaymentMethod.QR_TRANSFER;
+
+  // The rider has the order and is heading for the door, and the money is
+  // still owed in a form a person — not a gateway — confirms.
+  const takingPayment =
+    order.paymentStatus === PaymentStatus.PENDING &&
+    (scanToPay || order.paymentMethod === PaymentMethod.CASH_ON_DELIVERY) &&
+    (order.status === OrderStatus.PICKED_UP || order.status === OrderStatus.ON_THE_WAY);
 
   return (
     <Panel
@@ -80,7 +112,37 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
             Collect {formatPrice(order.cashToCollect)} cash
           </span>
         )}
+        {scanToPay && order.paymentStatus === PaymentStatus.PENDING && (
+          <span className="inline-flex items-center gap-1.5 font-bold text-warning">
+            <QrCode aria-hidden className="size-4" />
+            Scan &amp; pay — no cash to collect
+          </span>
+        )}
       </div>
+
+      {takingPayment && (
+        <div className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-border-subtle p-4">
+          <div className="flex flex-col gap-1">
+            <p className="font-bold text-primary">
+              {scanToPay ? "Customer is paying by QR" : "Paying by QR instead of cash?"}
+            </p>
+            <p className="text-sm text-secondary">
+              {scanToPay
+                ? "They were shown the restaurant's code, so don't ask for cash. If they'd rather pay you, show your code and confirm once it lands."
+                : "Show the customer your code, and confirm once the transfer shows in your app — then there's no cash to collect."}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <ShowMyQrButton />
+            <MarkPaymentReceivedButton
+              orderId={order.id}
+              orderNumber={order.orderNumber}
+              amount={order.totalAmount}
+              label="I've received it"
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── The one action that is next ─────────────────────── */}
       {order.status === OrderStatus.READY_FOR_PICKUP && (
@@ -165,6 +227,44 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
         </Step>
       )}
     </Panel>
+  );
+}
+
+/** The rider's own codes, full-screen enough to hold up to the customer. */
+function ShowMyQrButton() {
+  const profile = useRiderProfile();
+  const codes = profile.data?.paymentQrCodes ?? [];
+
+  return (
+    <Modal>
+      <ModalTrigger asChild>
+        <Button size="sm" variant="outline">
+          <QrCode className="size-4" />
+          Show my QR
+        </Button>
+      </ModalTrigger>
+      <ModalContent size="md">
+        <ModalHeader>
+          <ModalTitle>Scan to pay me</ModalTitle>
+          <ModalDescription>
+            Turn the screen to the customer. Once the transfer shows in your app, close this and
+            confirm it.
+          </ModalDescription>
+        </ModalHeader>
+        <ModalBody className="pb-6">
+          {codes.length === 0 ? (
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-sm text-secondary">You haven&apos;t added a QR code yet.</p>
+              <Button asChild size="sm">
+                <Link href="/rider/payment-qr">Add my QR codes</Link>
+              </Button>
+            </div>
+          ) : (
+            <PaymentQrList codes={codes} />
+          )}
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 
