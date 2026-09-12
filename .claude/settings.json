@@ -130,7 +130,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8055/support)",
       "Bash(curl -s http://localhost:8055/support)",
       "Bash(pkill -f \"next dev -p 8055\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8055/contact)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8055/contact)",
+      "Bash(awk '/^model \\(Restaurant|User|PaymentQrCode|Payment|Notification\\) \\\\{/,/^\\\\}/' prisma/schema.prisma)",
+      "Bash(npx prisma *)",
+      "Bash(PORT=3999 TS_NODE_TRANSPILE_ONLY=true timeout 90 npx ts-node -r tsconfig-paths/register src/main.ts)"
     ],
     "additionalDirectories": [
       "/home/jkhan/.claude/projects/-var-www-zassdeliver-frontend",

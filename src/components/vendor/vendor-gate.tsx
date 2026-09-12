@@ -32,9 +32,16 @@ import type { RestaurantAdminDto } from "@/types/restaurant";
  */
 export function VendorGate({
   allowUnapproved = false,
+  allowSuspended = false,
   children,
 }: {
   allowUnapproved?: boolean;
+  /**
+   * Lets a suspended listing through. Set by the billing screen and nowhere
+   * else: a vendor closed for non-payment has to be able to reach the one page
+   * that reopens them, and a dead end there leaves the fee uncollected.
+   */
+  allowSuspended?: boolean;
   children: (restaurant: RestaurantAdminDto) => React.ReactNode;
 }) {
   const { restaurant, isPending, isError, error, needsRegistration, refetch } =
@@ -121,7 +128,7 @@ export function VendorGate({
     );
   }
 
-  if (restaurant.status === RestaurantStatus.SUSPENDED) {
+  if (restaurant.status === RestaurantStatus.SUSPENDED && !allowSuspended) {
     return (
       <EmptyState
         icon={<ShieldX className="size-8 text-danger" />}
@@ -129,12 +136,17 @@ export function VendorGate({
         description={
           hasText(restaurant.rejectionReason)
             ? restaurant.rejectionReason
-            : "Your restaurant isn't taking orders right now. Support can explain what happened."
+            : "Your restaurant isn't taking orders right now. An unpaid platform fee is the commonest reason, so it's worth checking your subscription first."
         }
         action={
-          <Button asChild variant="outline">
-            <Link href="/vendor/support">Contact support</Link>
-          </Button>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button asChild>
+              <Link href="/vendor/billing">Check my subscription</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/vendor/support">Contact support</Link>
+            </Button>
+          </div>
         }
       />
     );

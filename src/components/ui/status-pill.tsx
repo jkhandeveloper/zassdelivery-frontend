@@ -143,6 +143,17 @@ const STATUS_MAP: Record<string, StatusMeta> = {
   MEDIUM: { tone: "info", label: "Medium" },
   HIGH: { tone: "pending", label: "High" },
   URGENT: { tone: "danger", label: "Urgent" },
+
+  // ── Vendor subscriptions ──
+  // Amber for "act now, you are still open", red for "already dark" — the two
+  // states a vendor must never confuse. SUSPENDED and PAID are mapped above and
+  // read correctly here too. OPEN is deliberately left to the ticket mapping: an
+  // unpaid invoice reading "Open" is not wrong, and rewording it would rename
+  // every open support ticket.
+  TRIALING: { tone: "info", label: "Free month" },
+  PAST_DUE: { tone: "pending", label: "Overdue" },
+  PENDING_REVIEW: { tone: "progress", label: "Checking transfer" },
+  VOID: { tone: "neutral", label: "Waived" },
 };
 
 /** Turns SCREAMING_SNAKE into Sentence case, for a status we have not mapped. */

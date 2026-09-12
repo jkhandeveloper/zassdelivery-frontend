@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LifeBuoy,
   Radio,
+  Receipt,
   ScrollText,
   Settings,
   Store,
@@ -46,6 +47,7 @@ const ADMIN_NAV: readonly RoleNavGroup[] = [
     heading: "Commerce",
     items: [
       { href: "/admin/payments", label: "Payments", icon: CreditCard },
+      { href: "/admin/billing", label: "Vendor billing", icon: Receipt },
       { href: "/admin/coupons", label: "Coupons", icon: Ticket },
       { href: "/admin/banners", label: "Banners", icon: ImageIcon },
     ],

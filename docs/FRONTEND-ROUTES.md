@@ -8,8 +8,9 @@
 - ⚠️ **Partial** — some of the screen is real, some is not
 - ⛔ **Placeholder** — renders "Coming soon" on purpose
 
-Totals: **49 routes — 25 built, 24 placeholder.** The rider and vendor portals are
-now built in full; the admin portal and the customer marketing/legal pages are not.
+Totals: **51 routes — 27 built, 24 placeholder.** The rider and vendor portals are
+now built in full; the admin portal is placeholder apart from vendor billing, and the
+customer marketing/legal pages are not built.
 
 ---
 
@@ -55,7 +56,8 @@ now built in full; the admin portal and the customer marketing/legal pages are n
 
 ## Admin portal
 
-Shell (sidebar, navigation, role guard, sign-out) is ✅ **built**. All content pages are ⛔ placeholder.
+Shell (sidebar, navigation, role guard, sign-out) is ✅ **built**. Every content page is
+⛔ placeholder except vendor billing.
 
 | Route | Status |
 | --- | --- |
@@ -66,11 +68,16 @@ Shell (sidebar, navigation, role guard, sign-out) is ✅ **built**. All content 
 | `/admin/riders` | ⛔ Placeholder |
 | `/admin/users` | ⛔ Placeholder |
 | `/admin/payments` | ⛔ Placeholder |
+| `/admin/billing` | ✅ Built | Transfers to confirm, the standard rate, pay-to QR codes, per-vendor rate, payment history, and enable/disable |
 | `/admin/coupons` | ⛔ Placeholder |
 | `/admin/banners` | ⛔ Placeholder |
 | `/admin/support` | ⛔ Placeholder |
 | `/admin/audit-log` | ⛔ Placeholder |
 | `/admin/settings` | ⛔ Placeholder |
+
+> `/admin/billing` needs `billing.read` to open and `billing.manage` to confirm, reject or
+> waive anything. Both are seeded to ADMIN and SUPER_ADMIN; an existing database needs the
+> seed re-run before the page will load for anyone.
 
 ---
 
@@ -88,7 +95,16 @@ no restaurant registered yet, awaiting approval, rejected, suspended.
 | `/vendor/settings/profile` | ✅ Built | Name, contact, trading terms |
 | `/vendor/settings/hours` | ✅ Built | The week, per day |
 | `/vendor/settings/gallery` | ✅ Built | Add, reorder, remove photos |
+| `/vendor/settings/payments` | ✅ Built | Scan-to-pay QR codes customers pay the restaurant with |
+| `/vendor/billing` | ✅ Built | The monthly platform fee: what's due, where to pay, history |
 | `/vendor/support` | ✅ Built | Tickets and threads, inside the vendor shell |
+
+> `/vendor/billing` is the **one** vendor route that renders for a suspended listing, via the
+> gate's `allowSuspended`. A vendor closed for non-payment has to reach the page that reopens
+> them; a dead end there leaves the fee uncollected and the vendor with nobody to pay.
+>
+> It is also owner-only. `VENDOR_STAFF` is refused by the API, not merely hidden — a kitchen
+> account runs the menu and the order queue, not the owner's bank details.
 
 ---
 

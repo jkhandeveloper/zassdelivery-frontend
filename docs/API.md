@@ -43,6 +43,8 @@ curl http://localhost:3000/api/v1/orders \
 | Order Management | 13 | Restaurant, rider, admin |
 | Notifications | 12 | Any signed-in user |
 | Payment Management | 12 | Admin permissions |
+| Billing Management (vendor subscriptions) | 14 | `billing.read` / `billing.manage` |
+| Vendor Billing (own subscription) | 3 | Vendor owner, admin |
 | Cart | 10 | Customer |
 | Payments | 10 | Customer |
 | Notification Management | 9 | Admin permissions |
@@ -61,7 +63,7 @@ curl http://localhost:3000/api/v1/orders \
 | Health | 3 | Public |
 | Payment Webhooks | 2 | Gateway only — signature verified |
 | Uploads | 2 | Signed-in to upload; reading is public |
-| **Total** | **253** | |
+| **Total** | **270** | |
 
 ---
 

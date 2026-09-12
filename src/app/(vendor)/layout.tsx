@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LifeBuoy,
   QrCode,
+  Receipt,
   Store,
   UsersRound,
   UtensilsCrossed,
@@ -33,6 +34,9 @@ const VENDOR_NAV: readonly RoleNavGroup[] = [
       { href: "/vendor/settings/hours", label: "Opening hours", icon: Clock },
       { href: "/vendor/settings/gallery", label: "Gallery", icon: Images },
       { href: "/vendor/settings/payments", label: "Payment QR codes", icon: QrCode },
+      // Reachable even while suspended — this is where a vendor closed for
+      // non-payment goes to pay and reopen.
+      { href: "/vendor/billing", label: "Subscription", icon: Receipt },
       { href: "/vendor/staff", label: "Staff", icon: UsersRound },
     ],
   },

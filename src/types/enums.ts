@@ -366,3 +366,35 @@ export const AuditAction = {
   PERMISSION_CHANGE: "PERMISSION_CHANGE",
 } as const;
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
+
+/**
+ * Where a vendor stands on their monthly platform fee.
+ *
+ * PAST_DUE and SUSPENDED are both "hasn't paid", and the difference between
+ * them is the only thing the vendor cares about: PAST_DUE is still trading
+ * inside the grace window, SUSPENDED is a listing that has already gone dark.
+ */
+export const SubscriptionStatus = {
+  TRIALING: "TRIALING",
+  ACTIVE: "ACTIVE",
+  PAST_DUE: "PAST_DUE",
+  SUSPENDED: "SUSPENDED",
+  CANCELLED: "CANCELLED",
+} as const;
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
+
+/**
+ * One month's charge.
+ *
+ * PENDING_REVIEW is the vendor's claim, not a settlement: there is no gateway
+ * behind a QR transfer, so the platform confirms the money arrived before
+ * anything is marked PAID.
+ */
+export const SubscriptionInvoiceStatus = {
+  OPEN: "OPEN",
+  PENDING_REVIEW: "PENDING_REVIEW",
+  PAID: "PAID",
+  VOID: "VOID",
+} as const;
+export type SubscriptionInvoiceStatus =
+  (typeof SubscriptionInvoiceStatus)[keyof typeof SubscriptionInvoiceStatus];
