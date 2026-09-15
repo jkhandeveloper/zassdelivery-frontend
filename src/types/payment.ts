@@ -204,33 +204,6 @@ export interface InvoiceDto {
   notes?: string
 }
 
-export interface RefundPaymentDto {
-  /** Omit to refund everything still refundable. */
-  amount?: number
-  reason: string
-  /** SOURCE returns it the way it arrived, falling back to the wallet. */
-  destination?: 'SOURCE' | 'WALLET'
-}
-
-/**
- * The result of refunding a payment attempt.
- *
- * `destination` is where the money *actually* went, which is not always where
- * it was asked to go: a gateway that refuses a return sends it to the wallet
- * instead, and the operator has to be told which happened.
- */
-export interface PaymentRefundOutcome {
-  payment: PaymentDto
-  /** Moved by this call. */
-  refunded: number
-  /** The running total on this payment. */
-  totalRefunded: number
-  destination: 'GATEWAY' | 'WALLET'
-  /** False while a gateway is still processing the return. */
-  immediate: boolean
-  message: string
-}
-
 export interface FailPaymentDto {
   reason: string
 }

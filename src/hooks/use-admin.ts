@@ -29,7 +29,6 @@ import type {
   ListPaymentsQueryDto,
   ListTransactionsQueryDto,
   ListWebhookEventsQueryDto,
-  RefundPaymentDto,
 } from "@/types/payment";
 import type {
   AssignOrderDto,
@@ -476,13 +475,6 @@ const PAYMENT_KEYS = [
   [...adminKeys.all, "ledger"],
   [...adminKeys.all, "webhooks"],
 ] as const;
-
-export function useRefundPayment() {
-  return useAdminMutation(
-    ({ id, data }: { id: string; data: RefundPaymentDto }) => paymentApi.refundPayment(id, data),
-    PAYMENT_KEYS,
-  );
-}
 
 export function useMarkCashCollected() {
   return useAdminMutation((id: string) => paymentApi.markCollected(id), PAYMENT_KEYS);

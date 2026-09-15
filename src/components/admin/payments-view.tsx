@@ -53,7 +53,6 @@ import {
   useMarkCashCollected,
   useMarkPayoutPaid,
   useOutstandingCash,
-  useRefundPayment,
   useRejectPayout,
   useReplayWebhook,
   useWebhookEvents,
@@ -175,10 +174,8 @@ function PaymentsTable() {
     method: method === "" ? undefined : method,
   });
 
-  const refund = useRefundPayment();
   const fail = useFailPayment();
 
-  const [refunding, setRefunding] = React.useState<PaymentDto | null>(null);
   const [failing, setFailing] = React.useState<PaymentDto | null>(null);
 
   const filtered = search !== "" || status !== "" || method !== "";
@@ -252,12 +249,6 @@ function PaymentsTable() {
       width: "1%",
       cell: (row) => (
         <RowActions>
-          {row.refundableAmount > 0 && (
-            <Button size="sm" variant="outline" onClick={() => setRefunding(row)}>
-              <Undo2 className="size-4" />
-              Refund
-            </Button>
-          )}
           {row.status === PaymentStatus.PENDING && (
             <Button size="sm" variant="ghost" onClick={() => setFailing(row)}>
               <X className="size-4" />
@@ -329,43 +320,6 @@ function PaymentsTable() {
           footer={<Pagination meta={payments.data?.meta} onPageChange={setPage} />}
         />
       </Panel>
-
-      <ReasonDialog
-        open={refunding !== null}
-        onOpenChange={(open) => !open && setRefunding(null)}
-        title={`Refund ${refunding?.orderNumber ?? ""}?`}
-        description="Refunds are additive: the original payment is left alone and the correction goes on the ledger. Partial refunds accumulate."
-        reasonLabel="Why is this being refunded?"
-        placeholder="e.g. Two items were missing from the delivered order."
-        confirmLabel="Issue refund"
-        variant="danger"
-        pending={refund.isPending}
-        successMessage="Refund issued."
-        amount={
-          refunding === null
-            ? undefined
-            : {
-                label: "Amount to refund",
-                max: refunding.refundableAmount,
-                hint: `Up to ${formatPrice(refunding.refundableAmount)} is still refundable. Leave blank to refund all of it.`,
-              }
-        }
-        onConfirm={({ reason, amount }) =>
-          refund
-            .mutateAsync({
-              id: refunding?.id ?? "",
-              data: { reason, amount, destination: "SOURCE" },
-            })
-            .then((outcome) => {
-              // Where the money went is not always where it was asked to go.
-              toast.info(
-                outcome.destination === "WALLET"
-                  ? "The gateway refused the return, so it went to the customer's wallet."
-                  : "Returned to the original payment method.",
-              );
-            })
-        }
-      />
 
       <ReasonDialog
         open={failing !== null}

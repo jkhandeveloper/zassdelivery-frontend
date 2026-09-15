@@ -21,6 +21,8 @@ export interface OrderDto {
   totals: OrderTotalsDto
   paymentMethod: PaymentMethod
   paymentStatus: PaymentStatus
+  /** Already returned to the customer by the restaurant. */
+  refundedAmount: number
   couponCode: string | null
   deliveryAddress: string
   deliveryLandmark: string | null

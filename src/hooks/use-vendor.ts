@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { menuApi } from "@/lib/api/menus";
 import { orderApi } from "@/lib/api/orders";
 import { restaurantApi } from "@/lib/api/restaurants";
-import type { ListOrdersAdminQueryDto, RejectOrderDto } from "@/types/order";
+import type { ListOrdersAdminQueryDto, RefundOrderDto, RejectOrderDto } from "@/types/order";
 import type { SetPaymentQrCodesDto } from "@/types/payment";
 import type {
   AddRestaurantImageDto,
@@ -239,6 +239,18 @@ export function useMarkReady() {
  */
 export function useMarkDelivered() {
   return useOrderTransition((id: string) => orderApi.markDelivered(id));
+}
+
+/**
+ * Records money the restaurant has already handed back to a customer.
+ *
+ * The customer paid the kitchen directly, so the kitchen returns it — by cash
+ * or a transfer back — and this only puts it on the order and the ledger.
+ */
+export function useRecordRefund() {
+  return useOrderTransition(({ id, data }: { id: string; data: RefundOrderDto }) =>
+    orderApi.refundOrder(id, data),
+  );
 }
 
 // ── Menu ─────────────────────────────────────────────────────

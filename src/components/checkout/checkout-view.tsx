@@ -41,7 +41,6 @@ const METHOD_ICONS: Record<string, React.ReactNode> = {
   [PaymentMethod.CARD]: <CreditCard className="size-5" />,
   [PaymentMethod.JAZZCASH]: <Smartphone className="size-5" />,
   [PaymentMethod.EASYPAISA]: <Smartphone className="size-5" />,
-  [PaymentMethod.WALLET]: <Wallet className="size-5" />,
   [PaymentMethod.BANK_TRANSFER]: <Banknote className="size-5" />,
   [PaymentMethod.QR_TRANSFER]: <QrCode className="size-5" />,
 };
@@ -52,7 +51,6 @@ const METHOD_LABELS: Record<string, string> = {
   [PaymentMethod.CARD]: "Credit or debit card",
   [PaymentMethod.JAZZCASH]: "JazzCash",
   [PaymentMethod.EASYPAISA]: "Easypaisa",
-  [PaymentMethod.WALLET]: "ZassDelivery wallet",
   [PaymentMethod.BANK_TRANSFER]: "Bank transfer",
   [PaymentMethod.QR_TRANSFER]: "Scan & pay — JazzCash, Easypaisa or bank QR",
 };
@@ -62,7 +60,6 @@ const METHOD_HINTS: Record<string, string> = {
   [PaymentMethod.CARD]: "You'll be taken to the payment page",
   [PaymentMethod.JAZZCASH]: "You'll be taken to JazzCash to confirm",
   [PaymentMethod.EASYPAISA]: "You'll be taken to Easypaisa to confirm",
-  [PaymentMethod.WALLET]: "Paid from your ZassDelivery balance",
   [PaymentMethod.BANK_TRANSFER]: "Transfer the total from your bank",
   [PaymentMethod.QR_TRANSFER]: "Scan the restaurant's QR on the next screen and pay them directly",
 };
