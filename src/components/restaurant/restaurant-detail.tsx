@@ -148,7 +148,7 @@ export function RestaurantDetail({ slug }: { slug: string }) {
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
-          { label: "Restaurants", href: "/restaurants" },
+          { label: "Businesses", href: "/restaurants" },
           { label: restaurant.name },
         ]}
       />
@@ -180,7 +180,7 @@ export function RestaurantDetail({ slug }: { slug: string }) {
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl sm:text-3xl">{restaurant.name}</h1>
               {restaurant.isFeatured && (
-                <BadgeCheck aria-label="Featured restaurant" className="size-5 text-brand" />
+                <BadgeCheck aria-label="Featured business" className="size-5 text-brand" />
               )}
             </div>
 
@@ -229,7 +229,7 @@ export function RestaurantDetail({ slug }: { slug: string }) {
         <div className="flex min-w-0 flex-col gap-5">
           <div
             role="tablist"
-            aria-label="Restaurant sections"
+            aria-label="Business sections"
             className="flex gap-1 border-b border-border-subtle"
           >
             {(["menu", "about"] as const).map((key) => (
@@ -260,7 +260,7 @@ export function RestaurantDetail({ slug }: { slug: string }) {
           ) : items.length === 0 ? (
             <EmptyState
               title="This menu is empty"
-              description="This restaurant hasn't published any dishes yet."
+              description="This business hasn't published any dishes yet."
             />
           ) : (
             <>
@@ -409,7 +409,7 @@ function AboutPanel({
               ))}
             </div>
           ) : hoursQuery.isError || (hoursQuery.data?.hours.length ?? 0) === 0 ? (
-            <p className="text-sm text-muted">This restaurant hasn&apos;t published its hours.</p>
+            <p className="text-sm text-muted">This business hasn&apos;t published its hours.</p>
           ) : (
             <ul className="flex flex-col gap-1.5 text-sm">
               {(hoursQuery.data?.hours ?? []).map((entry) => (

@@ -119,7 +119,7 @@ export function DeliveryMap({
       existing.setTooltipContent(tooltip);
     };
 
-    place("pickup", pickup, pinIcon("pickup"), "Restaurant");
+    place("pickup", pickup, pinIcon("pickup"), "Business");
     place("destination", destination, pinIcon("destination"), "Your address");
     place("rider", rider, riderIcon(), riderName ?? "Your rider");
 

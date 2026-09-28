@@ -59,7 +59,7 @@ export function RestaurantCardSkeleton() {
 export function RestaurantGridSkeleton({ count = 8 }: { count?: number }) {
   return (
     <SkeletonRegion
-      label="Loading restaurants"
+      label="Loading businesses"
       className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
       {Array.from({ length: count }, (_, index) => (

@@ -340,7 +340,7 @@ export function OrderHistory() {
           }
           action={
             <Button asChild>
-              <Link href="/restaurants">Browse restaurants</Link>
+              <Link href="/restaurants">Browse businesses</Link>
             </Button>
           }
         />

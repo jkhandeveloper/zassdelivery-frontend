@@ -63,7 +63,7 @@ export function Hero() {
 
           <RevealItem>
             <p className="max-w-lg text-lg leading-relaxed text-secondary">
-              Order from the restaurants, bakeries and cafes you already love, follow your rider
+              Order from the kitchens, bakeries and cafés you already love, follow your rider
               the whole way, and pay
               however suits you.
             </p>

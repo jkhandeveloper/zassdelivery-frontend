@@ -285,7 +285,7 @@ export function CartView() {
         description="Find a kitchen you like and your picks will collect here."
         action={
           <Button asChild>
-            <Link href="/restaurants">Browse restaurants</Link>
+            <Link href="/restaurants">Browse businesses</Link>
           </Button>
         }
       />

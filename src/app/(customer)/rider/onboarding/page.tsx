@@ -300,8 +300,8 @@ function ApplicationForm() {
       </Section>
 
       <Section
-        title="Where we pay you"
-        description="You can add this later, but withdrawals are blocked until you do."
+        title="Where businesses can pay you"
+        description="Optional. On orders a business was paid for directly, it owes you your delivery fee and can send it here."
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Bank" htmlFor="rider-bank">

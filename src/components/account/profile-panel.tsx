@@ -324,7 +324,7 @@ export function ProfilePanel() {
     <div className="flex flex-col gap-6">
       <Panel
         title="Profile information"
-        description="How your name appears to riders and restaurants."
+        description="How your name appears to riders and businesses."
       >
         <ProfileForm />
       </Panel>

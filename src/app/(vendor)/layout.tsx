@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import {
   ClipboardList,
   Clock,
+  HandCoins,
   Images,
   LayoutDashboard,
   LifeBuoy,
@@ -26,6 +27,7 @@ const VENDOR_NAV: readonly RoleNavGroup[] = [
       { href: "/vendor", label: "Dashboard", icon: LayoutDashboard },
       { href: "/vendor/orders", label: "Order queue", icon: ClipboardList },
       { href: "/vendor/refunds", label: "Refunds", icon: Undo2 },
+      { href: "/vendor/rider-cash", label: "Rider cash", icon: HandCoins },
       { href: "/vendor/menu", label: "Menu", icon: UtensilsCrossed },
     ],
   },

@@ -235,7 +235,7 @@ function HeaderSearch({ className }: { className?: string }) {
     <div ref={containerRef} className={cn("relative", className)}>
       <form onSubmit={submit} role="search">
         <label htmlFor="header-search" className="sr-only">
-          Search restaurants or dishes
+          Search businesses or dishes
         </label>
         <Search
           aria-hidden
@@ -389,7 +389,7 @@ function UserMenu({
               <Link href="/orders">My orders</Link>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild className={item}>
-              <Link href="/favorites">Saved restaurants</Link>
+              <Link href="/favorites">Saved businesses</Link>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild className={item}>
               <Link href="/support">Support</Link>

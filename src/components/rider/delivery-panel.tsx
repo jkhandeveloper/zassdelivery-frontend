@@ -98,7 +98,7 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-[var(--radius-input)] bg-surface-muted px-4 py-3 text-sm">
         <span className="numeric inline-flex items-center gap-1.5 font-semibold text-primary">
           <Wallet aria-hidden className="size-4 text-muted" />
-          Earning {formatPrice(assignment.estimatedEarning)}
+          Your fee {formatPrice(order.riderFee)}
         </span>
         {order.distanceKm !== null && (
           <span className="numeric inline-flex items-center gap-1.5 text-secondary">
@@ -109,7 +109,8 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
         {order.cashToCollect > 0 && (
           <span className="numeric inline-flex items-center gap-1.5 font-bold text-accent-warm">
             <Package aria-hidden className="size-4" />
-            Collect {formatPrice(order.cashToCollect)} cash
+            Collect {formatPrice(order.cashToCollect)} cash · hand{" "}
+            {formatPrice(order.cashForRestaurant)} to the business
           </span>
         )}
         {scanToPay && order.paymentStatus === PaymentStatus.PENDING && (
@@ -128,7 +129,7 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
             </p>
             <p className="text-sm text-secondary">
               {scanToPay
-                ? "They were shown the restaurant's code, so don't ask for cash. If they'd rather pay you, show your code and confirm once it lands."
+                ? "They were shown the business's code, so don't ask for cash. If they'd rather pay you, show your code and confirm once it lands."
                 : "Show the customer your code, and confirm once the transfer shows in your app — then there's no cash to collect."}
             </p>
           </div>
@@ -147,7 +148,7 @@ export function DeliveryPanel({ assignment }: { assignment: AssignmentDto }) {
       {/* ── The one action that is next ─────────────────────── */}
       {order.status === OrderStatus.READY_FOR_PICKUP && (
         <Step
-          title="At the restaurant?"
+          title="At the business?"
           hint="Confirming pickup sends the customer a four-digit code you'll need at the door."
         >
           <Button

@@ -44,7 +44,7 @@ function Staff({ restaurantId }: { restaurantId: string }) {
     <div className="flex flex-col gap-6">
       <PortalHeader
         title="Staff"
-        description="Kitchen accounts that can work the order queue and the menu, scoped to this restaurant."
+        description="Kitchen accounts that can work the order queue and the menu, scoped to this business."
         action={
           isOwner &&
           !adding && (

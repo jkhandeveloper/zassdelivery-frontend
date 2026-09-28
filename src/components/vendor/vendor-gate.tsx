@@ -50,7 +50,7 @@ export function VendorGate({
 
   if (isPending) {
     return (
-      <SkeletonRegion label="Loading your restaurant" className="flex flex-col gap-6">
+      <SkeletonRegion label="Loading your business" className="flex flex-col gap-6">
         <Skeleton className="h-9 w-64" />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
@@ -67,7 +67,7 @@ export function VendorGate({
       <EmptyState
         icon={<Store className="size-8" />}
         title="List your business"
-        description="Your owner account is ready. Add your details — restaurant, bakery, cafe or shop — and we'll review the listing. You register it yourself; an administrator only approves it."
+        description="Your owner account is ready. Add your details — kitchen, bakery, café or shop — and we'll review the listing. You register it yourself; an administrator only approves it."
         action={
           <Button asChild>
             <Link href="/vendor/onboarding">List my business</Link>
@@ -136,7 +136,7 @@ export function VendorGate({
         description={
           hasText(restaurant.rejectionReason)
             ? restaurant.rejectionReason
-            : "Your restaurant isn't taking orders right now. An unpaid platform fee is the commonest reason, so it's worth checking your subscription first."
+            : "Your business isn't taking orders right now. An unpaid platform fee is the commonest reason, so it's worth checking your subscription first."
         }
         action={
           <div className="flex flex-wrap justify-center gap-2">

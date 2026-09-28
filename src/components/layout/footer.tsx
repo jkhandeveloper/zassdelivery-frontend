@@ -23,8 +23,8 @@ const COLUMNS = [
   {
     heading: "Partner with us",
     links: [
-      { href: "/vendor", label: "Restaurant login" },
-      { href: "/vendor/onboarding", label: "Add your restaurant" },
+      { href: "/vendor", label: "Business login" },
+      { href: "/vendor/onboarding", label: "Add your business" },
       { href: "/rider", label: "Rider login" },
       { href: "/rider/onboarding", label: "Ride with Zass" },
     ],

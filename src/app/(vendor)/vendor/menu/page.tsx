@@ -358,7 +358,7 @@ function AddDishForm({
           <Field
             label="Preparation time"
             htmlFor="dish-prep"
-            hint="Minutes. Optional — your restaurant's average is used otherwise."
+            hint="Minutes. Optional — your business's average is used otherwise."
           >
             <Input
               id="dish-prep"

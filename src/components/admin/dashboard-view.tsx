@@ -251,13 +251,6 @@ function ActionQueues({ queues, total }: { queues: DashboardQueuesDto; total: nu
       hint: "Assign, then answer.",
     },
     {
-      label: "Withdrawals to pay",
-      count: queues.pendingWithdrawals,
-      href: "/admin/payments?tab=payouts",
-      icon: <Wallet className="size-4" />,
-      hint: "Approve, then mark paid with a reference.",
-    },
-    {
       label: "Unapplied gateway callbacks",
       count: queues.unresolvedWebhooks,
       href: "/admin/payments?tab=webhooks",
@@ -274,7 +267,7 @@ function ActionQueues({ queues, total }: { queues: DashboardQueuesDto; total: nu
         <div className="flex flex-col gap-1">
           <p className="font-display text-lg font-extrabold text-primary">Every queue is empty</p>
           <p className="text-sm text-secondary">
-            No approvals, tickets, payouts or stuck orders are waiting on a person.
+            No approvals, tickets or stuck orders are waiting on a person.
           </p>
         </div>
         <Link

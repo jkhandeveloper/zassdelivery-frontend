@@ -152,7 +152,8 @@ export function OfferCard({ offer }: { offer: AssignmentDto }) {
         {offer.order.cashToCollect > 0 && (
           <span className="numeric inline-flex items-center gap-1.5 font-semibold text-accent-warm">
             <Wallet aria-hidden className="size-4" />
-            Collect {formatPrice(offer.order.cashToCollect)} in cash
+            Collect {formatPrice(offer.order.cashToCollect)} in cash · keep your fee, hand{" "}
+            {formatPrice(offer.order.cashForRestaurant)} to the business
           </span>
         )}
       </div>
@@ -165,7 +166,7 @@ export function OfferCard({ offer }: { offer: AssignmentDto }) {
           loading={accept.isPending}
           onClick={() =>
             accept.mutate(offer.id, {
-              onSuccess: () => toast.success("Run accepted — head to the restaurant"),
+              onSuccess: () => toast.success("Run accepted — head to the business"),
               onError: (error) =>
                 toast.error(
                   error instanceof ApiError ? error.message : "We couldn't accept that run.",

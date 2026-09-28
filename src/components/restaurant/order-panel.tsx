@@ -175,7 +175,7 @@ export function RestaurantOrderPanel({ restaurant }: { restaurant: RestaurantDto
             {!signedIn
               ? "Sign in to start an order from this kitchen."
               : liveCart !== null
-                ? "Your cart has items from another restaurant. Empty it first to order from here."
+                ? "Your cart has items from another business. Empty it first to order from here."
                 : "Nothing added yet — pick something from the menu and it will show up here."}
           </p>
 

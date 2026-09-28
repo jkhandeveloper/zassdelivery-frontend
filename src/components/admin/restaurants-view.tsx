@@ -192,8 +192,8 @@ export function AdminRestaurantsView() {
   return (
     <div className="flex flex-col gap-6">
       <PortalHeader
-        title="Restaurants"
-        description="The approval queue and every business on the platform — restaurants, bakeries, cafes and shops."
+        title="Businesses"
+        description="The approval queue and every business on the platform — kitchens, bakeries, cafés and shops."
       />
 
       <Panel bodyClassName="p-0">

@@ -42,9 +42,9 @@ const ROLE_OPTIONS: ReadonlyArray<{
   description: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { value: UserRole.CUSTOMER, label: "Order food", description: "Browse restaurants and get delivery", icon: ShoppingBag },
+  { value: UserRole.CUSTOMER, label: "Order food", description: "Browse businesses and get delivery", icon: ShoppingBag },
   { value: UserRole.RIDER, label: "Deliver", description: "Earn on your own schedule", icon: Bike },
-  { value: UserRole.VENDOR_OWNER, label: "List a restaurant", description: "Take orders from your kitchen", icon: Store },
+  { value: UserRole.VENDOR_OWNER, label: "List a business", description: "Take orders from your kitchen", icon: Store },
 ];
 
 function safeNextPath(next: string | null): string | null {

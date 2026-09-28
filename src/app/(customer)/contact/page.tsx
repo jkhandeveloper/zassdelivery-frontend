@@ -56,7 +56,7 @@ const ROUTES: readonly {
     icon: <Package className="size-5" />,
     title: "Something's wrong with a live order",
     description:
-      "Open the order to see where it is, what the kitchen has done so far, and the rider's number once one is assigned. Cancelling is on the same screen while the restaurant has not started cooking.",
+      "Open the order to see where it is, what the kitchen has done so far, and the rider's number once one is assigned. Cancelling is on the same screen while the business has not started cooking.",
     href: "/orders",
     cta: "Track your order",
     tone: "bg-brand-soft text-brand",
@@ -72,11 +72,11 @@ const ROUTES: readonly {
   },
   {
     icon: <Store className="size-5" />,
-    title: "You run a restaurant or shop",
+    title: "You run a food business",
     description:
       "Tell us about the kitchen and our onboarding team takes it from there — menu, hours, payouts and the tablet that receives your orders.",
     href: "/vendor/onboarding",
-    cta: "Add your restaurant",
+    cta: "Add your business",
     tone: "bg-accent-warm-soft text-accent-warm",
   },
   {

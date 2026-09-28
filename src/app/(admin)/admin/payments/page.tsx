@@ -5,7 +5,7 @@ import { AdminPaymentsView } from "@/components/admin/payments-view";
 export const metadata = { title: "Payments" };
 
 export default function Page() {
-  // Reads `?tab=` so the dashboard can link straight to payouts or callbacks.
+  // Reads `?tab=` so the dashboard can link straight to a section.
   return (
     <Suspense>
       <AdminPaymentsView />

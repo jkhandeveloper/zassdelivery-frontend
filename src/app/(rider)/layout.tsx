@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Banknote, Bike, Inbox, LayoutDashboard, LifeBuoy, QrCode, Wallet } from "lucide-react";
+import { Banknote, Bike, HandCoins, Inbox, LayoutDashboard, LifeBuoy, QrCode } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { RoleShell, type RoleNavGroup } from "@/components/layout/role-shell";
@@ -21,8 +21,7 @@ const RIDER_NAV: readonly RoleNavGroup[] = [
     heading: "Money",
     items: [
       { href: "/rider/earnings", label: "Earnings", icon: Banknote },
-      { href: "/rider/wallet", label: "Wallet", icon: Wallet },
-      { href: "/rider/withdrawals", label: "Withdrawals", icon: Banknote },
+      { href: "/rider/settlements", label: "Cash & fees", icon: HandCoins },
       { href: "/rider/payment-qr", label: "Payment QR", icon: QrCode },
     ],
   },

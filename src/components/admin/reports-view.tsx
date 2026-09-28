@@ -171,7 +171,7 @@ function LeaderboardsPanel() {
           value={board}
           onChange={setBoard}
           tabs={[
-            { value: "restaurants", label: "Restaurants" },
+            { value: "restaurants", label: "Businesses" },
             { value: "riders", label: "Riders" },
             { value: "customers", label: "Customers" },
           ]}

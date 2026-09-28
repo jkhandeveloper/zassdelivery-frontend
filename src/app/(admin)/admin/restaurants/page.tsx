@@ -2,7 +2,7 @@ import { Suspense } from "react";
 
 import { AdminRestaurantsView } from "@/components/admin/restaurants-view";
 
-export const metadata = { title: "Restaurants" };
+export const metadata = { title: "Businesses" };
 
 export default function Page() {
   // The view reads `?status=` to land on the approval queue when the dashboard

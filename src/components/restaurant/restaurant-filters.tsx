@@ -157,7 +157,7 @@ export function RestaurantFilters({
             name="q"
             type="search"
             defaultValue={state.search}
-            placeholder="Search restaurants, bakeries, cafes…"
+            placeholder="Search cafés, bakeries, shops…"
             leadingIcon={<Search className="size-4" />}
             className="h-11"
           />

@@ -7,7 +7,7 @@ import { RestaurantGridSkeleton } from "@/components/ui/skeleton";
 export const metadata = {
   title: "Places to order from",
   description:
-    "Browse every restaurant, bakery, cafe and shop delivering near you on ZassDelivery.",
+    "Browse every kitchen, bakery, café and shop delivering near you on ZassDelivery.",
 };
 
 export default function RestaurantsPage() {
@@ -20,7 +20,7 @@ export default function RestaurantsPage() {
       <header className="mb-7 mt-4 flex flex-col gap-2">
         <h1 className="text-3xl sm:text-4xl">Order from</h1>
         <p className="text-secondary">
-          Restaurants, bakeries, cafes and shops delivering near you.
+          Kitchens, bakeries, cafés and shops delivering near you.
         </p>
       </header>
 

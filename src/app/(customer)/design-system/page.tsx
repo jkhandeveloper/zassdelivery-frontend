@@ -237,7 +237,7 @@ export default function DesignSystemPage() {
           <Button variant="outline" onClick={() => toast.success("Added to your cart")}>
             Success toast
           </Button>
-          <Button variant="outline" onClick={() => toast.error("That restaurant is closed right now")}>
+          <Button variant="outline" onClick={() => toast.error("That business is closed right now")}>
             Error toast
           </Button>
         </div>
@@ -264,7 +264,7 @@ export default function DesignSystemPage() {
               density="inline"
               title="Your cart is hungry"
               description="Nothing in here yet. Find something worth the wait."
-              action={<Button size="sm">Browse restaurants</Button>}
+              action={<Button size="sm">Browse businesses</Button>}
             />
           </Card>
           <Card>

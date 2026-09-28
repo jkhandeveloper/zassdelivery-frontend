@@ -25,7 +25,7 @@ export default function HomePage() {
         <section className="flex flex-col gap-5">
           <SectionHeader
             title="Order from anywhere"
-            description="Restaurants, bakeries, cafes, cafeterias and shops — all delivering near you."
+            description="Kitchens, bakeries, cafés, cafeterias and shops — all delivering near you."
             viewAllHref="/restaurants"
           />
           <BusinessTypeStrip />

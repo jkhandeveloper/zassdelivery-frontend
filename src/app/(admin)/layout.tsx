@@ -38,7 +38,7 @@ const ADMIN_NAV: readonly RoleNavGroup[] = [
     heading: "Operations",
     items: [
       { href: "/admin/dispatch", label: "Dispatch", icon: Radio },
-      { href: "/admin/restaurants", label: "Restaurants", icon: Store },
+      { href: "/admin/restaurants", label: "Businesses", icon: Store },
       { href: "/admin/riders", label: "Riders", icon: Bike },
       { href: "/admin/users", label: "Users", icon: UsersRound },
     ],

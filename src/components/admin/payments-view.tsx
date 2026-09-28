@@ -31,13 +31,11 @@ import { ConfirmDialog, ReasonDialog } from "@/components/admin/reason-dialog";
 import { TabBar } from "@/components/admin/tab-bar";
 import { Panel, PortalHeader, StatGrid, StatTile } from "@/components/layout/portal-page";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/input";
 import {
   Modal,
   ModalBody,
   ModalContent,
   ModalDescription,
-  ModalFooter,
   ModalHeader,
   ModalTitle,
 } from "@/components/ui/modal";
@@ -45,38 +43,30 @@ import { StatTileSkeleton } from "@/components/ui/skeleton";
 import { StatusPill } from "@/components/ui/status-pill";
 import {
   useAdminPayments,
-  useAdminPayouts,
   useAdminTransactions,
-  useApprovePayout,
   useFailPayment,
   useLedgerSummary,
   useMarkCashCollected,
-  useMarkPayoutPaid,
   useOutstandingCash,
-  useRejectPayout,
   useReplayWebhook,
   useWebhookEvents,
 } from "@/hooks/use-admin";
 import { useValueChanged } from "@/hooks/use-value-changed";
-import { ApiError } from "@/lib/api-client";
 import { formatDateTime, formatPrice, formatRelative, hasText } from "@/lib/utils";
 import {
   PaymentMethod,
   PaymentStatus,
-  PayoutStatus,
   TransactionType,
   WebhookStatus,
 } from "@/types/enums";
 import type { PaymentDto, WebhookEventDto } from "@/types/payment";
-import type { PayoutRequestDto } from "@/types/rider";
 
-type PaymentsTab = "payments" | "cash" | "ledger" | "payouts" | "webhooks";
+type PaymentsTab = "payments" | "cash" | "ledger" | "webhooks";
 
 const TABS: readonly { value: PaymentsTab; label: string }[] = [
   { value: "payments", label: "Payments" },
   { value: "cash", label: "Cash owing" },
   { value: "ledger", label: "Transactions" },
-  { value: "payouts", label: "Rider payouts" },
   { value: "webhooks", label: "Gateway callbacks" },
 ];
 
@@ -148,7 +138,6 @@ export function AdminPaymentsView() {
       {tab === "payments" && <PaymentsTable />}
       {tab === "cash" && <OutstandingCashTable />}
       {tab === "ledger" && <TransactionsTable />}
-      {tab === "payouts" && <PayoutsTable />}
       {tab === "webhooks" && <WebhooksTable />}
     </div>
   );
@@ -550,252 +539,6 @@ function TransactionsTable() {
         footer={<Pagination meta={transactions.data?.meta} onPageChange={setPage} />}
       />
     </Panel>
-  );
-}
-
-// ── Rider payouts ──────────────────────────────────────────────
-
-function PayoutsTable() {
-  const [status, setStatus] = React.useState<PayoutStatus | "">(PayoutStatus.PENDING);
-  const [page, setPage] = React.useState(1);
-
-  if (useValueChanged(status) && page !== 1) {
-    setPage(1);
-  }
-
-  const payouts = useAdminPayouts({
-    page,
-    limit: 20,
-    status: status === "" ? undefined : status,
-  });
-
-  const approve = useApprovePayout();
-  const reject = useRejectPayout();
-
-  const [rejecting, setRejecting] = React.useState<PayoutRequestDto | null>(null);
-  const [paying, setPaying] = React.useState<PayoutRequestDto | null>(null);
-
-  const columns: readonly Column<PayoutRequestDto>[] = [
-    {
-      key: "reference",
-      header: "Request",
-      cell: (row) => (
-        <CellStack primary={row.reference} secondary={formatRelative(row.createdAt)} />
-      ),
-    },
-    {
-      key: "account",
-      header: "Paid to",
-      hideBelow: "md",
-      cell: (row) => (
-        <CellStack
-          primary={row.accountTitle}
-          secondary={`${hasText(row.bankName) ? `${row.bankName} · ` : ""}${row.accountNumber}`}
-        />
-      ),
-    },
-    {
-      key: "method",
-      header: "Method",
-      hideBelow: "lg",
-      cell: (row) => <span className="text-secondary">{humaniseEnum(row.method)}</span>,
-    },
-    {
-      key: "status",
-      header: "Status",
-      cell: (row) => (
-        <div className="flex flex-col items-start gap-1">
-          <StatusPill status={row.status} size="sm" />
-          {hasText(row.rejectionReason) && (
-            <span className="max-w-[14rem] truncate text-xs text-danger">
-              {row.rejectionReason}
-            </span>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "amount",
-      header: "Amount",
-      align: "right",
-      cell: (row) => (
-        <span className="numeric font-semibold text-primary">{formatPrice(row.amount)}</span>
-      ),
-    },
-    {
-      key: "actions",
-      header: <span className="sr-only">Actions</span>,
-      align: "right",
-      width: "1%",
-      cell: (row) => (
-        <RowActions>
-          {row.status === PayoutStatus.PENDING && (
-            <>
-              <Button
-                size="sm"
-                variant="success"
-                loading={approve.isPending}
-                onClick={() => approve.mutate(row.id)}
-              >
-                Approve
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setRejecting(row)}>
-                Reject
-              </Button>
-            </>
-          )}
-          {row.status === PayoutStatus.APPROVED && (
-            <Button size="sm" onClick={() => setPaying(row)}>
-              <Banknote className="size-4" />
-              Mark paid
-            </Button>
-          )}
-        </RowActions>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <Panel
-        title="Rider withdrawals"
-        description="Approve, transfer the money, then record the bank reference against the request."
-        bodyClassName="p-0"
-      >
-        <div className="border-b border-border-subtle p-5 sm:p-6">
-          <FilterBar>
-            <SelectFilter
-              label="Status"
-              value={status}
-              onChange={setStatus}
-              allLabel="Any status"
-              options={Object.values(PayoutStatus).map((value) => ({
-                value,
-                label: humaniseEnum(value),
-              }))}
-            />
-          </FilterBar>
-        </div>
-
-        <DataTable
-          caption="Rider withdrawal requests"
-          columns={columns}
-          rows={payouts.data?.items}
-          rowKey={(row) => row.id}
-          isPending={payouts.isPending}
-          isError={payouts.isError}
-          error={payouts.error}
-          onRetry={() => void payouts.refetch()}
-          empty={{
-            icon: <Wallet className="size-6" />,
-            title: status === PayoutStatus.PENDING ? "Nothing to pay out" : "No requests here",
-            description:
-              status === PayoutStatus.PENDING
-                ? "Riders' withdrawal requests appear here for approval."
-                : "Try a different status.",
-          }}
-          footer={<Pagination meta={payouts.data?.meta} onPageChange={setPage} />}
-        />
-      </Panel>
-
-      <ReasonDialog
-        open={rejecting !== null}
-        onOpenChange={(open) => !open && setRejecting(null)}
-        title={`Reject ${rejecting?.reference ?? ""}?`}
-        description="The money goes back to the rider's wallet and they are shown this reason."
-        placeholder="e.g. The account title does not match the rider's name."
-        confirmLabel="Reject request"
-        pending={reject.isPending}
-        successMessage="Request rejected and the balance released."
-        onConfirm={({ reason }) =>
-          reject.mutateAsync({ id: rejecting?.id ?? "", data: { reason } })
-        }
-      />
-
-      <MarkPaidModal payout={paying} onClose={() => setPaying(null)} />
-    </>
-  );
-}
-
-/**
- * Recording that a withdrawal has actually been transferred.
- *
- * The bank reference is what lets a rider's "where is my money" question be
- * answered without a phone call to the bank, so it is asked for here rather
- * than left to a note somewhere.
- */
-function MarkPaidModal({
-  payout,
-  onClose,
-}: {
-  payout: PayoutRequestDto | null;
-  onClose: () => void;
-}) {
-  const markPaid = useMarkPayoutPaid();
-  const [reference, setReference] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
-
-  if (useValueChanged(payout) && payout !== null) {
-    setReference("");
-    setError(null);
-  }
-
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
-    setError(null);
-
-    try {
-      await markPaid.mutateAsync({
-        id: payout?.id ?? "",
-        data: { paymentReference: hasText(reference) ? reference.trim() : undefined },
-      });
-      toast.success("Marked as paid.");
-      onClose();
-    } catch (caught) {
-      setError(caught instanceof ApiError ? caught.message : "That did not go through.");
-    }
-  }
-
-  return (
-    <Modal open={payout !== null} onOpenChange={(open) => !open && onClose()}>
-      <ModalContent size="sm">
-        <form onSubmit={submit}>
-          <ModalHeader>
-            <ModalTitle>Mark {payout?.reference ?? ""} as paid</ModalTitle>
-            <ModalDescription>
-              {payout === null
-                ? null
-                : `${formatPrice(payout.amount)} to ${payout.accountTitle} (${payout.accountNumber}).`}
-            </ModalDescription>
-          </ModalHeader>
-
-          <ModalBody>
-            <Field
-              label="Bank reference"
-              htmlFor="payout-reference"
-              hint="Optional, but it is what answers “where is my money” later."
-              error={error ?? undefined}
-            >
-              <Input
-                id="payout-reference"
-                value={reference}
-                onChange={(event) => setReference(event.target.value)}
-                placeholder="TRX-88213904"
-              />
-            </Field>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={markPaid.isPending}>
-              Mark paid
-            </Button>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
   );
 }
 

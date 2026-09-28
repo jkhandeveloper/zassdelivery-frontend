@@ -64,10 +64,10 @@ export function FavoritesView() {
       <EmptyState
         icon={<Heart className="size-8" />}
         title="Nothing saved yet"
-        description="Tap the heart on any restaurant and it will show up here."
+        description="Tap the heart on any business and it will show up here."
         action={
           <Button asChild>
-            <Link href="/restaurants">Browse restaurants</Link>
+            <Link href="/restaurants">Browse businesses</Link>
           </Button>
         }
       />

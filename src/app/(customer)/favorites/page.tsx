@@ -7,10 +7,10 @@ export const metadata = { title: "Favourites" };
 export default function Page() {
   return (
     <div className="container-zass py-8 lg:py-10">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Saved restaurants" }]} />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Saved businesses" }]} />
 
       <header className="mb-7 mt-4 flex flex-col gap-2">
-        <h1 className="text-3xl sm:text-4xl">Saved restaurants</h1>
+        <h1 className="text-3xl sm:text-4xl">Saved businesses</h1>
         <p className="text-secondary">The kitchens you keep coming back to.</p>
       </header>
 

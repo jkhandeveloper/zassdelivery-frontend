@@ -178,7 +178,7 @@ export function RestaurantBrowser() {
             description={
               hasFilters
                 ? "Try widening your search — fewer filters, another cuisine, or a different kind of place."
-                : "We're still signing up restaurants, bakeries and cafes in your area. Check back soon."
+                : "We're still signing up cafés, bakeries, shops and kitchens in your area. Check back soon."
             }
             action={
               hasFilters ? (

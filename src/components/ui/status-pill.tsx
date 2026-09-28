@@ -13,7 +13,6 @@ import type {
   MenuItemStatus,
   OrderStatus,
   PaymentStatus,
-  PayoutStatus,
   RestaurantStatus,
   TicketPriority,
   TicketStatus,
@@ -58,7 +57,6 @@ export type StatusTone = NonNullable<VariantProps<typeof pillVariants>["tone"]>;
 export type AnyStatus =
   | OrderStatus
   | PaymentStatus
-  | PayoutStatus
   | RestaurantStatus
   | DriverStatus
   | DriverAvailability

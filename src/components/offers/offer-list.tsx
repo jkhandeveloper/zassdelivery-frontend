@@ -154,7 +154,7 @@ export function OfferList() {
         description="There are no coupons available on your account today. New ones appear here as they launch."
         action={
           <Button variant="outline" asChild>
-            <Link href="/restaurants">Browse restaurants</Link>
+            <Link href="/restaurants">Browse businesses</Link>
           </Button>
         }
       />

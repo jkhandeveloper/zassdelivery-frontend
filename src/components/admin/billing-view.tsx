@@ -719,7 +719,7 @@ function Subscriptions() {
         <div className="flex flex-wrap items-end gap-2">
           <Input
             value={search}
-            placeholder="Restaurant, owner or phone"
+            placeholder="Business, owner or phone"
             aria-label="Search subscriptions"
             onChange={(event) => setSearch(event.target.value)}
           />

@@ -24,7 +24,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   [TicketCategory.PAYMENT_ISSUE]: "Payment or refund",
   [TicketCategory.DELIVERY_ISSUE]: "Delivery or pickup",
   [TicketCategory.ACCOUNT]: "My account",
-  [TicketCategory.RESTAURANT_COMPLAINT]: "A restaurant",
+  [TicketCategory.RESTAURANT_COMPLAINT]: "A business",
   [TicketCategory.OTHER]: "Something else",
 };
 

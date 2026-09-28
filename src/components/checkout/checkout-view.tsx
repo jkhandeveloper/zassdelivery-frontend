@@ -61,7 +61,7 @@ const METHOD_HINTS: Record<string, string> = {
   [PaymentMethod.JAZZCASH]: "You'll be taken to JazzCash to confirm",
   [PaymentMethod.EASYPAISA]: "You'll be taken to Easypaisa to confirm",
   [PaymentMethod.BANK_TRANSFER]: "Transfer the total from your bank",
-  [PaymentMethod.QR_TRANSFER]: "Scan the restaurant's QR on the next screen and pay them directly",
+  [PaymentMethod.QR_TRANSFER]: "Scan the business's QR on the next screen and pay them directly",
 };
 
 function Panel({
@@ -152,7 +152,7 @@ function AddressRow({
         )}
         {!address.isDeliverable && (
           <span className="text-xs font-semibold text-danger">
-            Outside the delivery area for this restaurant.
+            Outside the delivery area for this business.
           </span>
         )}
       </span>
@@ -226,7 +226,7 @@ export function CheckoutView() {
         description="Your cart is empty — pick a kitchen and add something first."
         action={
           <Button asChild>
-            <Link href="/restaurants">Browse restaurants</Link>
+            <Link href="/restaurants">Browse businesses</Link>
           </Button>
         }
       />

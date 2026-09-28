@@ -12,6 +12,7 @@ import { formatDateTime, formatPrice } from "@/lib/utils";
 
 /** Earning types, as a rider would name them. */
 const EARNING_LABELS: Record<string, string> = {
+  DELIVERY_FEE: "Delivery fee",
   BASE_FARE: "Base fare",
   DISTANCE: "Distance",
   TIP: "Tip",
@@ -31,7 +32,7 @@ function Earnings() {
     <div className="flex flex-col gap-6">
       <PortalHeader
         title="Earnings"
-        description="What you've made, and the line-by-line behind it."
+        description="What you've made: each order's delivery fee and tip. You keep it from the cash you collect, or the business pays it to you."
       />
 
       {summary.isPending ? (
@@ -75,7 +76,7 @@ function Earnings() {
 
       <Panel
         title="Every line"
-        description="Base fares, distance, tips and adjustments as they were credited."
+        description="Delivery fees and tips, line by line."
         bodyClassName="p-0"
       >
         {ledger.isPending ? (

@@ -51,7 +51,7 @@ export default function VendorOnboardingPage() {
       <header className="mb-8 mt-4 flex flex-col gap-2">
         <h1 className="text-3xl sm:text-4xl">List your business</h1>
         <p className="max-w-2xl text-secondary">
-          Restaurant, bakery, cafe, cafeteria or shop — tell us about it and we&apos;ll review the
+          Café, bakery, cafeteria, kitchen or shop — tell us about it and we&apos;ll review the
           listing. Nothing goes live until an administrator approves it, usually within a working
           day.
         </p>
@@ -171,7 +171,7 @@ function RegistrationForm() {
     >
       <Section
         title="What kind of business is this?"
-        description="It decides how customers find you — someone after a birthday cake browses bakeries, not restaurants."
+        description="It decides how customers find you — someone after a birthday cake browses bakeries, not fast food."
       >
         <div
           role="radiogroup"

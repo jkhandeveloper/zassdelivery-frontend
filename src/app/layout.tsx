@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s · ZassDelivery",
   },
   description:
-    "Order from the restaurants you love across Pakistan. Live tracking from the kitchen to your door.",
+    "Order from the businesses you love across Pakistan. Live tracking from the kitchen to your door.",
 };
 
 export const viewport: Viewport = {

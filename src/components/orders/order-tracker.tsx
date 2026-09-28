@@ -288,7 +288,7 @@ function Progress({ currentStep, status }: { currentStep: number; status: string
         />
         <p className="font-bold text-primary">
           {waiting
-            ? "This order is waiting for payment. It reaches the restaurant once that clears."
+            ? "This order is waiting for payment. It reaches the business once that clears."
             : `This order is ${status.toLowerCase().replace(/_/g, " ")} and is no longer on its way.`}
         </p>
       </Card>

@@ -127,7 +127,7 @@ export function MenuItemDialog({
       const message =
         error instanceof ApiError
           ? error.status === 409
-            ? "Your cart has items from another restaurant. Empty it first to order from here."
+            ? "Your cart has items from another business. Empty it first to order from here."
             : error.message
           : "We couldn't add that. Please try again.";
 
