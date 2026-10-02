@@ -39,8 +39,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # PageProps / LayoutProps and next-env.d.ts are generated, not committed;
+      # without this step tsc cannot see them on a fresh checkout.
       - name: Typecheck
-        run: npm run typecheck
+        run: npx next typegen && npm run typecheck
 
       - name: Build
         run: npm run build
