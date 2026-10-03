@@ -32,7 +32,7 @@ import { cn, formatDateTime, formatPrice, formatTime, hasText } from "@/lib/util
 import { OrderStatus, PaymentMethod, PaymentStatus } from "@/types/enums";
 
 /**
- * Leaflet touches `window` at module scope, so the map is loaded on the client
+ * MapLibre touches `window` at module scope, so the map is loaded on the client
  * only. A skeleton stands in during the load rather than nothing, because the
  * map is the tallest thing on the page and its absence would jump the layout.
  */
