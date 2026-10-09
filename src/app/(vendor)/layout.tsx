@@ -13,6 +13,7 @@ import {
   Receipt,
   Store,
   Undo2,
+  UserRound,
   UsersRound,
   UtensilsCrossed,
 } from "lucide-react";
@@ -34,7 +35,7 @@ const VENDOR_NAV: readonly RoleNavGroup[] = [
   {
     heading: "Business",
     items: [
-      { href: "/vendor/settings/profile", label: "Profile", icon: Store },
+      { href: "/vendor/settings/profile", label: "Business profile", icon: Store },
       { href: "/vendor/settings/hours", label: "Opening hours", icon: Clock },
       { href: "/vendor/settings/gallery", label: "Gallery", icon: Images },
       { href: "/vendor/settings/payments", label: "Payment QR codes", icon: QrCode },
@@ -43,6 +44,10 @@ const VENDOR_NAV: readonly RoleNavGroup[] = [
       { href: "/vendor/billing", label: "Subscription", icon: Receipt },
       { href: "/vendor/staff", label: "Staff", icon: UsersRound },
     ],
+  },
+  {
+    heading: "Account",
+    items: [{ href: "/vendor/profile", label: "My profile", icon: UserRound }],
   },
   {
     heading: "Help",

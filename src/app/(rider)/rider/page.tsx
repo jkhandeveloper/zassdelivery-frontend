@@ -2,14 +2,12 @@
 
 import { Banknote, Bike, Inbox, Star } from "lucide-react";
 import Link from "next/link";
-import * as React from "react";
 
 import { Panel, PortalHeader, StatGrid, StatTile } from "@/components/layout/portal-page";
 import { AvailabilityToggle } from "@/components/rider/availability-toggle";
 import { DeliveryPanel } from "@/components/rider/delivery-panel";
 import { OfferCard } from "@/components/rider/offer-list";
 import { RiderGate } from "@/components/rider/rider-gate";
-import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 import { Button } from "@/components/ui/button";
 import { StatTileSkeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/states";
@@ -27,19 +25,8 @@ function Today({ rider }: { rider: RiderDto }) {
   const offers = useRiderOffers({ liveOnly: true, limit: 5 });
   const deliveries = useRiderDeliveries({ status: AssignmentStatus.ACCEPTED, limit: 5 });
 
-  const { refetch: refetchOffers } = offers;
-  const { refetch: refetchDeliveries } = deliveries;
-
-  // The two things that change under a rider without them doing anything: a new
-  // run arriving, and the order they are carrying moving on.
-  useRealtimeEvent(
-    "delivery:offered",
-    React.useCallback(() => void refetchOffers(), [refetchOffers]),
-  );
-  useRealtimeEvent(
-    "order:status",
-    React.useCallback(() => void refetchDeliveries(), [refetchDeliveries]),
-  );
+  // Kept current by `RiderLiveSync` in the rider layout: a new offer, the run
+  // moving on and a delivery completing all refetch what this screen reads.
 
   const liveOffers = (offers.data?.items ?? []).filter((offer) => offer.isLive);
   const active = deliveries.data?.items ?? [];

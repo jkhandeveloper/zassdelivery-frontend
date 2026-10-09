@@ -2,11 +2,21 @@
 
 import type { ReactNode } from "react";
 
-import { Banknote, Bike, HandCoins, Inbox, LayoutDashboard, LifeBuoy, QrCode } from "lucide-react";
+import {
+  Banknote,
+  Bike,
+  HandCoins,
+  Inbox,
+  LayoutDashboard,
+  LifeBuoy,
+  QrCode,
+  UserRound,
+} from "lucide-react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { RoleShell, type RoleNavGroup } from "@/components/layout/role-shell";
 import { LocationBroadcaster } from "@/components/rider/location-broadcaster";
+import { RiderLiveSync } from "@/components/rider/rider-live-sync";
 import { UserRole } from "@/types/auth";
 
 const RIDER_NAV: readonly RoleNavGroup[] = [
@@ -24,6 +34,10 @@ const RIDER_NAV: readonly RoleNavGroup[] = [
       { href: "/rider/settlements", label: "Cash & fees", icon: HandCoins },
       { href: "/rider/payment-qr", label: "Payment QR", icon: QrCode },
     ],
+  },
+  {
+    heading: "Account",
+    items: [{ href: "/rider/profile", label: "My profile", icon: UserRound }],
   },
   {
     heading: "Help",
@@ -46,6 +60,7 @@ export default function RiderLayout({ children }: { children: ReactNode }) {
         {/* One position watcher for the whole portal, so a rider working from
             their deliveries screen keeps reporting. */}
         <LocationBroadcaster />
+        <RiderLiveSync />
         <div id="main">{children}</div>
       </RoleShell>
     </ProtectedRoute>

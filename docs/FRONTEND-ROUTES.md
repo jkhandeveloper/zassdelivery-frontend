@@ -8,7 +8,7 @@
 - ⚠️ **Partial** — some of the screen is real, some is not
 - ⛔ **Placeholder** — renders "Coming soon" on purpose
 
-Totals: **51 routes — 27 built, 24 placeholder.** The rider and vendor portals are
+Totals: **53 routes — 29 built, 24 placeholder.** The rider and vendor portals are
 now built in full; the admin portal is placeholder apart from vendor billing, and the
 customer marketing/legal pages are not built.
 
@@ -97,6 +97,7 @@ no restaurant registered yet, awaiting approval, rejected, suspended.
 | `/vendor/settings/gallery` | ✅ Built | Add, reorder, remove photos |
 | `/vendor/settings/payments` | ✅ Built | Scan-to-pay QR codes customers pay the restaurant with |
 | `/vendor/billing` | ✅ Built | The monthly platform fee: what's due, where to pay, history |
+| `/vendor/profile` | ✅ Built | The owner's (or staff member's) own account: name, photo, email, password. Not behind the gate |
 | `/vendor/support` | ✅ Built | Tickets and threads, inside the vendor shell |
 
 > `/vendor/billing` is the **one** vendor route that renders for a suspended listing, via the
@@ -121,6 +122,7 @@ application not filed, awaiting approval, rejected, suspended.
 | `/rider/earnings` | ✅ Built | Summary tiles and the full ledger |
 | `/rider/wallet` | ✅ Built | Balance and statement |
 | `/rider/withdrawals` | ✅ Built | Request, track, cancel |
+| `/rider/profile` | ✅ Built | Account, licence, home zone, bank details, vehicle and documents. Not behind the gate |
 | `/rider/support` | ✅ Built | Tickets and threads, inside the rider shell |
 
 > Support in both portals is deliberately `/{portal}/support`, **not** `/support`. The customer

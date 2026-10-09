@@ -1,10 +1,8 @@
 "use client";
 
 import { Bike } from "lucide-react";
-import * as React from "react";
 
 import { Panel, PortalHeader } from "@/components/layout/portal-page";
-import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 import { DeliveryPanel } from "@/components/rider/delivery-panel";
 import { RiderGate } from "@/components/rider/rider-gate";
 import { ListSkeleton } from "@/components/ui/skeleton";
@@ -27,14 +25,8 @@ function Deliveries() {
     sortOrder: "desc",
   });
 
-  const { refetch: refetchActive } = active;
-
   // A run advances when the restaurant marks it ready or the customer's code is
-  // accepted — both reach this screen as an order:status event.
-  useRealtimeEvent(
-    "order:status",
-    React.useCallback(() => void refetchActive(), [refetchActive]),
-  );
+  // accepted — `RiderLiveSync` in the rider layout refetches both lists then.
 
   const carrying = active.data?.items ?? [];
   const done = history.data?.items ?? [];

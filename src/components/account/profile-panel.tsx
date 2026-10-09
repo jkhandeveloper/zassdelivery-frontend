@@ -55,7 +55,7 @@ function Panel({
 }
 
 /** Name, email and the phone the account is keyed on. */
-function ProfileForm() {
+export function ProfileForm() {
   const profile = useProfile();
 
   if (profile.isPending) {

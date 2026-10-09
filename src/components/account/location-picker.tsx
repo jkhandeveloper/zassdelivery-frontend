@@ -6,7 +6,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGeolocation, useZones } from "@/hooks/use-geo";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { groupByCity, resolveZone, type Coordinates, type ZoneDto } from "@/types/geo";
 
 export interface PickedLocation extends Coordinates {
@@ -200,7 +200,7 @@ export function LocationPicker({
                       {zone.name}
                     </span>
                     <span className="numeric shrink-0 text-xs text-muted">
-                      {formatPrice(zone.deliveryFee)} · {zone.etaMinutes} min
+                      {zone.etaMinutes} min
                     </span>
                   </label>
                 );

@@ -252,6 +252,6 @@ io('http://localhost:3000/realtime', { auth: { token: accessToken } })
 `GET /realtime/handshake` returns the server's own description of the protocol — rooms, commands
 and events — which is the authoritative list rather than anything hardcoded in the client.
 
-Server events include `order:status`, `rider:location`, `delivery:offered`, `restaurant:order`
+Server events include `order:status`, `rider:location`, `delivery:offered`, `delivery:updated`, `restaurant:order`
 and `notification:new`. Rooms are joined automatically for your own user, plus `dispatch` for
 staff and `rider:<id>` for riders.
