@@ -9,10 +9,12 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { OtpCodeStep } from "@/components/auth/otp-code-step";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { RevealGroup, RevealItem } from "@/components/ui/reveal";
+import { useOtpConfig, useSendOtp } from "@/hooks/use-otp";
 import { ApiError } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { homeRouteForRole, UserRole, type SelfServiceRole } from "@/types/auth";
@@ -47,6 +49,28 @@ const ROLE_OPTIONS: ReadonlyArray<{
   { value: UserRole.VENDOR_OWNER, label: "List a business", description: "Take orders from your kitchen", icon: Store },
 ];
 
+/** What a failed sign-up should say. The API's own message is written for people. */
+function describeError(error: unknown): string {
+  return error instanceof ApiError
+    ? error.status === 409
+      ? "An account already exists for that phone number."
+      : error.status === 429
+        ? "Too many attempts. Wait a few minutes, then try again."
+        : error.isValidationError && error.details.length > 0
+          ? error.details[0]
+          : error.message
+    : "Something went wrong. Please try again.";
+}
+
+/** The details already entered, waiting on the texted code. */
+interface PendingSignUp {
+  values: RegisterValues;
+  codeLength: number;
+  resendAfterSeconds: number;
+  /** Bumped on every resend, so the code step starts its wait over. */
+  sendCount: number;
+}
+
 function safeNextPath(next: string | null): string | null {
   if (next === null || !next.startsWith("/") || next.startsWith("//")) {
     return null;
@@ -80,163 +104,244 @@ export function RegisterForm() {
   // render, which the React Compiler cannot memoize safely.
   const selectedRole = useWatch({ control, name: "role" });
 
+  const otpConfig = useOtpConfig();
+  const sendOtp = useSendOtp();
+  const [pending, setPending] = React.useState<PendingSignUp | null>(null);
+  const [creating, setCreating] = React.useState(false);
+
+  const otpEnabled = otpConfig.data?.enabled === true;
+
+  const createAccount = async (values: RegisterValues, otpCode?: string) => {
+    const user = await registerAccount({
+      fullName: values.fullName,
+      phone: values.phone,
+      password: values.password,
+      role: values.role,
+      // The API rejects unknown *and* empty optional fields, so only send it
+      // when the person actually typed one.
+      ...(values.email !== "" && { email: values.email }),
+      ...(otpCode !== undefined && { otpCode }),
+    });
+
+    toast.success("Account created. Welcome to ZassDelivery.");
+    router.replace(nextPath ?? homeRouteForRole(user));
+  };
+
+  /** Texts the code, then swaps the form for the code step. */
+  const requestCode = async (values: RegisterValues) => {
+    const settings = await sendOtp.mutateAsync({ phone: values.phone, purpose: "register" });
+
+    setPending((current) => ({
+      values,
+      codeLength: settings.codeLength,
+      resendAfterSeconds: settings.resendAfterSeconds,
+      sendCount: (current?.sendCount ?? 0) + 1,
+    }));
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
 
     try {
-      const user = await registerAccount({
-        fullName: values.fullName,
-        phone: values.phone,
-        password: values.password,
-        role: values.role,
-        // The API rejects unknown *and* empty optional fields, so only send it
-        // when the person actually typed one.
-        ...(values.email !== "" && { email: values.email }),
-      });
+      // Asked for again if it never loaded: guessing "off" would send a
+      // sign-up the API refuses, and guessing "on" would lock everyone out of
+      // a deployment that cannot text.
+      const config = otpConfig.data ?? (await otpConfig.refetch()).data;
 
-      toast.success("Account created. Welcome to ZassDelivery.");
-      router.replace(nextPath ?? homeRouteForRole(user));
+      if (config?.enabled === true) {
+        await requestCode(values);
+        return;
+      }
+
+      await createAccount(values);
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.status === 409
-            ? "An account already exists for that phone number."
-            : error.status === 429
-              ? "Too many attempts. Wait a few minutes, then try again."
-              : error.isValidationError && error.details.length > 0
-                ? error.details[0]
-                : error.message
-          : "Something went wrong. Please try again.";
-
-      setFormError(message);
+      setFormError(describeError(error));
     }
   });
+
+  const onSubmitCode = async (code: string) => {
+    if (pending === null) return;
+
+    setFormError(null);
+    setCreating(true);
+
+    try {
+      await createAccount(pending.values, code);
+    } catch (error) {
+      setFormError(describeError(error));
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const onResend = async () => {
+    if (pending === null) return;
+
+    setFormError(null);
+
+    try {
+      await requestCode(pending.values);
+      toast.success("We've sent you a new code.");
+    } catch (error) {
+      setFormError(describeError(error));
+    }
+  };
 
   return (
     <RevealGroup trigger="mount" className="flex flex-col gap-6">
       <RevealItem className="flex flex-col gap-2">
-        <h1 className="text-3xl">Create your account</h1>
-        <p className="text-secondary">One account, whether you are ordering, delivering or selling.</p>
+        <h1 className="text-3xl">{pending === null ? "Create your account" : "Confirm your number"}</h1>
+        <p className="text-secondary">
+          {pending === null
+            ? "One account, whether you are ordering, delivering or selling."
+            : "So riders and businesses can reach you, and so nobody can sign up as you."}
+        </p>
       </RevealItem>
 
-      <RevealItem>
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-          {formError !== null && (
-            <p
-              role="alert"
-              className="rounded-[var(--radius-input)] border border-danger bg-[var(--state-error-soft)] px-4 py-3 text-sm font-medium text-danger"
+      {formError !== null && (
+        <p
+          role="alert"
+          className="rounded-[var(--radius-input)] border border-danger bg-[var(--state-error-soft)] px-4 py-3 text-sm font-medium text-danger"
+        >
+          {formError}
+        </p>
+      )}
+
+      {pending !== null ? (
+        <RevealItem>
+          <OtpCodeStep
+            key={pending.sendCount}
+            phone={pending.values.phone}
+            codeLength={pending.codeLength}
+            resendAfterSeconds={pending.resendAfterSeconds}
+            submitting={creating}
+            resending={sendOtp.isPending}
+            submitLabel="Verify and create account"
+            onSubmit={(code) => void onSubmitCode(code)}
+            onResend={() => void onResend()}
+            onChangeNumber={() => {
+              setFormError(null);
+              setPending(null);
+            }}
+          />
+        </RevealItem>
+      ) : (
+        <RevealItem>
+          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+            <fieldset className="flex flex-col gap-1.5">
+              <legend className="mb-1.5 text-sm font-semibold text-primary">I want to</legend>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {ROLE_OPTIONS.map(({ value, label, description, icon: Icon }) => {
+                  const isSelected = selectedRole === value;
+
+                  return (
+                    <label
+                      key={value}
+                      className={cn(
+                        "flex cursor-pointer flex-col gap-1 rounded-[var(--radius-input)] border p-3 transition-all duration-200",
+                        "focus-within:ring-4 focus-within:ring-[var(--brand-ring)]",
+                        isSelected
+                          ? "border-brand bg-brand-soft text-primary"
+                          : "border-border-default bg-surface-muted text-secondary hover:border-brand",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        value={value}
+                        checked={isSelected}
+                        onChange={() => setValue("role", value, { shouldValidate: true })}
+                        className="sr-only"
+                      />
+                      <Icon className={cn("size-5", isSelected ? "text-brand" : "text-muted")} />
+                      <span className="text-sm font-semibold text-primary">{label}</span>
+                      <span className="text-xs text-muted">{description}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <Field label="Full name" htmlFor="fullName" required error={errors.fullName?.message}>
+              <Input
+                id="fullName"
+                autoComplete="name"
+                placeholder="Ayesha Khan"
+                leadingIcon={<User className="size-4" />}
+                invalid={errors.fullName !== undefined}
+                {...register("fullName")}
+              />
+            </Field>
+
+            <Field label="Phone number" htmlFor="phone" required error={errors.phone?.message}>
+              <Input
+                id="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="0300 1234567"
+                leadingIcon={<Phone className="size-4" />}
+                invalid={errors.phone !== undefined}
+                {...register("phone")}
+              />
+            </Field>
+
+            <Field
+              label="Email"
+              htmlFor="email"
+              hint="Optional — for receipts and order updates."
+              error={errors.email?.message}
             >
-              {formError}
-            </p>
-          )}
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                leadingIcon={<Mail className="size-4" />}
+                invalid={errors.email !== undefined}
+                {...register("email")}
+              />
+            </Field>
 
-          <fieldset className="flex flex-col gap-1.5">
-            <legend className="mb-1.5 text-sm font-semibold text-primary">I want to</legend>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {ROLE_OPTIONS.map(({ value, label, description, icon: Icon }) => {
-                const isSelected = selectedRole === value;
-
-                return (
-                  <label
-                    key={value}
-                    className={cn(
-                      "flex cursor-pointer flex-col gap-1 rounded-[var(--radius-input)] border p-3 transition-all duration-200",
-                      "focus-within:ring-4 focus-within:ring-[var(--brand-ring)]",
-                      isSelected
-                        ? "border-brand bg-brand-soft text-primary"
-                        : "border-border-default bg-surface-muted text-secondary hover:border-brand",
-                    )}
+            <Field
+              label="Password"
+              htmlFor="password"
+              required
+              hint="At least 8 characters, with a letter and a number."
+              error={errors.password?.message}
+            >
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="Create a password"
+                leadingIcon={<Lock className="size-4" />}
+                invalid={errors.password !== undefined}
+                trailingIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((shown) => !shown)}
+                    className="rounded-md text-muted transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    <input
-                      type="radio"
-                      value={value}
-                      checked={isSelected}
-                      onChange={() => setValue("role", value, { shouldValidate: true })}
-                      className="sr-only"
-                    />
-                    <Icon className={cn("size-5", isSelected ? "text-brand" : "text-muted")} />
-                    <span className="text-sm font-semibold text-primary">{label}</span>
-                    <span className="text-xs text-muted">{description}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                }
+                {...register("password")}
+              />
+            </Field>
 
-          <Field label="Full name" htmlFor="fullName" required error={errors.fullName?.message}>
-            <Input
-              id="fullName"
-              autoComplete="name"
-              placeholder="Ayesha Khan"
-              leadingIcon={<User className="size-4" />}
-              invalid={errors.fullName !== undefined}
-              {...register("fullName")}
-            />
-          </Field>
-
-          <Field label="Phone number" htmlFor="phone" required error={errors.phone?.message}>
-            <Input
-              id="phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="0300 1234567"
-              leadingIcon={<Phone className="size-4" />}
-              invalid={errors.phone !== undefined}
-              {...register("phone")}
-            />
-          </Field>
-
-          <Field
-            label="Email"
-            htmlFor="email"
-            hint="Optional — for receipts and order updates."
-            error={errors.email?.message}
-          >
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              leadingIcon={<Mail className="size-4" />}
-              invalid={errors.email !== undefined}
-              {...register("email")}
-            />
-          </Field>
-
-          <Field
-            label="Password"
-            htmlFor="password"
-            required
-            hint="At least 8 characters, with a letter and a number."
-            error={errors.password?.message}
-          >
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
-              placeholder="Create a password"
-              leadingIcon={<Lock className="size-4" />}
-              invalid={errors.password !== undefined}
-              trailingIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((shown) => !shown)}
-                  className="rounded-md text-muted transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              }
-              {...register("password")}
-            />
-          </Field>
-
-          <Button type="submit" size="lg" block loading={isSubmitting} loadingLabel="Creating your account…">
-            Create account
-          </Button>
-        </form>
-      </RevealItem>
+            <Button
+              type="submit"
+              size="lg"
+              block
+              loading={isSubmitting}
+              loadingLabel={otpEnabled ? "Texting your code…" : "Creating your account…"}
+            >
+              {otpEnabled ? "Continue" : "Create account"}
+            </Button>
+          </form>
+        </RevealItem>
+      )}
 
       <RevealItem className="text-sm text-secondary">
         Already have an account?{" "}

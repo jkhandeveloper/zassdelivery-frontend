@@ -1,6 +1,6 @@
 "use client";
 
-import { Bike, ClipboardCheck, FileText, Star } from "lucide-react";
+import { Bike, ClipboardCheck, FileText, Route, Star } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -15,9 +15,9 @@ import { ProfileSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useZones } from "@/hooks/use-geo";
-import { useRiderProfile, useUpdateRiderProfile } from "@/hooks/use-riders";
+import { useDeliveryRates, useRiderProfile, useUpdateRiderProfile } from "@/hooks/use-riders";
 import { ApiError } from "@/lib/api-client";
-import { formatDate, hasText } from "@/lib/utils";
+import { formatDate, formatPrice, hasText } from "@/lib/utils";
 import { groupByCity } from "@/types/geo";
 import type { RiderDto } from "@/types/rider";
 
@@ -61,6 +61,8 @@ export default function RiderProfilePage() {
       />
 
       {profile.data !== undefined && <RiderStats rider={profile.data} />}
+
+      {profile.data !== undefined && <DeliveryRates />}
 
       <Panel title="Account" description="How your name appears to customers and businesses.">
         <ProfileForm />
@@ -130,6 +132,76 @@ function RiderStats({ rider }: { rider: RiderDto }) {
         tone="success"
       />
     </StatGrid>
+  );
+}
+
+/**
+ * What a run pays, per kilometre.
+ *
+ * Every order's delivery fee is priced from these and the rider keeps it, so
+ * this is the rider's rate card. Set by the platform for everyone — shown
+ * here so nobody has to work it backwards from their earnings.
+ */
+function DeliveryRates() {
+  const rates = useDeliveryRates();
+
+  return (
+    <Panel
+      title="Delivery pay"
+      description="Customers pay this as the delivery fee, and you keep all of it — plus any tip."
+    >
+      {rates.isPending ? (
+        <Skeleton className="h-24 rounded-[var(--radius-input)]" />
+      ) : rates.isError ? (
+        <ErrorState density="inline" error={rates.error} onRetry={() => void rates.refetch()} />
+      ) : (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4 rounded-[var(--radius-input)] bg-brand-soft p-4">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface text-brand">
+              <Route aria-hidden className="size-5" />
+            </span>
+            <div className="flex flex-col">
+              <span className="numeric font-display text-2xl font-extrabold text-primary">
+                {formatPrice(rates.data.perKmFee)} / km
+              </span>
+              <span className="text-sm text-secondary">
+                Measured from the business to the customer.
+              </span>
+            </div>
+          </div>
+
+          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              { label: "Shortest run pays", value: formatPrice(rates.data.minFee) },
+              { label: "Longest run pays", value: formatPrice(rates.data.maxFee) },
+              { label: "Furthest delivery", value: `${rates.data.maxDistanceKm} km` },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="flex flex-col gap-0.5 rounded-[var(--radius-input)] border border-border-subtle px-4 py-3"
+              >
+                <dt className="text-xs font-semibold text-muted">{item.label}</dt>
+                <dd className="numeric font-bold text-primary">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <p className="text-xs text-muted">
+            For example, a {Math.min(2, rates.data.maxDistanceKm)} km run pays{" "}
+            {formatPrice(
+              Math.min(
+                Math.max(
+                  Math.round(Math.min(2, rates.data.maxDistanceKm) * rates.data.perKmFee),
+                  rates.data.minFee,
+                ),
+                rates.data.maxFee,
+              ),
+            )}
+            . Rates are set by ZassDelivery and are the same for every rider.
+          </p>
+        </div>
+      )}
+    </Panel>
   );
 }
 
