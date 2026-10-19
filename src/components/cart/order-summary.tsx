@@ -39,10 +39,13 @@ export function OrderSummary({
   freeDeliveryReason,
   className,
   children,
+  pickup = false,
 }: {
   totals: CartTotalsDto;
   freeDeliveryReason?: string | null;
   className?: string;
+  /** Collected by the customer: there is no delivery to charge for. */
+  pickup?: boolean;
   /** Buttons or notes that belong under the total. */
   children?: ReactNode;
 }) {
@@ -57,9 +60,11 @@ export function OrderSummary({
       )}
 
       <Row
-        label="Delivery fee"
+        label={pickup ? "Pickup" : "Delivery fee"}
         value={
-          totals.deliveryFee === 0 ? (
+          pickup ? (
+            <span className="text-success">No delivery fee</span>
+          ) : totals.deliveryFee === 0 ? (
             <span className="text-success">Free</span>
           ) : (
             formatPrice(totals.deliveryFee)

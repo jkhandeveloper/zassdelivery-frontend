@@ -200,7 +200,7 @@ function OrderRow({ order }: { order: OrderDto }) {
 
             <p className="flex items-start gap-2 text-sm text-secondary">
               <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-brand" />
-              {order.deliveryAddress}
+              {order.type === "PICKUP" ? "Self-pickup" : order.deliveryAddress}
             </p>
 
             <div className="mt-auto flex flex-wrap gap-2 pt-2">

@@ -2,6 +2,7 @@
 
 import {
   Banknote,
+  Bike,
   CreditCard,
   Home,
   Loader2,
@@ -11,6 +12,7 @@ import {
   QrCode,
   ShoppingBag,
   Smartphone,
+  Store,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,13 +28,20 @@ import { Field, Textarea } from "@/components/ui/input";
 import { Media } from "@/components/ui/media";
 import { Skeleton, SkeletonRegion } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
-import { useCart, useEnsureCartAddress, usePlaceOrder, useSetDeliveryAddress } from "@/hooks/use-cart";
+import { RiderPicker } from "@/components/checkout/rider-picker";
+import {
+  useCart,
+  useEnsureCartAddress,
+  usePlaceOrder,
+  useSetDeliveryAddress,
+  useSetFulfilment,
+} from "@/hooks/use-cart";
 import { usePaymentMethods, useStartCheckout } from "@/hooks/use-payments";
 import { useAddresses } from "@/hooks/use-users";
 import { ApiError } from "@/lib/api-client";
 import { isFilledCart } from "@/lib/cart";
 import { cn, formatLandmark, formatPrice, hasText } from "@/lib/utils";
-import { PaymentMethod } from "@/types/enums";
+import { OrderType, PaymentMethod } from "@/types/enums";
 import type { AddressDto } from "@/types/user";
 
 /** An icon per gateway, so the list is scannable rather than four identical rows. */
@@ -90,6 +99,59 @@ function Panel({
       </h2>
       {children}
     </section>
+  );
+}
+
+/** Delivery to an address, or the customer collects it from the business. */
+function FulfilmentToggle({
+  value,
+  pending,
+  onChange,
+}: {
+  value: OrderType;
+  pending: boolean;
+  onChange: (next: OrderType) => void;
+}) {
+  const options = [
+    { value: OrderType.DELIVERY, label: "Delivery", hint: "A rider brings it to you", icon: Bike },
+    { value: OrderType.PICKUP, label: "Self-pickup", hint: "Collect it yourself", icon: Store },
+  ];
+
+  return (
+    <div role="radiogroup" aria-label="How you'll get your order" className="grid grid-cols-2 gap-2.5">
+      {options.map((option) => {
+        const selected = value === option.value;
+        const Icon = option.icon;
+
+        return (
+          <label
+            key={option.value}
+            className={cn(
+              "flex cursor-pointer flex-col gap-1 rounded-[var(--radius-input)] border p-3.5 transition-colors",
+              "focus-within:ring-4 focus-within:ring-[var(--brand-ring)]",
+              selected
+                ? "border-brand bg-brand-soft"
+                : "border-border-default bg-surface-muted hover:border-brand",
+              pending && "opacity-70",
+            )}
+          >
+            <input
+              type="radio"
+              name="fulfilment"
+              className="sr-only"
+              checked={selected}
+              disabled={pending}
+              onChange={() => onChange(option.value)}
+            />
+            <span className="flex items-center gap-2 text-sm font-bold text-primary">
+              <Icon aria-hidden className={cn("size-4", selected ? "text-brand" : "text-secondary")} />
+              {option.label}
+            </span>
+            <span className="text-xs text-muted">{option.hint}</span>
+          </label>
+        );
+      })}
+    </div>
   );
 }
 
@@ -174,6 +236,7 @@ export function CheckoutView() {
   const methods = usePaymentMethods(liveCart?.restaurant.id ?? null, signedIn && liveCart !== null);
 
   const setAddress = useSetDeliveryAddress();
+  const setFulfilment = useSetFulfilment();
   const placeOrder = usePlaceOrder();
   const startCheckout = useStartCheckout();
 
@@ -233,10 +296,23 @@ export function CheckoutView() {
     );
   }
 
+  const pickup = liveCart.fulfilment === OrderType.PICKUP;
   const available = (methods.data ?? []).filter((gateway) => gateway.available);
   const blocking = liveCart.issues.filter((issue) => issue.blocking);
   const canPlace =
-    liveCart.canCheckout && blocking.length === 0 && selectedAddressId !== null;
+    liveCart.canCheckout && blocking.length === 0 && (pickup || selectedAddressId !== null);
+
+  const changeFulfilment = (fulfilment: OrderType) => {
+    if (fulfilment === liveCart.fulfilment) return;
+
+    setFulfilment.mutate(
+      { fulfilment },
+      {
+        onError: (error) =>
+          toast.error(error instanceof ApiError ? error.message : "We couldn't change that."),
+      },
+    );
+  };
 
   const submit = async () => {
     try {
@@ -288,8 +364,30 @@ export function CheckoutView() {
   return (
     <div className="grid items-start gap-6 lg:grid-cols-2 xl:grid-cols-3">
       {/* ── 1. Where it goes ─────────────────────────────── */}
-      <Panel title="Delivery information" step={1}>
-        {addresses.isPending ? (
+      <Panel title={pickup ? "Pickup information" : "Delivery information"} step={1}>
+        <FulfilmentToggle
+          value={liveCart.fulfilment}
+          pending={setFulfilment.isPending}
+          onChange={changeFulfilment}
+        />
+
+        {pickup ? (
+          <div className="flex flex-col gap-2 rounded-[var(--radius-input)] border border-brand bg-brand-soft p-4">
+            <span className="flex items-center gap-2 text-sm font-extrabold text-primary">
+              <Store aria-hidden className="size-4 text-brand" />
+              You&apos;ll collect this order yourself
+            </span>
+            <p className="text-sm text-secondary">
+              Once {liveCart.restaurant.name} confirms your order, they&apos;ll prepare it and
+              we&apos;ll tell you when it&apos;s ready. Pick it up at the counter — no rider, no
+              delivery fee.
+            </p>
+            <p className="numeric text-sm font-semibold text-primary">
+              Ready in about {liveCart.delivery.etaMinutes ?? liveCart.restaurant.avgPreparationMinutes}{" "}
+              min after confirmation
+            </p>
+          </div>
+        ) : addresses.isPending ? (
           <div className="flex flex-col gap-3">
             {Array.from({ length: 2 }, (_, index) => (
               <Skeleton key={index} className="h-20 rounded-[var(--radius-input)]" />
@@ -342,7 +440,7 @@ export function CheckoutView() {
           </div>
         )}
 
-        {addingAddress && (
+        {!pickup && addingAddress && (
           <NewAddressForm
             onCancel={() => setAddingAddress(false)}
             onDone={(address) => {
@@ -352,7 +450,9 @@ export function CheckoutView() {
           />
         )}
 
-        {liveCart.delivery.etaMinutes !== null && (
+        {!pickup && selectedAddressId !== null && <RiderPicker cart={liveCart} />}
+
+        {!pickup && liveCart.delivery.etaMinutes !== null && (
           <p className="numeric rounded-[var(--radius-input)] bg-surface-muted px-3.5 py-2.5 text-sm text-secondary">
             Estimated arrival in about {liveCart.delivery.etaMinutes} min
             {liveCart.delivery.distanceKm !== null &&
@@ -361,16 +461,22 @@ export function CheckoutView() {
         )}
 
         <Field
-          label="Delivery instructions"
+          label={pickup ? "Note for the business" : "Delivery instructions"}
           htmlFor="delivery-note"
-          hint="Gate code, floor, anything the rider should know."
+          hint={
+            pickup
+              ? "When you'll arrive, or anything the kitchen should know."
+              : "Gate code, floor, anything the rider should know."
+          }
         >
           <Textarea
             id="delivery-note"
             value={note}
             onChange={(event) => setNote(event.target.value)}
             maxLength={200}
-            placeholder="Call before delivery, gate code 1234…"
+            placeholder={
+              pickup ? "I'll be there around 8 pm…" : "Call before delivery, gate code 1234…"
+            }
             className="min-h-24"
           />
         </Field>
@@ -421,9 +527,15 @@ export function CheckoutView() {
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="text-sm font-bold text-primary">
-                    {METHOD_LABELS[gateway.method] ?? gateway.name}
+                    {pickup && gateway.method === PaymentMethod.CASH_ON_DELIVERY
+                      ? "Cash at pickup"
+                      : (METHOD_LABELS[gateway.method] ?? gateway.name)}
                   </span>
-                  <span className="text-xs text-muted">{METHOD_HINTS[gateway.method] ?? ""}</span>
+                  <span className="text-xs text-muted">
+                    {pickup && gateway.method === PaymentMethod.CASH_ON_DELIVERY
+                      ? "Pay at the counter when you collect"
+                      : (METHOD_HINTS[gateway.method] ?? "")}
+                  </span>
                 </span>
               </label>
             ))}
@@ -467,7 +579,8 @@ export function CheckoutView() {
 
         <OrderSummary
           totals={liveCart.totals}
-          freeDeliveryReason={liveCart.totals.freeDeliveryReason}
+          pickup={pickup}
+          freeDeliveryReason={pickup ? null : liveCart.totals.freeDeliveryReason}
           className="border-t border-border-subtle pt-4"
         >
           {blocking.length > 0 && (
@@ -494,7 +607,7 @@ export function CheckoutView() {
             Place order · {formatPrice(liveCart.totals.totalAmount)}
           </Button>
 
-          {selectedAddressId === null && (
+          {!pickup && selectedAddressId === null && (
             <p className="text-center text-xs font-semibold text-warning">
               Choose a delivery address to continue.
             </p>

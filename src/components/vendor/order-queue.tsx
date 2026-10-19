@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, Clock, Phone, User } from "lucide-react";
+import { ClipboardList, Clock, Phone, Store, User } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -23,7 +23,7 @@ import {
 import { ApiError } from "@/lib/api-client";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-labels";
 import { cn, formatPrice, formatRelative, formatTime, hasText } from "@/lib/utils";
-import { OrderStatus, PaymentMethod, PaymentStatus } from "@/types/enums";
+import { OrderStatus, OrderType, PaymentMethod, PaymentStatus } from "@/types/enums";
 import type { OrderDto } from "@/types/order";
 
 /**
@@ -87,8 +87,8 @@ export function OrderQueue({ restaurantId }: { restaurantId: string }) {
       ),
     },
     {
-      title: "Ready to deliver",
-      hint: "Cooked and waiting to be collected.",
+      title: "Ready",
+      hint: "Cooked and waiting for a rider, or for the customer to collect.",
       orders: items.filter((order) => order.status === OrderStatus.READY_FOR_PICKUP),
     },
     {
@@ -170,6 +170,10 @@ function TicketCard({ order }: { order: OrderDto }) {
     order.paymentMethod === PaymentMethod.QR_TRANSFER &&
     order.paymentStatus === PaymentStatus.PENDING;
 
+  // No rider is coming: the customer collects it over the counter, and the
+  // kitchen is the one who closes the ticket.
+  const pickup = order.type === OrderType.PICKUP;
+
   return (
     <Card className="flex flex-col gap-3.5 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -181,6 +185,33 @@ function TicketCard({ order }: { order: OrderDto }) {
         </div>
         <StatusPill status={order.status} label={order.statusText} size="sm" withDot />
       </div>
+
+      {pickup && (
+        <div className="flex flex-col gap-1.5 rounded-[var(--radius-input)] border border-brand bg-brand-soft px-3 py-2.5">
+          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-brand">
+            <Store aria-hidden className="size-3.5" />
+            Customer pickup
+          </span>
+          <p className="text-sm font-medium text-primary">
+            {order.status === OrderStatus.PLACED
+              ? `${order.customer.name} will collect this order themselves.`
+              : `${order.customer.name} has confirmed the order and will collect it themselves.`}{" "}
+            No rider is coming.
+          </p>
+          {hasText(order.customer.phone) && (
+            <a
+              href={`tel:${order.customer.phone}`}
+              className="inline-flex items-center gap-1 self-start text-xs font-bold text-brand"
+            >
+              <Phone aria-hidden className="size-3" />
+              {order.customer.phone}
+            </a>
+          )}
+          {hasText(order.customerNote) && (
+            <p className="text-xs font-medium text-warning">“{order.customerNote}”</p>
+          )}
+        </div>
+      )}
 
       <ul className="flex flex-col gap-1.5 border-y border-border-subtle py-3">
         {order.items.map((line) => (
@@ -210,8 +241,10 @@ function TicketCard({ order }: { order: OrderDto }) {
           {formatPrice(order.totals.totalAmount)}
         </span>
         <span className={cn("text-xs", awaitingTransfer ? "font-bold text-warning" : "text-muted")}>
-          {PAYMENT_METHOD_LABELS[order.paymentMethod]} ·{" "}
-          {awaitingTransfer ? "awaiting transfer" : order.paymentStatus.toLowerCase()}
+          {pickup && order.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
+            ? "Cash at pickup"
+            : PAYMENT_METHOD_LABELS[order.paymentMethod]}{" "}
+          · {awaitingTransfer ? "awaiting transfer" : order.paymentStatus.toLowerCase()}
         </span>
       </div>
 
@@ -233,7 +266,7 @@ function TicketCard({ order }: { order: OrderDto }) {
       {order.estimatedDeliveryAt !== null && (
         <p className="numeric inline-flex items-center gap-1.5 text-xs text-muted">
           <Clock aria-hidden className="size-3.5" />
-          Due {formatTime(order.estimatedDeliveryAt)}
+          {pickup ? "Collecting around" : "Due"} {formatTime(order.estimatedDeliveryAt)}
         </p>
       )}
 
@@ -346,12 +379,17 @@ function TicketCard({ order }: { order: OrderDto }) {
               disabled={working}
               onClick={() =>
                 ready.mutate(order.id, {
-                  onSuccess: () => toast.success("Ready for pickup — dispatch has been told"),
+                  onSuccess: () =>
+                    toast.success(
+                      pickup
+                        ? "Ready — the customer has been told to collect it"
+                        : "Ready for pickup — dispatch has been told",
+                    ),
                   onError: (error) => fail(error, "We couldn't update that order."),
                 })
               }
             >
-              Ready for pickup
+              {pickup ? "Ready to collect" : "Ready for pickup"}
             </Button>
           )}
 
@@ -367,12 +405,15 @@ function TicketCard({ order }: { order: OrderDto }) {
               disabled={working}
               onClick={() =>
                 delivered.mutate(order.id, {
-                  onSuccess: () => toast.success(`Order ${order.orderNumber} marked delivered`),
+                  onSuccess: () =>
+                    toast.success(
+                      `Order ${order.orderNumber} marked ${pickup ? "collected" : "delivered"}`,
+                    ),
                   onError: (error) => fail(error, "We couldn't mark that order delivered."),
                 })
               }
             >
-              Mark delivered
+              {pickup ? "Handed to customer" : "Mark delivered"}
             </Button>
           )}
 

@@ -29,7 +29,7 @@ import { useCancelOrder, useOrder } from "@/hooks/use-orders";
 import { ApiError } from "@/lib/api-client";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-labels";
 import { cn, formatDateTime, formatPrice, formatTime, hasText } from "@/lib/utils";
-import { OrderStatus, PaymentMethod, PaymentStatus } from "@/types/enums";
+import { OrderStatus, OrderType, PaymentMethod, PaymentStatus } from "@/types/enums";
 
 /**
  * MapLibre touches `window` at module scope, so the map is loaded on the client
@@ -55,7 +55,16 @@ const STEPS = [
   { status: OrderStatus.DELIVERED, label: "Delivered", icon: MapPin },
 ] as const;
 
-const STEP_ORDER: string[] = STEPS.map((step) => step.status);
+/** A pickup order never sees a rider: it is ready, then collected over the counter. */
+const PICKUP_STEPS = [
+  { status: OrderStatus.PLACED, label: "Order placed", icon: Receipt },
+  { status: OrderStatus.CONFIRMED, label: "Accepted", icon: Check },
+  { status: OrderStatus.PREPARING, label: "Being prepared", icon: ChefHat },
+  { status: OrderStatus.READY_FOR_PICKUP, label: "Ready to collect", icon: Package },
+  { status: OrderStatus.DELIVERED, label: "Collected", icon: PackageCheck },
+] as const;
+
+type Step = (typeof STEPS)[number] | (typeof PICKUP_STEPS)[number];
 
 /** Statuses in which there is still something to watch. */
 const LIVE_STATUSES: string[] = [
@@ -135,7 +144,9 @@ export function OrderTracker({ orderId }: { orderId: string }) {
       ? null
       : { latitude: tracking.riderLocation.latitude, longitude: tracking.riderLocation.longitude };
 
-  const currentStep = STEP_ORDER.indexOf(status);
+  const pickup = data.type === OrderType.PICKUP;
+  const steps: readonly Step[] = pickup ? PICKUP_STEPS : STEPS;
+  const currentStep = steps.findIndex((step) => step.status === status);
 
   // Payment is the next thing to do on a scan-to-pay order, and a cash order
   // can be paid by scanning the rider's code once a rider has it.
@@ -170,22 +181,47 @@ export function OrderTracker({ orderId }: { orderId: string }) {
           <StatusPill status={status} label={statusText} withDot />
           {estimatedDeliveryAt !== null && live && (
             <span className="numeric text-sm text-secondary">
-              Expected by <strong className="text-primary">{formatTime(estimatedDeliveryAt)}</strong>
+              {pickup ? "Ready around" : "Expected by"} <strong className="text-primary">{formatTime(estimatedDeliveryAt)}</strong>
             </span>
           )}
           {status === OrderStatus.DELIVERED && data.deliveredAt !== null && (
             <span className="numeric text-sm text-secondary">
-              Delivered {formatDateTime(data.deliveredAt)}
+              {pickup ? "Collected" : "Delivered"} {formatDateTime(data.deliveredAt)}
             </span>
           )}
         </div>
       </Card>
 
-      <Progress currentStep={currentStep} status={status} />
+      <Progress steps={steps} currentStep={currentStep} status={status} />
 
       {payableByQr && <OrderPaymentCard orderId={data.id} />}
 
-      {live && (
+      {pickup && live && (
+        <Card className="flex items-start gap-3 border-brand/30 bg-brand-soft p-5">
+          <Store aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" />
+          <div className="flex flex-col gap-1">
+            <p className="font-bold text-primary">
+              {status === OrderStatus.READY_FOR_PICKUP
+                ? `Your order is ready — collect it from ${data.restaurant.name}`
+                : `You'll collect this order from ${data.restaurant.name}`}
+            </p>
+            <p className="text-sm text-secondary">
+              No rider is coming. Give your order number #{data.orderNumber} at the counter.
+            </p>
+            {hasText(data.restaurant.phone) && (
+              <a
+                href={`tel:${data.restaurant.phone}`}
+                className="inline-flex items-center gap-1 self-start text-sm font-bold text-brand"
+              >
+                <Phone aria-hidden className="size-4" />
+                {data.restaurant.phone}
+              </a>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {!pickup && live && (
         <>
           <Card className="flex flex-col gap-0 overflow-hidden p-0">
             <DeliveryMap
@@ -229,6 +265,7 @@ export function OrderTracker({ orderId }: { orderId: string }) {
       )}
 
       <Summary
+        pickup={pickup}
         deliveryAddress={data.deliveryAddress}
         deliveryLandmark={data.deliveryLandmark}
         restaurantName={data.restaurant.name}
@@ -271,7 +308,15 @@ export function OrderTracker({ orderId }: { orderId: string }) {
  * has not started, and a cancelled or rejected one never will — drawing either
  * as a stalled delivery would misrepresent what happened.
  */
-function Progress({ currentStep, status }: { currentStep: number; status: string }) {
+function Progress({
+  steps,
+  currentStep,
+  status,
+}: {
+  steps: readonly Step[];
+  currentStep: number;
+  status: string;
+}) {
   if (currentStep === -1) {
     const waiting = status === OrderStatus.PENDING_PAYMENT;
 
@@ -296,8 +341,13 @@ function Progress({ currentStep, status }: { currentStep: number; status: string
   }
 
   return (
-    <ol className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
-      {STEPS.map((step, index) => {
+    <ol
+      className={cn(
+        "grid grid-cols-2 gap-4 sm:grid-cols-4",
+        steps.length === STEPS.length ? "lg:grid-cols-7" : "lg:grid-cols-5",
+      )}
+    >
+      {steps.map((step, index) => {
         const done = index < currentStep;
         const active = index === currentStep;
         const Icon = step.icon;
@@ -362,6 +412,7 @@ function RiderCard({ name, phone }: { name: string; phone: string }) {
 }
 
 function Summary({
+  pickup,
   deliveryAddress,
   deliveryLandmark,
   restaurantName,
@@ -369,6 +420,7 @@ function Summary({
   itemCount,
   payment,
 }: {
+  pickup: boolean;
   deliveryAddress: string;
   deliveryLandmark: string | null;
   restaurantName: string;
@@ -393,9 +445,13 @@ function Summary({
       <div className="flex gap-3">
         <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted" />
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-bold uppercase tracking-wide text-muted">Delivering to</span>
-          <span className="font-semibold text-primary">{deliveryAddress}</span>
-          {hasText(deliveryLandmark) && (
+          <span className="text-xs font-bold uppercase tracking-wide text-muted">
+            {pickup ? "Collection" : "Delivering to"}
+          </span>
+          <span className="font-semibold text-primary">
+            {pickup ? `You're picking it up from ${restaurantName}` : deliveryAddress}
+          </span>
+          {!pickup && hasText(deliveryLandmark) && (
             <span className="text-sm text-secondary">{deliveryLandmark}</span>
           )}
         </div>

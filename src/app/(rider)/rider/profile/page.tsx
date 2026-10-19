@@ -15,11 +15,16 @@ import { ProfileSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useZones } from "@/hooks/use-geo";
-import { useDeliveryRates, useRiderProfile, useUpdateRiderProfile } from "@/hooks/use-riders";
+import {
+  useDeliveryRates,
+  useRiderProfile,
+  useSetDeliveryRate,
+  useUpdateRiderProfile,
+} from "@/hooks/use-riders";
 import { ApiError } from "@/lib/api-client";
 import { formatDate, formatPrice, hasText } from "@/lib/utils";
 import { groupByCity } from "@/types/geo";
-import type { RiderDto } from "@/types/rider";
+import type { DeliveryRatesDto, RiderDto } from "@/types/rider";
 
 const VEHICLE_LABELS: Record<string, string> = {
   MOTORCYCLE: "Motorcycle",
@@ -139,8 +144,8 @@ function RiderStats({ rider }: { rider: RiderDto }) {
  * What a run pays, per kilometre.
  *
  * Every order's delivery fee is priced from these and the rider keeps it, so
- * this is the rider's rate card. Set by the platform for everyone — shown
- * here so nobody has to work it backwards from their earnings.
+ * this is the rider's rate card. The platform sets a standard rate; a rider may
+ * set their own, which customers see when they choose a rider at checkout.
  */
 function DeliveryRates() {
   const rates = useDeliveryRates();
@@ -197,11 +202,101 @@ function DeliveryRates() {
                 rates.data.maxFee,
               ),
             )}
-            . Rates are set by ZassDelivery and are the same for every rider.
+            {" "}at the standard rate.
           </p>
+
+          <MyRateForm key={rates.data.myPerKmRate ?? "standard"} rates={rates.data} />
         </div>
       )}
     </Panel>
+  );
+}
+
+/**
+ * The rider's own per-km price. Customers see it next to the rider's name at
+ * checkout and choose freely between cheaper and dearer riders.
+ */
+function MyRateForm({ rates }: { rates: DeliveryRatesDto }) {
+  const setRate = useSetDeliveryRate();
+  const [value, setValue] = React.useState(
+    rates.myPerKmRate === null ? "" : String(rates.myPerKmRate),
+  );
+
+  const parsed = Number(value);
+  const valid =
+    value.trim() !== "" &&
+    Number.isFinite(parsed) &&
+    parsed >= rates.riderRateMin &&
+    parsed <= rates.riderRateMax;
+
+  const save = (perKmRate: number | null) =>
+    setRate.mutate(
+      { perKmRate },
+      {
+        onSuccess: () =>
+          toast.success(
+            perKmRate === null
+              ? "You're back on the standard rate"
+              : `Your rate is now ${formatPrice(perKmRate)} per km`,
+          ),
+        onError: (error) =>
+          toast.error(error instanceof ApiError ? error.message : "We couldn't save your rate."),
+      },
+    );
+
+  return (
+    <form
+      className="flex flex-col gap-3 border-t border-border-subtle pt-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (valid) save(parsed);
+      }}
+    >
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-sm font-extrabold text-primary">My rate</h3>
+        <p className="text-xs text-muted">
+          {rates.myPerKmRate === null
+            ? "You charge the standard rate."
+            : `You charge ${formatPrice(rates.myPerKmRate)} per km.`}{" "}
+          Set your own price and customers see it when they choose a rider. A run costs the shortest-run
+          price or more, with no upper cap. Applies to orders placed from now on.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-2">
+        <Field
+          label="Price per km (PKR)"
+          htmlFor="my-rate"
+          hint={`Between ${formatPrice(rates.riderRateMin)} and ${formatPrice(rates.riderRateMax)}`}
+          className="min-w-48 flex-1"
+        >
+          <Input
+            id="my-rate"
+            type="number"
+            inputMode="decimal"
+            min={rates.riderRateMin}
+            max={rates.riderRateMax}
+            step="1"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            placeholder={String(rates.perKmFee)}
+          />
+        </Field>
+        <Button type="submit" loading={setRate.isPending} disabled={!valid}>
+          Save rate
+        </Button>
+        {rates.myPerKmRate !== null && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={setRate.isPending}
+            onClick={() => save(null)}
+          >
+            Use standard rate
+          </Button>
+        )}
+      </div>
+    </form>
   );
 }
 
