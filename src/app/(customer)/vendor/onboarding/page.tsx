@@ -5,7 +5,7 @@ import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { LocationPicker, type PickedLocation } from "@/components/account/location-picker";
+import { ShopLocationPicker, useIsInServiceArea } from "@/components/vendor/shop-location-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { BUSINESS_TYPES, BUSINESS_TYPE_ORDER } from "@/lib/business-types";
 import { UserRole } from "@/types/auth";
 import { BusinessType, PriceRange } from "@/types/enums";
+import type { Coordinates } from "@/types/geo";
 
 const PRICE_LABELS: Array<{ value: PriceRange; label: string }> = [
   { value: PriceRange.BUDGET, label: "Budget — under Rs 500 a head" },
@@ -103,7 +104,8 @@ function RegistrationForm() {
   const [email, setEmail] = React.useState("");
   const [addressLine, setAddressLine] = React.useState("");
   const [landmark, setLandmark] = React.useState("");
-  const [location, setLocation] = React.useState<PickedLocation | null>(null);
+  const [location, setLocation] = React.useState<Coordinates | null>(null);
+  const locationInArea = useIsInServiceArea(location);
   const [categoryIds, setCategoryIds] = React.useState<string[]>([]);
   const [businessType, setBusinessType] = React.useState<BusinessType>(BusinessType.RESTAURANT);
   const [priceRange, setPriceRange] = React.useState<PriceRange>(PriceRange.MODERATE);
@@ -116,7 +118,7 @@ function RegistrationForm() {
     name.trim() !== "" &&
     phone.trim() !== "" &&
     addressLine.trim() !== "" &&
-    location !== null &&
+    locationInArea &&
     categoryIds.length > 0;
 
   if (registered !== null) {
@@ -259,7 +261,7 @@ function RegistrationForm() {
         title="Where you are"
         description="We resolve your delivery zone from this, and it decides what customers pay for delivery — so it has to be where you actually cook or trade."
       >
-        <LocationPicker value={location} onChange={setLocation} />
+        <ShopLocationPicker value={location} onChange={setLocation} />
 
         <span aria-hidden className="h-px bg-border-subtle" />
 

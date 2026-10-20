@@ -7,11 +7,13 @@ import { Panel, PortalHeader } from "@/components/layout/portal-page";
 import { Button } from "@/components/ui/button";
 import { Field, Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
+import { ShopLocationPicker, useIsInServiceArea } from "@/components/vendor/shop-location-picker";
 import { VendorGate } from "@/components/vendor/vendor-gate";
 import { useUpdateMyRestaurant } from "@/hooks/use-vendor";
 import { ApiError } from "@/lib/api-client";
 import { BUSINESS_TYPES, BUSINESS_TYPE_ORDER } from "@/lib/business-types";
 import { BusinessType, PriceRange } from "@/types/enums";
+import type { Coordinates } from "@/types/geo";
 import type { RestaurantAdminDto } from "@/types/restaurant";
 
 const PRICE_LABELS: Array<{ value: PriceRange; label: string }> = [
@@ -42,6 +44,15 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
   const [prepMinutes, setPrepMinutes] = React.useState(
     String(restaurant.avgPreparationMinutes),
   );
+  const [location, setLocation] = React.useState<Coordinates>({
+    latitude: restaurant.latitude,
+    longitude: restaurant.longitude,
+  });
+  const locationInArea = useIsInServiceArea(location);
+  // Sent only when the pin moved: a move re-resolves the delivery zone.
+  const moved =
+    location.latitude !== restaurant.latitude || location.longitude !== restaurant.longitude;
+
   const [radiusKm, setRadiusKm] = React.useState(
     (restaurant.deliveryRadiusMeters / 1000).toFixed(1),
   );
@@ -59,6 +70,11 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
         onSubmit={(event) => {
           event.preventDefault();
 
+          if (moved && !locationInArea) {
+            toast.error("Move the pin into an area we deliver in before saving.");
+            return;
+          }
+
           update.mutate(
             {
               name: name.trim(),
@@ -71,6 +87,7 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
               minOrderAmount: Number(minOrderAmount),
               avgPreparationMinutes: Number(prepMinutes),
               deliveryRadiusMeters: Math.round(Number(radiusKm) * 1000),
+              ...(moved && { latitude: location.latitude, longitude: location.longitude }),
             },
             {
               onSuccess: () => toast.success("Details saved"),
@@ -138,9 +155,11 @@ function ProfileForm({ restaurant }: { restaurant: RestaurantAdminDto }) {
 
         <Panel
           title="Where you are"
-          description="The map pin decides which delivery zone you sit in, so it's set when you register and changed by support."
+          description="The pin is where riders collect from and what delivery is priced from. Moving it can change your delivery zone."
         >
           <div className="flex flex-col gap-4">
+            <ShopLocationPicker value={location} onChange={setLocation} />
+
             <Field label="Street address" htmlFor="vendor-address" required>
               <Input
                 id="vendor-address"
