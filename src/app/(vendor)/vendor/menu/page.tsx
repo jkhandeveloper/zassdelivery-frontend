@@ -1,9 +1,10 @@
 "use client";
 
-import { Package, Plus, Search, UtensilsCrossed } from "lucide-react";
+import { Package, Pencil, Plus, Search, Trash2, UtensilsCrossed } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { ConfirmDialog } from "@/components/admin/reason-dialog";
 import { Panel, PortalHeader } from "@/components/layout/portal-page";
 import { Button } from "@/components/ui/button";
 import { ImageUploadField } from "@/components/ui/image-upload-field";
@@ -16,6 +17,7 @@ import { VendorGate } from "@/components/vendor/vendor-gate";
 import {
   useAdjustStock,
   useCreateMenuItem,
+  useDeleteMenuItem,
   useUpdateMenuItem,
   useVendorMenuItems,
   useVendorMenus,
@@ -141,7 +143,7 @@ function Menu({ restaurantId }: { restaurantId: string }) {
           <ul className="divide-y divide-border-subtle">
             {items.data.items.map((item) => (
               <li key={item.id}>
-                <MenuRow item={item} />
+                <MenuRow item={item} restaurantId={restaurantId} />
               </li>
             ))}
           </ul>
@@ -151,23 +153,34 @@ function Menu({ restaurantId }: { restaurantId: string }) {
   );
 }
 
+function AddDishForm(props: { restaurantId: string; onDone: () => void }) {
+  return <DishForm {...props} />;
+}
+
 /**
- * Adding a dish, including for a restaurant that has no menu yet.
+ * Adding a dish, including for a restaurant that has no menu yet — or, given
+ * `item`, editing one.
  *
  * A dish belongs to a section, so the section has to exist first — but making
  * a vendor go and build a menu tree before they can type in their first kebab
  * is the wrong order. Picking "New section" here creates the menu and the
- * section on the way through; see `useCreateMenuItem`.
+ * section on the way through; see `useCreateMenuItem`. Editing only moves a
+ * dish between existing sections.
  */
-function AddDishForm({
+function DishForm({
   restaurantId,
+  item,
   onDone,
 }: {
   restaurantId: string;
+  item?: MenuItemAdminDto;
   onDone: () => void;
 }) {
   const menus = useVendorMenus(restaurantId);
   const create = useCreateMenuItem(restaurantId);
+  const update = useUpdateMenuItem();
+  const editing = item !== undefined;
+  const pending = create.isPending || update.isPending;
 
   const sections = React.useMemo(
     () =>
@@ -184,22 +197,30 @@ function AddDishForm({
     [menus.data],
   );
 
-  const [chosenSection, setChosenSection] = React.useState<string | null>(null);
+  const [chosenSection, setChosenSection] = React.useState<string | null>(
+    item?.menuCategoryId ?? null,
+  );
   const [newSection, setNewSection] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [imageUrl, setImageUrl] = React.useState("");
-  const [basePrice, setBasePrice] = React.useState("");
-  const [discountedPrice, setDiscountedPrice] = React.useState("");
-  const [prepMinutes, setPrepMinutes] = React.useState("");
-  const [spiceLevel, setSpiceLevel] = React.useState<SpiceLevel>(SpiceLevel.NONE);
-  const [isVegetarian, setIsVegetarian] = React.useState(false);
+  const [name, setName] = React.useState(item?.name ?? "");
+  const [description, setDescription] = React.useState(item?.description ?? "");
+  const [imageUrl, setImageUrl] = React.useState(item?.imageUrl ?? "");
+  const [basePrice, setBasePrice] = React.useState(item ? String(item.basePrice) : "");
+  const [discountedPrice, setDiscountedPrice] = React.useState(
+    item?.discountedPrice != null ? String(item.discountedPrice) : "",
+  );
+  const [prepMinutes, setPrepMinutes] = React.useState(
+    item ? String(item.preparationMinutes) : "",
+  );
+  const [spiceLevel, setSpiceLevel] = React.useState<SpiceLevel>(
+    item?.spiceLevel ?? SpiceLevel.NONE,
+  );
+  const [isVegetarian, setIsVegetarian] = React.useState(item?.isVegetarian ?? false);
 
   // Falls back to the first section as soon as the menu tree arrives, without
   // an effect overwriting a choice the vendor has already made — and to "new
   // section" for a restaurant that has none.
   const section = chosenSection ?? sections[0]?.id ?? NEW_SECTION;
-  const creatingSection = !menus.isPending && section === NEW_SECTION;
+  const creatingSection = !editing && !menus.isPending && section === NEW_SECTION;
 
   const price = Number(basePrice);
   const discount = discountedPrice.trim() === "" ? null : Number(discountedPrice);
@@ -226,16 +247,52 @@ function AddDishForm({
     discountError === undefined &&
     (creatingSection ? newSection.trim() !== "" : true);
 
+  const fail = (error: unknown, fallback: string) =>
+    toast.error(error instanceof ApiError ? error.message : fallback);
+
   return (
     <Panel
-      title="Add a dish"
-      description="It goes live on your storefront as soon as it's saved — mark it sold out any time."
+      title={editing ? `Edit ${item.name}` : "Add a dish"}
+      description={
+        editing
+          ? "Changes show on your storefront as soon as they're saved."
+          : "It goes live on your storefront as soon as it's saved — mark it sold out any time."
+      }
     >
       <form
         className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
           if (!canSubmit) return;
+
+          if (editing) {
+            update.mutate(
+              {
+                itemId: item.id,
+                data: {
+                  name: name.trim(),
+                  basePrice: price,
+                  discountedPrice: discount,
+                  spiceLevel,
+                  isVegetarian,
+                  description: description.trim() === "" ? null : description.trim(),
+                  imageUrl: imageUrl.trim() === "" ? null : imageUrl.trim(),
+                  ...(prepMinutes.trim() !== "" && {
+                    preparationMinutes: Number(prepMinutes),
+                  }),
+                  ...(section !== item.menuCategoryId && { menuCategoryId: section }),
+                },
+              },
+              {
+                onSuccess: (dish) => {
+                  toast.success(`${dish.name} updated`);
+                  onDone();
+                },
+                onError: (error) => fail(error, "We couldn't save that dish."),
+              },
+            );
+            return;
+          }
 
           create.mutate(
             {
@@ -259,10 +316,7 @@ function AddDishForm({
                 toast.success(`${dish.name} is on your menu`);
                 onDone();
               },
-              onError: (error) =>
-                toast.error(
-                  error instanceof ApiError ? error.message : "We couldn't add that dish.",
-                ),
+              onError: (error) => fail(error, "We couldn't add that dish."),
             },
           );
         }}
@@ -291,7 +345,7 @@ function AddDishForm({
                   {option.label}
                 </option>
               ))}
-              <option value={NEW_SECTION}>New section…</option>
+              {!editing && <option value={NEW_SECTION}>New section…</option>}
             </NativeSelect>
           </Field>
 
@@ -407,7 +461,7 @@ function AddDishForm({
           folder="menu-items"
           value={imageUrl}
           onChange={setImageUrl}
-          disabled={create.isPending}
+          disabled={pending}
         />
 
         <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
@@ -421,8 +475,8 @@ function AddDishForm({
         </label>
 
         <div className="flex gap-2">
-          <Button type="submit" loading={create.isPending} disabled={!canSubmit}>
-            Add to menu
+          <Button type="submit" loading={pending} disabled={!canSubmit}>
+            {editing ? "Save changes" : "Add to menu"}
           </Button>
           <Button type="button" variant="ghost" onClick={onDone}>
             Cancel
@@ -433,10 +487,13 @@ function AddDishForm({
   );
 }
 
-function MenuRow({ item }: { item: MenuItemAdminDto }) {
+function MenuRow({ item, restaurantId }: { item: MenuItemAdminDto; restaurantId: string }) {
   const update = useUpdateMenuItem();
   const adjust = useAdjustStock();
+  const remove = useDeleteMenuItem();
   const [stock, setStock] = React.useState("");
+  const [editing, setEditing] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
 
   const fail = (error: unknown, fallback: string) =>
     toast.error(error instanceof ApiError ? error.message : fallback);
@@ -449,6 +506,14 @@ function MenuRow({ item }: { item: MenuItemAdminDto }) {
         onError: (error) => fail(error, "We couldn't update that dish."),
       },
     );
+
+  if (editing) {
+    return (
+      <div className="p-3 sm:p-4">
+        <DishForm restaurantId={restaurantId} item={item} onDone={() => setEditing(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-4 px-5 py-4 sm:px-6">
@@ -570,7 +635,34 @@ function MenuRow({ item }: { item: MenuItemAdminDto }) {
             Hide
           </Button>
         ) : null}
+
+        <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>
+          <Pencil className="size-4" />
+          Edit
+        </Button>
+
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-danger"
+          onClick={() => setDeleting(true)}
+        >
+          <Trash2 className="size-4" />
+          Delete
+        </Button>
       </div>
+
+      <ConfirmDialog
+        open={deleting}
+        onOpenChange={setDeleting}
+        title={`Delete ${item.name}?`}
+        description="It disappears from your storefront and this list. Past orders that included it are kept. To take it off sale for a while, use Hide instead."
+        confirmLabel="Delete dish"
+        variant="danger"
+        pending={remove.isPending}
+        successMessage={`${item.name} deleted.`}
+        onConfirm={() => remove.mutateAsync(item.id)}
+      />
     </div>
   );
 }
