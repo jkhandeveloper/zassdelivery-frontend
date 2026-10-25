@@ -88,7 +88,7 @@ function PlatformQrPanel() {
 
           <PaymentQrEditor
             codes={data}
-            defaultAccountTitle="ZassDelivery"
+            defaultAccountTitle="ZassFood"
             saving={save.isPending}
             onSave={(codes) =>
               save.mutate(

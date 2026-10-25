@@ -212,7 +212,7 @@ export function LoginForm() {
       )}
 
       <RevealItem className="text-sm text-secondary">
-        New to ZassDelivery?{" "}
+        New to ZassFood?{" "}
         <Link
           href={nextPath === null ? "/register" : `/register?next=${encodeURIComponent(nextPath)}`}
           className="font-semibold text-brand underline-offset-4 hover:underline"

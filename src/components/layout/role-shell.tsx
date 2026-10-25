@@ -80,7 +80,7 @@ export function RoleShell({ portal, accent, groups, children }: RoleShellProps) 
             {!collapsed && (
               <div className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate font-display text-base font-extrabold">
-                  ZassDelivery
+                  ZassFood
                 </span>
                 <span
                   className={cn(

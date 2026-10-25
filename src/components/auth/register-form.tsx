@@ -123,7 +123,7 @@ export function RegisterForm() {
       ...(otpCode !== undefined && { otpCode }),
     });
 
-    toast.success("Account created. Welcome to ZassDelivery.");
+    toast.success("Account created. Welcome to ZassFood.");
     router.replace(nextPath ?? homeRouteForRole(user));
   };
 

@@ -67,7 +67,7 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm">
-            © {new Date().getFullYear()} ZassDelivery. All rights reserved.
+            © {new Date().getFullYear()} ZassFood. All rights reserved.
           </p>
           <p className="text-sm">Made for Pakistan</p>
         </div>

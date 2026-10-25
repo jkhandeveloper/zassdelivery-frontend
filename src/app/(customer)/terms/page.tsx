@@ -8,7 +8,7 @@ export default function Page() {
       <PhasePlaceholder
         phase="Coming soon"
         title="Terms of service"
-        description="The terms that govern using ZassDelivery."
+        description="The terms that govern using ZassFood."
       />
     </div>
   );

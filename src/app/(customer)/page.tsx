@@ -47,7 +47,7 @@ export default function HomePage() {
         <OfferBanner />
 
         <RestaurantRail
-          title="New on ZassDelivery"
+          title="New on ZassFood"
           description="Places that just joined."
           query={{ limit: 8, sortBy: "createdAt", sortOrder: "desc" }}
           emptyTitle="Nothing new this week"

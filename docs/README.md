@@ -1,6 +1,6 @@
-# ZassDelivery Documentation
+# ZassFood Documentation
 
-Manual testing and reference docs for the ZassDelivery platform.
+Manual testing and reference docs for the ZassFood platform.
 
 | Document | What it covers |
 | --- | --- |

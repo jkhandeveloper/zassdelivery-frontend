@@ -19,7 +19,7 @@ export function Logo({
     <Link
       href={href}
       className={cn("group inline-flex items-center gap-2.5", className)}
-      aria-label="ZassDelivery — home"
+      aria-label="ZassFood — home"
     >
       <Image
         src="/images/logo.png"
@@ -36,7 +36,7 @@ export function Logo({
             tone === "inverse" ? "text-white" : "text-primary",
           )}
         >
-          Zass<span className="text-brand">Delivery</span>
+          Zass<span className="text-brand">Food</span>
         </span>
       )}
     </Link>

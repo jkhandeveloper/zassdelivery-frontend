@@ -22,7 +22,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export const metadata = {
   title: "Contact us",
-  description: "Every way to reach the ZassDelivery team — support, partnerships and press.",
+  description: "Every way to reach the ZassFood team — support, partnerships and press.",
 };
 
 /**

@@ -246,7 +246,7 @@ any auth change.
 ### SEC-03 — Redirect safety
 
 1. Signed out, open `/login?next=https://example.com` and sign in.
-   - **Expect:** you land inside ZassDelivery — **never** on the external site. An off-site redirect here is a serious bug.
+   - **Expect:** you land inside ZassFood — **never** on the external site. An off-site redirect here is a serious bug.
 2. Open `/login?next=%2Foffers` and sign in.
    - **Expect:** you land on `/offers`.
 

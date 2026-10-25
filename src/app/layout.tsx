@@ -20,8 +20,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "ZassDelivery — Your cravings, delivered",
-    template: "%s · ZassDelivery",
+    default: "ZassFood — Your cravings, delivered",
+    template: "%s · ZassFood",
   },
   description:
     "Order from the businesses you love across Pakistan. Live tracking from the kitchen to your door.",

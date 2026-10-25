@@ -71,11 +71,11 @@ export default function RiderOnboardingPage() {
   return (
     <div className="container-zass py-10">
       <Breadcrumbs
-        items={[{ label: "Home", href: "/" }, { label: "Deliver with ZassDelivery" }]}
+        items={[{ label: "Home", href: "/" }, { label: "Deliver with ZassFood" }]}
       />
 
       <header className="mb-8 mt-4 flex flex-col gap-2">
-        <h1 className="text-3xl sm:text-4xl">Deliver with ZassDelivery</h1>
+        <h1 className="text-3xl sm:text-4xl">Deliver with ZassFood</h1>
         <p className="max-w-2xl text-secondary">
           Sign up, upload your documents, and start taking runs once you&apos;re approved. You
           choose your own hours.

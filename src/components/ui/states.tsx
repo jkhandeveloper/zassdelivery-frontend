@@ -112,7 +112,7 @@ export function ErrorState({
   const body =
     description ??
     (offline
-      ? "We couldn't reach ZassDelivery. Once you're back online, try again."
+      ? "We couldn't reach ZassFood. Once you're back online, try again."
       : (apiError?.message ?? "An unexpected error stopped this from loading."));
 
   return (

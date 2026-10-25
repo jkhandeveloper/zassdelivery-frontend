@@ -272,7 +272,7 @@ export default function DesignSystemPage() {
               density="inline"
               error={
                 new ApiError({
-                  message: "We couldn't reach ZassDelivery.",
+                  message: "We couldn't reach ZassFood.",
                   status: 0,
                   code: "NETWORK_ERROR",
                 })

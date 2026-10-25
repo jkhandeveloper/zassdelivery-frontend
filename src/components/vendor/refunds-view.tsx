@@ -95,7 +95,7 @@ function RefundList({ restaurantId }: { restaurantId: string }) {
         open={refunding !== null}
         onOpenChange={(open) => !open && setRefunding(null)}
         title={`Record a refund for ${refunding?.orderNumber ?? ""}`}
-        description="Only record money you have already sent back to the customer. ZassDelivery does not move it for you."
+        description="Only record money you have already sent back to the customer. ZassFood does not move it for you."
         reasonLabel="Why was it refunded, and how did you send it?"
         placeholder="e.g. Order cancelled — Rs 650 sent back to the customer's JazzCash."
         confirmLabel="Record refund"

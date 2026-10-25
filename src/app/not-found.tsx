@@ -13,7 +13,7 @@ export default function NotFound() {
         description="The link you followed doesn't lead anywhere. It may have been removed, or the address may be a little off."
         action={
           <Button asChild>
-            <Link href="/">Back to ZassDelivery</Link>
+            <Link href="/">Back to ZassFood</Link>
           </Button>
         }
       />

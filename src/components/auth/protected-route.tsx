@@ -63,7 +63,7 @@ export function ProtectedRoute({ children, roles, permissions }: ProtectedRouteP
           description={
             roleAllowed
               ? "Your account doesn't have the permissions this page needs. If that seems wrong, ask an administrator to check your access."
-              : "You're signed in with an account that doesn't have access to this part of ZassDelivery."
+              : "You're signed in with an account that doesn't have access to this part of ZassFood."
           }
           action={
             <Button onClick={() => router.replace(homeRouteForRole(user))}>

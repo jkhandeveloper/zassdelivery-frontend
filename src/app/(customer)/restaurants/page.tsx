@@ -7,7 +7,7 @@ import { RestaurantGridSkeleton } from "@/components/ui/skeleton";
 export const metadata = {
   title: "Places to order from",
   description:
-    "Browse every kitchen, bakery, café and shop delivering near you on ZassDelivery.",
+    "Browse every kitchen, bakery, café and shop delivering near you on ZassFood.",
 };
 
 export default function RestaurantsPage() {

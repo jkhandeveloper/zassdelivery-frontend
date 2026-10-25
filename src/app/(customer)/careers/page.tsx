@@ -8,7 +8,7 @@ export default function Page() {
       <PhasePlaceholder
         phase="Coming soon"
         title="Careers"
-        description="Open roles at ZassDelivery."
+        description="Open roles at ZassFood."
       />
     </div>
   );

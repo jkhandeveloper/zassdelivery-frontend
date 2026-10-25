@@ -544,7 +544,7 @@ export function CheckoutView() {
 
         <p className="flex items-center gap-2 text-xs text-muted">
           <Lock aria-hidden className="size-3.5" />
-          Payments are processed by the gateway — ZassDelivery never sees your card details.
+          Payments are processed by the gateway — ZassFood never sees your card details.
         </p>
       </Panel>
 

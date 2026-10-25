@@ -3,7 +3,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export const metadata = {
   title: "Offers",
-  description: "Coupons and deals you can use on your next ZassDelivery order.",
+  description: "Coupons and deals you can use on your next ZassFood order.",
 };
 
 export default function OffersPage() {

@@ -36,7 +36,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </div>
 
         <p className="relative text-sm text-white/50">
-          © {new Date().getFullYear()} ZassDelivery
+          © {new Date().getFullYear()} ZassFood
         </p>
       </aside>
 
@@ -47,7 +47,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             href="/"
             className="hidden text-sm font-semibold text-secondary transition-colors hover:text-brand lg:block"
           >
-            ← Back to ZassDelivery
+            ← Back to ZassFood
           </Link>
           <ThemeToggle />
         </header>

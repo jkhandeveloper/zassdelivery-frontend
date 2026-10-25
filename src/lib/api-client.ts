@@ -62,7 +62,7 @@ function toApiError(error: unknown): ApiError {
 
     if (error.response === undefined || body === undefined) {
       return new ApiError({
-        message: "We could not reach ZassDelivery. Check your internet connection.",
+        message: "We could not reach ZassFood. Check your internet connection.",
         status: 0,
         code: "NETWORK_ERROR",
       });

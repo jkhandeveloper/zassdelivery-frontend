@@ -57,7 +57,7 @@ export function AdminDashboardView() {
   return (
     <div className="flex flex-col gap-6">
       <PortalHeader
-        title="Today at ZassDelivery"
+        title="Today at ZassFood"
         description={`Pabbi, Nowshera and Peshawar. Updated ${formatRelative(generatedAt)}.`}
         action={
           <div className="flex flex-col items-end gap-1.5">

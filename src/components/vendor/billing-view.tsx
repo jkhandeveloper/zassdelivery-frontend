@@ -84,7 +84,7 @@ function BillingScreen({
     <div className="flex flex-col gap-6">
       <PortalHeader
         title="Subscription"
-        description="What it costs to keep this listing on ZassDelivery, and how to pay it."
+        description="What it costs to keep this listing on ZassFood, and how to pay it."
         action={<StatusPill status={subscription.status} />}
       />
 

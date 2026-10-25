@@ -8,7 +8,7 @@ export async function generateMetadata(props: PageProps<"/restaurants/[slug]">) 
 
   return {
     title: readable,
-    description: `Order from ${readable} on ZassDelivery.`,
+    description: `Order from ${readable} on ZassFood.`,
   };
 }
 
